@@ -17,4 +17,5 @@
 
 const Route = use('Route')
 
-Route.on('/').render('welcome')
+Route.get('/', 'RootController.index')
+Route.get('/:lang', 'RootController.lang')
