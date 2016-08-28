@@ -4,7 +4,9 @@
   "main": "index.js",
   "scripts": {
     "dev": "nodemon --watch app --watch bootstrap --watch config --watch .env -x \"node --harmony_proxies\" server.js",
-    "start": "node --harmony_proxies server.js"
+    "start": "node --harmony_proxies server.js",
+    "lint": "standard",
+    "test": "standard"
   },
   "author": "",
   "license": "MIT",
@@ -25,5 +27,13 @@
   },
   "devDependencies": {
     "nodemon": "^1.9.1"
+  },
+  "standard": {
+    "globals": [
+      "use"
+    ],
+    "ignore": [
+      "/public"
+    ]
   }
 }

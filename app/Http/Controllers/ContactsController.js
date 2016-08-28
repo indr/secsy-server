@@ -2,23 +2,23 @@
 
 class ContactsController {
   * index (request, response) {
-    response.notImplemented();
+    response.notImplemented()
   }
-  
+
   * store (request, response) {
-    response.notImplemented();
+    response.notImplemented()
   }
-  
+
   * show (request, response) {
-    response.notImplemented();
+    response.notImplemented()
   }
-  
+
   * update (request, response) {
-    response.notImplemented();
+    response.notImplemented()
   }
-  
+
   * destroy (request, response) {
-    response.notImplemented();
+    response.notImplemented()
   }
 }
 
