@@ -27,10 +27,6 @@ class RootController {
     
     response.download(htmlFile)
   }
-  
-  * app (request, response) {
-    response.download('public/app/index.html')
-  }
 }
 
 module.exports = RootController;
