@@ -12,6 +12,7 @@ const Middleware = use('Middleware')
 |
 */
 const globalMiddleware = [
+  'App/Http/Middleware/Logger',
   'App/Http/Middleware/SinglePageApplication',
   'Adonis/Middleware/Cors',
   'Adonis/Middleware/BodyParser',
