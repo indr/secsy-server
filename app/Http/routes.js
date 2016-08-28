@@ -17,8 +17,12 @@
 
 const Route = use('Route')
 
-Route.get('/app/*', 'AppController.index')
+Route.group('v1', function () {
+  Route.resources('/contacts', 'ContactsController')
+    .only('index', 'store', 'show', 'update', 'destroy')
+}).prefix('/api/v1')
 
 Route.get('/', 'RootController.index')
 Route.get('/:lang', 'RootController.lang')
+Route.get('/app/*', 'AppController.index')
 
