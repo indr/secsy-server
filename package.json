@@ -6,7 +6,7 @@
     "dev": "nodemon --watch app --watch bootstrap --watch config --watch .env -x \"node --harmony_proxies\" server.js",
     "start": "node --harmony_proxies server.js",
     "lint": "standard",
-    "test": "standard"
+    "test": "standard && mocha"
   },
   "author": "",
   "license": "MIT",
@@ -26,6 +26,8 @@
     "App": "./app"
   },
   "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.0.2",
     "nodemon": "^1.9.1"
   },
   "standard": {
