@@ -24,8 +24,12 @@ class RootController {
     if (!htmlFile) {
       throw new NE.HttpException(`Route not found ${request.url()}`, 404)
     }
+    
+    response.download(htmlFile)
+  }
   
-    return response.download(htmlFile)
+  * app (request, response) {
+    response.download('public/app/index.html')
   }
 }
 
