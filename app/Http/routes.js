@@ -18,9 +18,17 @@
 const Route = use('Route')
 
 Route.group('v1', function () {
+
   Route.resources('/contacts', 'ContactsController')
     .only('index', 'store', 'show', 'update', 'destroy')
-}).prefix('/api/v1')
+
+  Route.get('/users/me', 'UsersController.me')
+  Route.post('/users', 'UsersController.store')
+
+}).prefix('/api')
+
+Route.post('/auth/local', 'AuthController.login')
+Route.post('/auth/logout', 'AuthController.logout')
 
 Route.get('/', 'RootController.index')
 Route.get('/:lang', 'RootController.lang')
