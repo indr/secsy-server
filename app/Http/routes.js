@@ -24,5 +24,4 @@ Route.group('v1', function () {
 
 Route.get('/', 'RootController.index')
 Route.get('/:lang', 'RootController.lang')
-Route.get('/app/*', 'AppController.index')
 
