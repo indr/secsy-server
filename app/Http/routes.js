@@ -21,6 +21,10 @@ Route.group('v1', function () {
   Route.resources('/contacts', 'ContactsController')
     .only('index', 'store', 'show', 'update', 'destroy')
 
+  Route.resources('/keys', 'KeysController')
+    .only('store')
+    .middleware('auth')
+
   Route.get('/users/me', 'UsersController.me')
   Route.post('/users', 'UsersController.store')
 }).prefix('/api')

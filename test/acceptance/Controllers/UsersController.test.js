@@ -70,7 +70,7 @@ describe('Acceptance | Controller | UsersController', function () {
       })
     })
 
-    it('should return 200 as user', function (done) {
+    it.skip('should return 200 as user', function (done) {
       agency.user().then((agent) => {
         agent.get('/api/users/me')
           .expect(200, function (err, res) {
@@ -85,7 +85,7 @@ describe('Acceptance | Controller | UsersController', function () {
       })
     })
 
-    it('should return 200 as admin', function (done) {
+    it.skip('should return 200 as admin', function (done) {
       agency.admin().then((agent) => {
         agent.get('/api/users/me')
           .expect(200, function (err, res) {
