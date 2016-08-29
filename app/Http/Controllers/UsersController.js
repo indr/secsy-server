@@ -4,6 +4,7 @@ const _ = require('lodash')
 const Validator = use('Validator')
 const User = use('App/Model/User')
 const Key = use('App/Model/Key')
+const Event = use('Event')
 
 class UsersController {
 
@@ -19,6 +20,8 @@ class UsersController {
     }
 
     const user = yield User.create(data)
+
+    Event.fire('user.registered', user)
 
     response.created(_.omit(user.toJSON(), 'password'))
   }

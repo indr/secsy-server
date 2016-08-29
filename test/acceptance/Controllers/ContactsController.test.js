@@ -4,6 +4,7 @@
 /* eslint-env mocha */
 'use strict'
 
+const _ = require('lodash')
 const assert = require('chai').assert
 const agency = require('./../agency')
 
@@ -41,6 +42,41 @@ describe('Acceptance | Controller | ContactsController', function () {
             assert.equal(contact.user_id, user.id)
             assert.isFalse(contact.me)
             assert.equal(contact.encrypted_, 'cypher')
+            done()
+          })
+      })
+    })
+  })
+
+  describe('#index | GET /api/contacts', function () {
+    it('should return 403 as anon', function (done) {
+      agency.anon().then((anon) => {
+        anon.get('/api/contacts')
+          .expect(401, done)
+      })
+    })
+
+    it('should return only own contacts as user', function (done) {
+      agency.user().then((user) => {
+        user.get('/api/contacts')
+          .expect(200)
+          .end(function (err, res) {
+            assert.isNull(err)
+            assert.lengthOf(res.body, _.filter(res.body, { user_id: user.id }).length)
+            assert.lengthOf(_.filter(res.body, { me: true }), 1)
+            done()
+          })
+      })
+    })
+
+    it('should return only own contacts as admin', function (done) {
+      agency.admin().then((admin) => {
+        admin.get('/api/contacts')
+          .expect(200)
+          .end(function (err, res) {
+            assert.isNull(err)
+            assert.lengthOf(res.body, _.filter(res.body, { user_id: admin.id }).length)
+            assert.lengthOf(_.filter(res.body, { me: true }), 1)
             done()
           })
       })

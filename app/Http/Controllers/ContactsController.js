@@ -4,7 +4,10 @@ const Contact = use('App/Model/Contact')
 
 class ContactsController {
   * index (request, response) {
-    response.notImplemented()
+    const user = yield request.auth.getUser()
+    const contacts = yield Contact.query().where('user_id', user.id)
+
+    response.ok(contacts)
   }
 
   * store (request, response) {
