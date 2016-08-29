@@ -15,7 +15,7 @@ describe('Acceptance | Controller | UsersController', function () {
             assert.isNull(err)
             const user = res.body
             assert.lengthOf(user.id, 36)
-            assert.closeTo(new Date(user.created_at).getTime(), new Date().getTime(), 1000)
+            assert.closeTo(new Date(user.created_at).getTime(), new Date().getTime(), 1500)
             assert.equal(user.updated_at, user.created_at)
             assert.isString(user.username)
             assert.isAbove(user.username.length, 0)
