@@ -13,7 +13,7 @@ describe('Acceptance | Controller | KeysController', function () {
     return !id ? '/api/keys' : '/api/keys/' + id
   }
 
-  function key (agent, isPublic) {
+  function makeKey (agent, isPublic) {
     return {
       email_sha256: sha256(agent.email),
       is_public: isPublic,
@@ -32,18 +32,25 @@ describe('Acceptance | Controller | KeysController', function () {
   describe('#store | POST /api/keys', function () {
     it('should return 401 as anon', function (done) {
       agency.anon().then((agent) => {
-        agent.post(url()).send(key(agent))
+        agent.post(url()).send(makeKey(agent))
           .expect(401, done)
       })
     })
 
-    it.skip('should return 201 as user and create contact me', function (done) {
+    it('should return 201 as user and create contact me', function (done) {
       agency.user().then((agent) => {
-        agent.post(url()).send(key(agent))
+        agent.post(url()).send(makeKey(agent))
           .expect(201)
           .end(function (err, res) {
             assert.isNull(err)
-            assertKey(res.body, key(agent, false))
+            const key = res.body
+
+            assert.lengthOf(key.id, 36)
+            assert.closeTo(new Date(key.created_at).getTime(), new Date().getTime(), 1200)
+            assert.equal(key.updated_at, key.created_at)
+            assert.equal(key.user_id, agent.id)
+
+            assertKey(key, makeKey(agent, false))
             // shouldHaveContactMe(agent, done)
             done()
           })

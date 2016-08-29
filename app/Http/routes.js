@@ -23,14 +23,13 @@ Route.group('v1', function () {
 
   Route.resources('/keys', 'KeysController')
     .only('store')
-    .middleware('auth')
 
   Route.get('/users/me', 'UsersController.me')
-  Route.post('/users', 'UsersController.store')
-}).prefix('/api')
+}).prefix('/api').middleware('auth')
 
 Route.post('/auth/local', 'AuthController.login')
 Route.post('/auth/logout', 'AuthController.logout')
+Route.post('/api/users', 'UsersController.store')
 
 Route.get('/', 'RootController.index')
 Route.get('/:lang', 'RootController.lang')

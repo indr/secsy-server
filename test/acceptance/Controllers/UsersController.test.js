@@ -14,12 +14,12 @@ describe('Acceptance | Controller | UsersController', function () {
           .end(function (err, res) {
             assert.isNull(err)
             const user = res.body
+
             assert.lengthOf(user.id, 36)
             assert.closeTo(new Date(user.created_at).getTime(), new Date().getTime(), 1500)
             assert.equal(user.updated_at, user.created_at)
-            assert.isString(user.username)
-            assert.isAbove(user.username.length, 0)
-            assert.equal(user.email, user.username)
+            assert.equal(user.username, agent.email)
+            assert.equal(user.email, agent.email)
             assert.notProperty(user, 'password')
             assert.isDefined(user.email_sha256, 'email_sha265 ist not defined')
             assert.isUndefined(user.private_key, 'private_key is not undefined')
@@ -70,7 +70,7 @@ describe('Acceptance | Controller | UsersController', function () {
       })
     })
 
-    it.skip('should return 200 as user', function (done) {
+    it('should return 200 as user', function (done) {
       agency.user().then((agent) => {
         agent.get('/api/users/me')
           .expect(200, function (err, res) {
@@ -85,7 +85,7 @@ describe('Acceptance | Controller | UsersController', function () {
       })
     })
 
-    it.skip('should return 200 as admin', function (done) {
+    it('should return 200 as admin', function (done) {
       agency.admin().then((agent) => {
         agent.get('/api/users/me')
           .expect(200, function (err, res) {

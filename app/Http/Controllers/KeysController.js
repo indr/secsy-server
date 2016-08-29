@@ -3,6 +3,8 @@
  */
 'use strict'
 
+const Key = use('App/Model/Key')
+
 class KeysController {
   * store (request, response) {
     const user = yield request.auth.getUser()
@@ -11,7 +13,9 @@ class KeysController {
     data.email_sha256 = user.email_sha256
     data.is_public = false
 
-    response.created(data)
+    const key = yield Key.create(data)
+
+    response.created(key)
   }
 }
 

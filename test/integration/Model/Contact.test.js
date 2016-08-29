@@ -1,6 +1,7 @@
 /**
  * Copyright 2016 Reto Inderbitzin
  */
+/* eslint-env mocha */
 'use strict'
 
 const assert = require('chai').assert

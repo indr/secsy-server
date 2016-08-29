@@ -3,6 +3,7 @@
 const _ = require('lodash')
 const Validator = use('Validator')
 const User = use('App/Model/User')
+const Key = use('App/Model/Key')
 
 class UsersController {
 
@@ -30,7 +31,13 @@ class UsersController {
       return
     }
 
-    response.ok(user)
+    const key = yield Key.findBy('user_id', user.id)
+
+    let result = user.toJSON()
+    result = _.merge(result, key ? _.pick(key.toJSON(), 'private_key', 'public_key')
+      : { private_key: null, public_key: null })
+
+    response.ok(result)
   }
 }
 
