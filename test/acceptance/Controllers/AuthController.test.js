@@ -34,6 +34,10 @@ describe('Acceptance | Controller | AuthController', function () {
         assert.equal(user.username, expected.username)
         assert.equal(user.email, expected.email)
         assert.notProperty(user, 'password')
+        assert.property(user, 'private_key')
+        assert.property(user, 'public_key')
+        assert.isAbove(user.private_key.length, 0)
+        assert.isAbove(user.public_key.length, 0)
         done()
       }
     }

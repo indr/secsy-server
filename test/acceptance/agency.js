@@ -4,7 +4,6 @@
 const _ = require('lodash')
 const uuid = require('node-uuid')
 const request = require('supertest')
-const sha256 = require('./../../lib/sha256')
 const ctx = require('./bootstrap')
 
 const defaultAgency = new Agency()
@@ -44,9 +43,9 @@ function createFactory (app, defaultOptions) {
       }
       return agent
     }).then(function (agent) {
-      // if (options.key) {
-      //   return agent.generateKey()
-      // }
+      if (options.key) {
+        return agent.generateKey()
+      }
       return agent
     }).then(function (agent) {
       // if (options.admin) {
@@ -119,10 +118,9 @@ function generateKey () {
   const self = this
   return new Promise(function (resolve, reject) {
     const data = {
-      emailSha256: sha256(self.email),
-      isPublic: true,
-      privateKey: 'BEGIN PRIVATE KEY...',
-      publicKey: 'BEGIN PUBLIC KEY...'
+      is_public: true,
+      private_key: 'BEGIN PRIVATE KEY...',
+      public_key: 'BEGIN PUBLIC KEY...'
     }
     self.post('/api/keys')
       .send(data)

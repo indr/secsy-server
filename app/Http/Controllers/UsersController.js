@@ -34,8 +34,8 @@ class UsersController {
     const key = yield Key.findBy('user_id', user.id)
 
     let result = user.toJSON()
-    result = _.merge(result, key ? _.pick(key.toJSON(), 'private_key', 'public_key')
-      : { private_key: null, public_key: null })
+    result.private_key = key ? key.private_key : null
+    result.public_key = key ? key.public_key : null
 
     response.ok(result)
   }
