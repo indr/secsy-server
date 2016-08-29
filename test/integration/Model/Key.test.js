@@ -11,6 +11,7 @@ require('co-mocha')
 
 describe('Integration | Model | Key', function () {
   let Key
+
   before(function * () {
     yield setup.loadProviders()
     yield setup.start()
@@ -18,7 +19,7 @@ describe('Integration | Model | Key', function () {
     Key = use('App/Model/Key')
   })
 
-  it('should be able to create and save a new key', function * () {
+  it('should be able to create and retrieve a new key', function * () {
     const userId = uuid.v4()
     const emailSha256 = `${userId}@example.com`
     let key = yield Key.create({

@@ -12,6 +12,7 @@ require('co-mocha')
 
 describe('Integration | Model | User', function () {
   let User
+
   before(function * () {
     yield setup.loadProviders()
     yield setup.start()
@@ -19,7 +20,7 @@ describe('Integration | Model | User', function () {
     User = use('App/Model/User')
   })
 
-  it('should be able to create and save a new user', function * () {
+  it('should be able to create and retrieve a new user', function * () {
     let user = yield User.create({
       email: `${uuid.v4()}@example.com`,
       password: 'user1234'
