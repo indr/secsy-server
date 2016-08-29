@@ -1,15 +1,25 @@
 'use strict'
 
+const _ = require('lodash')
+const Validator = use('Validator')
 const User = use('App/Model/User')
 
 class UsersController {
+
   * store (request, response) {
     const data = request.only('email', 'password')
-    data.username = data.email;
+    data.username = data.email
+
+    const validation = yield Validator.validate(data, User.rules)
+
+    if (validation.fails()) {
+      response.badRequest(validation.messages())
+      return
+    }
 
     const user = yield User.create(data)
 
-    response.created(user)
+    response.created(_.omit(user.toJSON(), 'password'))
   }
 
   * me (request, response) {

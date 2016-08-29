@@ -10,9 +10,17 @@ class User extends Lucid {
 
   static boot () {
     super.boot()
+    this.addHook('beforeCreate', 'Base.generateUuidV4')
     this.addHook('beforeCreate', 'User.encryptPassword')
   }
 
+  static get rules () {
+    return {
+      username: 'required|unique:users',
+      email: 'required|unique:users',
+      password: 'required'
+    }
+  }
 }
 
 module.exports = User

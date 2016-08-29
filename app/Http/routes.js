@@ -18,13 +18,11 @@
 const Route = use('Route')
 
 Route.group('v1', function () {
-
   Route.resources('/contacts', 'ContactsController')
     .only('index', 'store', 'show', 'update', 'destroy')
 
   Route.get('/users/me', 'UsersController.me')
   Route.post('/users', 'UsersController.store')
-
 }).prefix('/api')
 
 Route.post('/auth/local', 'AuthController.login')
