@@ -44,9 +44,9 @@ function createFactory (app, defaultOptions) {
       }
       return agent
     }).then(function (agent) {
-      if (options.key) {
-        return agent.generateKey()
-      }
+      // if (options.key) {
+      //   return agent.generateKey()
+      // }
       return agent
     }).then(function (agent) {
       // if (options.admin) {
@@ -64,6 +64,7 @@ function createAgent (app, prefix) {
   agent.password = `password${agentNr}`
   agent.signup = signup.bind(agent)
   agent.login = login.bind(agent)
+  agent.logout = logout.bind(agent)
   agent.generateKey = generateKey.bind(agent)
   // agent.role = role.bind(agent)
   return agent
@@ -95,6 +96,17 @@ function login () {
     }
     self.post('/auth/local')
       .send(data)
+      .end(function (err) {
+        if (err) return reject(err)
+        return resolve(self)
+      })
+  })
+}
+
+function logout () {
+  const self = this
+  return new Promise(function (resolve, reject) {
+    self.post('/auth/logout')
       .end(function (err) {
         if (err) return reject(err)
         return resolve(self)

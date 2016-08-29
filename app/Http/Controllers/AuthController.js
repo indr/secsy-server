@@ -3,9 +3,16 @@
 class AuthController {
 
   * login (request, response) {
-    const identification = request.input('identification')
+    const identifier = request.input('identifier')
     const password = request.input('password')
-    const login = yield request.auth.attempt(identification, password)
+
+    let login
+    try {
+      login = yield request.auth.attempt(identifier, password)
+    } catch (UserNotFoundException) {
+      response.forbidden()
+      return
+    }
 
     if (login) {
       response.send('Logged in successfully')

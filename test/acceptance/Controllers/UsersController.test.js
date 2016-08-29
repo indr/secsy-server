@@ -2,8 +2,6 @@
 'use strict'
 
 const assert = require('chai').assert
-// const supertest = require('supertest')
-// const ctx = require('./../bootstrap')
 const agency = require('./../agency')
 
 describe('Acceptance | Controller | UsersController', function () {
@@ -53,6 +51,37 @@ describe('Acceptance | Controller | UsersController', function () {
             agent.post('/api/users')
               .send({ email: agent.email, password: agent.password })
               .expect(400, done)
+          })
+      })
+    })
+  })
+
+  describe('#me | GET /api/users/me', function () {
+    it('should return 401 as anon', function (done) {
+      agency.anon().then((agent) => {
+        agent.get('/api/users/me')
+          .expect(401, done)
+      })
+    })
+
+    it('should return 200 as user', function (done) {
+      agency.user().then((agent) => {
+        agent.get('/api/users/me')
+          .expect(200, function (err, res) {
+            assert.isNull(err)
+            assert.equal(res.body.id, agent.id)
+            done()
+          })
+      })
+    })
+
+    it('should return 200 as admin', function (done) {
+      agency.admin().then((agent) => {
+        agent.get('/api/users/me')
+          .expect(200, function (err, res) {
+            assert.isNull(err)
+            assert.equal(res.body.id, agent.id)
+            done()
           })
       })
     })
