@@ -5,8 +5,8 @@ const assert = require('chai').assert
 const agency = require('./../agency')
 
 describe('Acceptance | Controller | UsersController', function () {
-  describe('#signup | POST /api/users', function () {
-    it('should return 201', function (done) {
+  describe('#store | POST /api/users', function () {
+    it('should return 201 and user', function (done) {
       agency.anon().then((agent) => {
         agent.post('/api/users')
           .send({ email: agent.email, password: agent.password })
@@ -21,6 +21,9 @@ describe('Acceptance | Controller | UsersController', function () {
             assert.isAbove(user.username.length, 0)
             assert.equal(user.email, user.username)
             assert.notProperty(user, 'password')
+            assert.isDefined(user.email_sha256, 'email_sha265 ist not defined')
+            assert.isUndefined(user.private_key, 'private_key is not undefined')
+            assert.isUndefined(user.public_key, 'public_key is not undefined')
             done()
           })
       }).catch(done)
@@ -49,7 +52,11 @@ describe('Acceptance | Controller | UsersController', function () {
           .expect(201, function () {
             agent.post('/api/users')
               .send({ email: agent.email, password: agent.password })
-              .expect(400, done)
+              .expect(400, [ {
+                field: 'username',
+                validation: 'unique',
+                message: 'username has already been taken by someone else'
+              } ], done)
           })
       })
     })
@@ -68,7 +75,11 @@ describe('Acceptance | Controller | UsersController', function () {
         agent.get('/api/users/me')
           .expect(200, function (err, res) {
             assert.isNull(err)
-            assert.equal(res.body.id, agent.id)
+            const user = res.body
+            assert.equal(user.id, agent.id)
+            assert.isDefined(user.email_sha256, 'email_sha265 ist not defined')
+            assert.isDefined(user.private_key, 'private_key is not defined')
+            assert.isDefined(user.public_key, 'public_key is not defined')
             done()
           })
       })
@@ -79,7 +90,11 @@ describe('Acceptance | Controller | UsersController', function () {
         agent.get('/api/users/me')
           .expect(200, function (err, res) {
             assert.isNull(err)
-            assert.equal(res.body.id, agent.id)
+            const user = res.body
+            assert.equal(user.id, agent.id)
+            assert.isDefined(user.email_sha256, 'email_sha265 ist not defined')
+            assert.isDefined(user.private_key, 'private_key is not defined')
+            assert.isDefined(user.public_key, 'public_key is not defined')
             done()
           })
       })

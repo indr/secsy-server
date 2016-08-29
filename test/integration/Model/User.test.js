@@ -19,15 +19,16 @@ describe('Integration | Model | User', function () {
     User = use('App/Model/User')
   })
 
-  it('should be able to create a new user', function * () {
+  it('should be able to create and save a new user', function * () {
     let user = yield User.create({
       email: `${uuid.v4()}@example.com`,
       password: 'user1234'
     })
 
-    assert.lengthOf(user.id, 36)
-    assert.equal(user.username, user.email)
-    assert.notEqual(user.password, 'user1234')
-    assert.equal(user.email_sha256, sha256(user.email))
+    const fromDb = yield User.find(user.id)
+    assert.lengthOf(fromDb.id, 36)
+    assert.equal(fromDb.username, user.email)
+    assert.notEqual(fromDb.password, 'user1234')
+    assert.equal(fromDb.email_sha256, sha256(user.email))
   })
 })

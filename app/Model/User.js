@@ -10,7 +10,7 @@ class User extends Lucid {
 
   static boot () {
     super.boot()
-    this.addHook('beforeCreate', 'Base.generateUuidV4')
+    this.addHook('beforeCreate', 'Base.generateId')
     this.addHook('beforeCreate', 'User.setUsername')
     this.addHook('beforeCreate', 'User.encryptPassword')
     this.addHook('beforeCreate', 'User.setEmailSha256')
