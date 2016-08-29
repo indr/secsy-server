@@ -61,6 +61,7 @@ function createAgent (app, prefix) {
   const agentNr = nextAgentNr()
   const agent = request.agent(app)
   agent.email = `${prefix}-${agentNr}@example.com`
+  agent.username = agent.email
   agent.password = `password${agentNr}`
   agent.signup = signup.bind(agent)
   agent.login = login.bind(agent)

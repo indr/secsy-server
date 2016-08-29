@@ -26,6 +26,18 @@ describe('Acceptance | Controller | AuthController', function () {
       }).catch(done)
     })
 
+    function assertUser (expected, done) {
+      return function (err, res) {
+        assert.isNull(err)
+        const user = res.body
+        assert.lengthOf(user.id, 36)
+        assert.equal(user.username, expected.username)
+        assert.equal(user.email, expected.email)
+        assert.notProperty(user, 'password')
+        done()
+      }
+    }
+
     it('should return 403 with unknown identifier/email', function (done) {
       agency.anon().then((agent) => {
         agent.post('/auth/local')
@@ -45,13 +57,15 @@ describe('Acceptance | Controller | AuthController', function () {
     it('should return 200 as user', function (done) {
       user.post('/auth/local')
         .send({ identifier: user.email, password: user.password })
-        .expect(200, done)
+        .expect(200)
+        .end(assertUser(user, done))
     })
 
     it('should return 200 as admin', function (done) {
       admin.post('/auth/local')
         .send({ identifier: admin.email, password: admin.password })
-        .expect(200, done)
+        .expect(200)
+        .end(assertUser(admin, done))
     })
   })
 

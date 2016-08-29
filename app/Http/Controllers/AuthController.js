@@ -1,5 +1,7 @@
 'use strict'
 
+const _ = require('lodash')
+
 class AuthController {
 
   * login (request, response) {
@@ -15,11 +17,13 @@ class AuthController {
     }
 
     if (login) {
-      response.send('Logged in successfully')
+      const user = yield request.auth.getUser()
+      response.send(_.omit(user.toJSON(), 'password'))
       return
     }
 
-    response.unauthorized('Invalid credentials')
+    // Should not make it until here actually
+    response.forbidden()
   }
 
   * logout (request, response) {

@@ -14,7 +14,6 @@ describe('Acceptance | Controller | UsersController', function () {
           .end(function (err, res) {
             assert.isNull(err)
             const user = res.body
-            console.log(user)
             assert.lengthOf(user.id, 36)
             assert.closeTo(new Date(user.created_at).getTime(), new Date().getTime(), 1000)
             assert.equal(user.updated_at, user.created_at)
