@@ -3,18 +3,17 @@
  */
 'use strict'
 
-const omit = require('lodash').omit
 const Lucid = use('Lucid')
 
 class Key extends Lucid {
 
-  toJSON (values) {
-    return omit(super.toJSON(values), 'private_key')
-  }
-
   static boot () {
     super.boot()
     this.addHook('beforeCreate', 'Base.generateId')
+  }
+
+  static get hidden () {
+    return [ 'private_key' ]
   }
 
   static scopeOwnedBy (builder, ownerId) {
