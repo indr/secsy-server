@@ -1,9 +1,9 @@
 'use strict'
 
-const Validator = use('Validator')
 const User = use('App/Model/User')
 const Key = use('App/Model/Key')
 const Event = use('Event')
+const Validator = use('Validator')
 
 class UsersController {
 

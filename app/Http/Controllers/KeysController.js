@@ -6,6 +6,7 @@
 const _ = require('lodash')
 const Key = use('App/Model/Key')
 const Event = use('Event')
+const Validator = use('Validator')
 
 class KeysController {
   * index (request, response) {
@@ -25,11 +26,18 @@ class KeysController {
     data.owned_by = user.id
     data.email_sha256 = user.email_sha256
     data.is_public = data.is_public || false
-    // TODO: Validation
+
+    const validation = yield Validator.validate(data, Key.rules)
+    if (validation.fails()) {
+      response.badRequest(validation.messages())
+      return
+    }
+
     let key = yield Key.query().ownedBy(user.id).first()
     if (key) {
       yield key.delete()
     }
+
     key = yield Key.create(data)
     Event.fire('key.created', user, key)
 
