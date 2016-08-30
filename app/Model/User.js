@@ -16,11 +16,17 @@ class User extends Lucid {
     this.addHook('beforeCreate', 'User.setEmailSha256')
   }
 
+  static get sanitations () {
+    return {
+      email: 'normalize_email'
+    }
+  }
+
   static get rules () {
     return {
-      username: 'required|unique:users',
-      email: 'required|unique:users',
-      password: 'required'
+      username: 'required|email|min:5|unique:users',
+      email: 'required|email|unique:users',
+      password: 'required|min:8'
     }
   }
 }

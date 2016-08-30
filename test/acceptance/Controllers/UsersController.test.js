@@ -6,10 +6,10 @@ const agency = require('./../agency')
 
 describe('Acceptance | Controller | UsersController', function () {
   describe('#store | POST /api/users', function () {
-    it('should return 201 and user', function (done) {
+    it('should return 201 and user with lower case email', function (done) {
       agency.anon().then((agent) => {
         agent.post('/api/users')
-          .send({ email: agent.email, password: agent.password })
+          .send({ email: agent.email.toUpperCase(), password: agent.password })
           .expect(201)
           .end(function (err, res) {
             assert.isNull(err)

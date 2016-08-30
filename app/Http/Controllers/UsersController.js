@@ -9,7 +9,8 @@ const Event = use('Event')
 class UsersController {
 
   * store (request, response) {
-    const data = request.only('email', 'password')
+    const raw = request.only('email', 'password')
+    const data = yield Validator.sanitize(raw, User.sanitations)
     data.username = data.email
 
     const validation = yield Validator.validate(data, User.rules)
