@@ -22,7 +22,7 @@ Route.group('v1', function () {
     .only('index', 'store', 'show', 'update', 'destroy')
 
   Route.resources('/keys', 'KeysController')
-    .only('store')
+    .only('index', 'store', 'show')
 
   Route.get('/users/me', 'UsersController.me')
 }).prefix('/api').middleware('auth')

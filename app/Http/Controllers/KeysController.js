@@ -3,17 +3,29 @@
  */
 'use strict'
 
+const _ = require('lodash')
 const Key = use('App/Model/Key')
 const Event = use('Event')
 
 class KeysController {
+  * index (request, response) {
+    const user = yield request.auth.getUser()
+
+    const hash = request.input('emailSha256')
+    const keys = yield Key.query().isPublicOrOwnedBy(user.id, hash)
+
+    response.ok(_.map(keys, (each) => {
+      return _.omit(each, 'private_key')
+    }))
+  }
+
   * store (request, response) {
     const user = yield request.auth.getUser()
-    const data = request.only('private_key', 'public_key')
+    const data = request.only('private_key', 'public_key', 'is_public')
     data.owned_by = user.id
     data.email_sha256 = user.email_sha256
-    data.is_public = false
-
+    data.is_public = data.is_public || false
+    // TODO: Validation
     let key = yield Key.query().ownedBy(user.id).first()
     if (key) {
       yield key.delete()
@@ -22,6 +34,20 @@ class KeysController {
     Event.fire('key.created', user, key)
 
     response.created(key)
+  }
+
+  * show (request, response) {
+    const user = yield request.auth.getUser()
+    const id = request.param('id')
+
+    const key = yield Key.query().isPublicOrOwnedBy(user.id).where('id', id).first()
+
+    if (!key) {
+      response.notFound()
+      return
+    }
+
+    response.ok(key)
   }
 }
 
