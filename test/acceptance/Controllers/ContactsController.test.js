@@ -142,4 +142,24 @@ describe('Acceptance | Controller | ContactsController', function () {
       return admin.put(url(admin.contacts[ 0 ])).send(makeContact('updated')).expect(200)
     })
   })
+
+  describe('#destroy | DELETE /api/contacts/:id', function () {
+    it('should return 401 as anon', function () {
+      return anon.delete(url(user.contacts[ 0 ])).expect(401)
+    })
+
+    it('should return 404 as user for others contact', function () {
+      return user.delete(url(admin.contacts[ 0 ])).expect(404)
+    })
+    it('should return 404 as admin for others contact', function () {
+      return admin.delete(url(user.contacts[ 0 ])).expect(404)
+    })
+
+    it('should return 200 as user for own contact', function () {
+      return user.delete(url(user.contacts[ 0 ])).expect(200)
+    })
+    it('should return 200 as admin for own contact', function () {
+      return admin.delete(url(admin.contacts[ 0 ])).expect(200)
+    })
+  })
 })

@@ -42,7 +42,7 @@ class ContactsController {
     const user = yield request.auth.getUser()
     const id = request.param('id')
 
-    const contact = yield Contact.query().ownedBy(user.id).where({ 'id': id }).first()
+    const contact = yield Contact.query().ownedBy(user.id).id(id).first()
 
     if (!contact) {
       response.notFound()
@@ -56,7 +56,19 @@ class ContactsController {
   }
 
   * destroy (request, response) {
-    response.notImplemented()
+    const user = yield request.auth.getUser()
+    const id = request.param('id')
+
+    const contact = yield Contact.query().ownedBy(user.id).id(id).first()
+
+    if (!contact) {
+      response.notFound()
+      return
+    }
+
+    yield contact.delete()
+
+    response.ok(contact)
   }
 }
 

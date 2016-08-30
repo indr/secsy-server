@@ -14,6 +14,10 @@ class Contact extends Lucid {
   static scopeOwnedBy (builder, ownerId) {
     builder.where('owned_by', ownerId)
   }
+
+  static scopeId (builder, id) {
+    builder.where('id', id)
+  }
 }
 
 module.exports = Contact
