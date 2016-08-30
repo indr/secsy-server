@@ -263,11 +263,12 @@ describe('Acceptance | Controller | UpdatesController', function () {
     })
 
     it('should return 404 as user for foreign share', function (done) {
-      user1.delete(url(shares[ 1 ][ 0 ].id)).expect(404, done)
+      user1.delete(url()).expect(404, done)
     })
 
     it('should return 200 as user for own share', function (done) {
-      user1.delete(url(shares[ 0 ][ 1 ].id)).expect(200, done)
+      const id = shares[ 0 ][ 1 ].id
+      user1.delete(url(id)).expect(200, { id }, done)
     })
 
     it('should return 404 as admin for invalid id', function (done) {
@@ -283,7 +284,8 @@ describe('Acceptance | Controller | UpdatesController', function () {
     })
 
     it('should return 200 as admin for own share', function (done) {
-      admin.delete(url(shares[ 1 ][ 0 ].id)).expect(200, done)
+      const id = shares[ 1 ][ 0 ].id
+      admin.delete(url(id)).expect(200, { id }, done)
     })
   })
 })

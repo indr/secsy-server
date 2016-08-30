@@ -60,7 +60,7 @@ class UpdatesController {
 
     yield update.delete()
 
-    response.ok({})
+    response.ok({ id })
   }
 }
 
