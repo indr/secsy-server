@@ -28,7 +28,6 @@ describe('Integration | Model | Key', function () {
       yield fails(Key, 'email_sha256', [ undefined, '', ' ', 'abc123', Array(66).join('x') ])
       yield succeeds(Key, 'email_sha256', Array(65).join('x'))
     })
-
   })
   describe('crud', function () {
     it('should be able to create and retrieve a new key', function * () {

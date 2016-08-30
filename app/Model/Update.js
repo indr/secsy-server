@@ -18,6 +18,10 @@ class Update extends Lucid {
       'encrypted_': 'required'
     }
   }
+
+  static scopeOwnedBy (builder, ownerId) {
+    builder.where('owned_by', ownerId)
+  }
 }
 
 module.exports = Update

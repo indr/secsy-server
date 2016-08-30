@@ -24,6 +24,9 @@ Route.group('v1', function () {
   Route.resources('/keys', 'KeysController')
     .only('index', 'store', 'show')
 
+  Route.resources('/shares', 'UpdatesController')
+    .only('index', 'store', 'destroy')
+
   Route.get('/users/me', 'UsersController.me')
 }).prefix('/api').middleware('auth')
 

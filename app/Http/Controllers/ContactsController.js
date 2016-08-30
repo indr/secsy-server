@@ -19,6 +19,8 @@ class ContactsController {
     data.owned_by = user.id
     data.me = false
 
+    // TODO: Validation
+
     const contact = yield Contact.create(data)
 
     response.created(contact)
