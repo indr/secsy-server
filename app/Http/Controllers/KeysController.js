@@ -12,7 +12,7 @@ class KeysController {
   * index (request, response) {
     const user = yield request.auth.getUser()
 
-    const hash = request.input('emailSha256')
+    const hash = request.input('h')
     const keys = yield Key.query().isPublicOrOwnedBy(user.id, hash)
 
     response.ok(_.map(keys, (each) => {

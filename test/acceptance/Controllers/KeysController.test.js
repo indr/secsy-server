@@ -170,37 +170,38 @@ describe('Acceptance | Controller | KeysController', function () {
     })
   })
 
-  describe('#index with query | GET /api/keys?emailSha256=...', function () {
+  describe('#index with query | GET /api/keys?h=...', function () {
     var emailHash
 
     before(function (done) {
       agency.user().then(function (user) {
-        user.post(url()).send(makeKey(user)).expect(201).end(function (err, res) {
+        user.post(url()).send(makeKey(user, true)).expect(201).end(function (err, res) {
           assert.isNull(err)
-          emailHash = res.body.emailSha256
+          emailHash = res.body.email_sha256
+          assert.isDefined(emailHash)
           done()
         })
       }).catch(done)
     })
 
-    it('should return 403 as anon', function (done) {
-      anon.get(url()).query('emailSha256=' + emailHash).expect(401, done)
+    it('should return 401 as anon', function (done) {
+      anon.get(url()).query('h=' + emailHash).expect(401, done)
     })
 
     it('should return 200 as user and specified key', function (done) {
-      user1.get(url()).query('emailSha256=' + emailHash).expect(200).end(function (err, res) {
+      user1.get(url()).query('h=' + emailHash).expect(200).end(function (err, res) {
         assert.isNull(err)
         assert.lengthOf(res.body, 1)
-        assert.equal(res.body[ 0 ].emailSha256, emailHash)
+        assert.equal(res.body[ 0 ].email_sha256, emailHash)
         done()
       })
     })
 
     it('should return 200 as admin and specified key', function (done) {
-      admin.get(url()).query('emailSha256=' + emailHash).expect(200).end(function (err, res) {
+      admin.get(url()).query('h=' + emailHash).expect(200).end(function (err, res) {
         assert.isNull(err)
         assert.lengthOf(res.body, 1)
-        assert.equal(res.body[ 0 ].emailSha256, emailHash)
+        assert.equal(res.body[ 0 ].email_sha256, emailHash)
         done()
       })
     })

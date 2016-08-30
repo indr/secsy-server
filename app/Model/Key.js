@@ -29,8 +29,9 @@ class Key extends Lucid {
   static scopeIsPublicOrOwnedBy (builder, ownerId, emailSha256) {
     console.log(emailSha256)
     if (emailSha256) {
-      builder.orWhere({ 'owned_by': ownerId, 'is_public': true })
-        .where('email_sha256', emailSha256)
+      builder.where(function () {
+        this.orWhere({ 'owned_by': ownerId, 'is_public': true })
+      }).where('email_sha256', emailSha256)
     } else {
       builder.where(function () {
         this.where('owned_by', ownerId).orWhere('is_public', true)
