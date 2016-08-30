@@ -3,7 +3,7 @@
 
 const _ = require('lodash')
 const uuid = require('node-uuid')
-const request = require('supertest')
+const request = require('supertest-as-promised')
 const ctx = require('./bootstrap')
 
 const defaultAgency = new Agency()
