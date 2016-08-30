@@ -20,7 +20,6 @@ class UsersController {
     }
 
     const user = yield User.create(data)
-
     Event.fire('user.registered', user)
 
     response.created(_.omit(user.toJSON(), 'password'))

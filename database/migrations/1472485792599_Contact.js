@@ -6,7 +6,7 @@ class ContactSchema extends Schema {
 
   up () {
     this.create('contacts', (table) => {
-      table.uuid('id').primary()
+      table.uuid('id').primary().index()
       table.timestamps()
       table.uuid('created_by')
       table.uuid('owned_by')

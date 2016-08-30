@@ -66,6 +66,8 @@ function createAgent (app, prefix) {
   agent.login = login.bind(agent)
   agent.logout = logout.bind(agent)
   agent.generateKey = generateKey.bind(agent)
+  agent.prefix = prefix
+  agent.role = prefix
   // agent.role = role.bind(agent)
   return agent
 }

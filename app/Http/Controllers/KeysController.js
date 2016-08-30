@@ -4,6 +4,7 @@
 'use strict'
 
 const Key = use('App/Model/Key')
+const Event = use('Event')
 
 class KeysController {
   * store (request, response) {
@@ -13,7 +14,12 @@ class KeysController {
     data.email_sha256 = user.email_sha256
     data.is_public = false
 
-    const key = yield Key.create(data)
+    let key = yield Key.query().ownedBy(user.id).first()
+    if (key) {
+      yield key.delete()
+    }
+    key = yield Key.create(data)
+    Event.fire('key.created', user, key)
 
     response.created(key)
   }

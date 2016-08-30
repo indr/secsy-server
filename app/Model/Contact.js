@@ -15,6 +15,10 @@ class Contact extends Lucid {
     builder.where('owned_by', ownerId)
   }
 
+  static scopeMe (builder, ownerId) {
+    builder.where({ 'owned_by': ownerId, 'me': true })
+  }
+
   static scopeId (builder, id) {
     builder.where('id', id)
   }

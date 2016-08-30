@@ -29,36 +29,70 @@ describe('Acceptance | Controller | KeysController', function () {
     assert.propertyVal(actual, 'public_key', expected.public_key)
   }
 
+  function assert201 (res, agent) {
+    const key = res.body
+    assert.lengthOf(key.id, 36)
+    assert.closeTo(new Date(key.created_at).getTime(), new Date().getTime(), 1200)
+    assert.equal(key.updated_at, key.created_at)
+    assert.equal(key.owned_by, agent.id)
+
+    assertKey(key, makeKey(agent, false))
+  }
+
+  let anon, user, admin
+  before(function () {
+    return agency.anon().then((agent) => {
+      anon = agent
+      return agency.user({ key: false })
+    }).then((agent) => {
+      user = agent
+      return agency.admin({ key: false })
+    }).then((agent) => {
+      admin = agent
+    })
+  })
+
   describe('#store | POST /api/keys', function () {
-    it('should return 401 as anon', function (done) {
-      agency.anon().then((agent) => {
-        agent.post(url()).send(makeKey(agent))
-          .expect(401, done)
+    describe('given user has no key', function () {
+      it('anon: should return 401', function () {
+        return anon.post(url()).send(makeKey(anon)).expect(401)
+      })
+
+      it('user: should return 201', function () {
+        return user.post(url()).send(makeKey(user)).expect(201).then((res) => {
+          assert201(res, user)
+        })
+      })
+      it('should return 201 as admin', function () {
+        return admin.post(url()).send(makeKey(admin)).expect(201).then((res) => {
+          assert201(res, admin)
+        })
       })
     })
 
-    it('should return 201 as user and create contact me', function (done) {
-      agency.user().then((agent) => {
-        agent.post(url()).send(makeKey(agent))
-          .expect(201)
-          .end(function (err, res) {
-            assert.isNull(err)
-            const key = res.body
+    describe('given user has already a key', function () {
+      // There must be a better way to accomplish this
+      let agents = [ 'user', 'admin' ]
+      before(function () {
+        agents.user = user
+        agents.admin = admin
+      })
 
-            assert.lengthOf(key.id, 36)
-            assert.closeTo(new Date(key.created_at).getTime(), new Date().getTime(), 1200)
-            assert.equal(key.updated_at, key.created_at)
-            assert.equal(key.owned_by, agent.id)
-
-            assertKey(key, makeKey(agent, false))
-            // shouldHaveContactMe(agent, done)
-            done()
+      agents.forEach(function (role) {
+        it(role + ': should return 201 and create a new key id', function () {
+          let agent = agents[ role ]
+          let keyId
+          return agent.post(url()).send(makeKey(agent)).expect(201).then((res) => {
+            assert201(res, agent)
+            keyId = res.body.id
+          }).then(() => {
+            return agent.post(url()).send(makeKey(agent)).expect(201)
+          }).then((res) => {
+            assert201(res, agent)
+            assert.notEqual(res.body.id, keyId)
           })
+        })
       })
-    })
-
-    it.skip('should return 201 as user and update contact me', function (done) {
-
     })
   })
 })
