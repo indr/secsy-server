@@ -6,7 +6,7 @@ class ContactsController {
   * index (request, response) {
     const user = yield request.auth.getUser()
 
-    const contacts = yield Contact.query().where('user_id', user.id)
+    const contacts = yield Contact.query().ownedBy(user.id)
 
     response.ok(contacts)
   }
@@ -15,7 +15,8 @@ class ContactsController {
     const user = yield request.auth.getUser()
 
     const data = request.only('encrypted_')
-    data.user_id = user.id
+    data.created_by = user.id
+    data.owned_by = user.id
     data.me = false
 
     const contact = yield Contact.create(data)
@@ -27,7 +28,7 @@ class ContactsController {
     const user = yield request.auth.getUser()
     const id = request.param('id')
 
-    const contact = yield Contact.query().where({ 'user_id': user.id, 'id': id }).first()
+    const contact = yield Contact.query().ownedBy(user.id).where({ 'id': id }).first()
 
     if (!contact) {
       response.notFound()
@@ -41,7 +42,7 @@ class ContactsController {
     const user = yield request.auth.getUser()
     const id = request.param('id')
 
-    const contact = yield Contact.query().where({ 'user_id': user.id, 'id': id }).first()
+    const contact = yield Contact.query().ownedBy(user.id).where({ 'id': id }).first()
 
     if (!contact) {
       response.notFound()

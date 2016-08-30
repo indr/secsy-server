@@ -34,7 +34,7 @@ class UsersController {
       return
     }
 
-    const key = yield Key.findBy('user_id', user.id)
+    const key = yield Key.findBy('owned_by', user.id)
 
     let result = user.toJSON()
     result.private_key = key ? key.private_key : null

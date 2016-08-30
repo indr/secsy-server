@@ -24,7 +24,7 @@ class AuthController {
       return
     }
     const user = yield request.auth.getUser()
-    const key = yield Key.findBy('user_id', user.id)
+    const key = yield Key.findBy('owned_by', user.id)
 
     const result = _.omit(user.toJSON(), 'password')
     result.private_key = key ? key.private_key : null

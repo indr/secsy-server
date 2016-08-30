@@ -8,7 +8,9 @@ class ContactSchema extends Schema {
     this.create('contacts', (table) => {
       table.uuid('id').primary()
       table.timestamps()
-      table.uuid('user_id').notNullable()
+      table.uuid('created_by')
+      table.uuid('owned_by')
+
       table.boolean('me').defaultsTo(false)
       table.text('encrypted_')
     })

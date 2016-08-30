@@ -39,7 +39,7 @@ describe('Acceptance | Controller | ContactsController', function () {
             assert.lengthOf(contact.id, 36)
             assert.closeTo(new Date(contact.created_at).getTime(), new Date().getTime(), 1200)
             assert.equal(contact.updated_at, contact.created_at)
-            assert.equal(contact.user_id, user.id)
+            assert.equal(contact.owned_by, user.id)
             assert.isFalse(contact.me)
             assert.equal(contact.encrypted_, 'cypher')
             done()
@@ -81,7 +81,7 @@ describe('Acceptance | Controller | ContactsController', function () {
         .expect(200)
         .end(function (err, res) {
           assert.isNull(err)
-          assert.lengthOf(res.body, _.filter(res.body, { user_id: user.id }).length)
+          assert.lengthOf(res.body, _.filter(res.body, { owned_by: user.id }).length)
           assert.lengthOf(_.filter(res.body, { me: true }), 1)
           done()
         })
@@ -92,7 +92,7 @@ describe('Acceptance | Controller | ContactsController', function () {
         .expect(200)
         .end(function (err, res) {
           assert.isNull(err)
-          assert.lengthOf(res.body, _.filter(res.body, { user_id: admin.id }).length)
+          assert.lengthOf(res.body, _.filter(res.body, { owned_by: admin.id }).length)
           assert.lengthOf(_.filter(res.body, { me: true }), 1)
           done()
         })

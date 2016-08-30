@@ -8,7 +8,9 @@ class KeySchema extends Schema {
     this.create('keys', (table) => {
       table.uuid('id').primary()
       table.timestamps()
-      table.uuid('user_id').notNullable()
+      table.uuid('created_by')
+      table.uuid('owned_by')
+
       table.string('email_sha256', 64).notNullable()
       table.boolean('is_public').defaultsTo(false)
       table.text('private_key').notNullable()

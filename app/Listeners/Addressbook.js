@@ -13,7 +13,8 @@ Addressbook.createMeContact = function * (user) {
   const encoded = new Buffer(JSON.stringify(decoded)).toString('base64')
 
   const data = {
-    user_id: user.id,
+    created_by: null,
+    owned_by: user.id,
     me: true,
     encrypted_: 'base64///' + encoded
   }

@@ -48,7 +48,7 @@ describe('Acceptance | Controller | KeysController', function () {
             assert.lengthOf(key.id, 36)
             assert.closeTo(new Date(key.created_at).getTime(), new Date().getTime(), 1200)
             assert.equal(key.updated_at, key.created_at)
-            assert.equal(key.user_id, agent.id)
+            assert.equal(key.owned_by, agent.id)
 
             assertKey(key, makeKey(agent, false))
             // shouldHaveContactMe(agent, done)

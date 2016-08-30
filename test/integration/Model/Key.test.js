@@ -23,7 +23,7 @@ describe('Integration | Model | Key', function () {
     const userId = uuid.v4()
     const emailSha256 = `${userId}@example.com`
     let key = yield Key.create({
-      user_id: userId,
+      owned_by: userId,
       email_sha256: emailSha256,
       private_key: 'PRIVATE KEY',
       public_key: 'PUBLIC KEY'
@@ -31,7 +31,7 @@ describe('Integration | Model | Key', function () {
 
     let fromDb = yield Key.find(key.id)
     assert.lengthOf(fromDb.id, 36)
-    assert.equal(fromDb.user_id, userId)
+    assert.equal(fromDb.owned_by, userId)
     assert.equal(fromDb.email_sha256, emailSha256)
     assert.equal(fromDb.is_public, false)
     assert.equal(fromDb.private_key, 'PRIVATE KEY')

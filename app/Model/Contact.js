@@ -10,6 +10,10 @@ class Contact extends Lucid {
     super.boot()
     this.addHook('beforeCreate', 'Base.generateId')
   }
+
+  static scopeOwnedBy (builder, ownerId) {
+    builder.where('owned_by', ownerId)
+  }
 }
 
 module.exports = Contact
