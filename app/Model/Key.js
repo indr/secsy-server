@@ -16,6 +16,12 @@ class Key extends Lucid {
     return [ 'private_key' ]
   }
 
+  static get rules () {
+    return {
+      'email_sha256': 'required|min:64|max:64'
+    }
+  }
+
   static scopeOwnedBy (builder, ownerId) {
     builder.where('owned_by', ownerId)
   }
@@ -33,5 +39,4 @@ class Key extends Lucid {
   }
 }
 
-module
-  .exports = Key
+module.exports = Key

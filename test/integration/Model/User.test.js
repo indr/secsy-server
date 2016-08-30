@@ -6,10 +6,14 @@
 
 const _ = require('lodash')
 const assert = require('chai').assert
+require('co-mocha')
 const setup = require('./../setup')
 const uuid = require('node-uuid')
 const sha256 = require('./../../../lib/sha256')
-require('co-mocha')
+const validation = require('./../validation')
+
+const fails = validation.fails
+const succeeds = validation.succeeds
 
 describe('Integration | Model | User', function () {
   let User, Validator
@@ -39,39 +43,19 @@ describe('Integration | Model | User', function () {
   })
 
   describe('rules', function () {
-    function * validate (expected, field, values) {
-      values = _.isArray(values) ? values : [ values ]
-      const data = {}
-      const rules = _.pick(User.rules, field)
-      for (var i = 0; i < values.length; i++) {
-        let value = values[ i ]
-        data[ field ] = value
-        const result = yield Validator.validateAll(data, rules)
-        assert(result.fails() !== expected, `expected validation to be ${expected} for ${field} with "${value}"\n` + JSON.stringify(result.messages()))
-      }
-    }
-
-    function * fails (field, value) {
-      yield validate(false, field, value)
-    }
-
-    function * succeeds (field, value) {
-      yield validate(true, field, value)
-    }
-
     it('should validate username', function * () {
-      yield fails('username', [ undefined, '', ' ', 'four' ])
-      yield succeeds('username', [ 'user@example.com' ])
+      yield fails(User, 'username', [ undefined, '', ' ', 'four' ])
+      yield succeeds(User, 'username', [ 'user@example.com' ])
     })
 
     it('should validate email', function * () {
-      yield fails('email', [ undefined, '', ' ', 'a', 'mail@localhost' ])
-      yield succeeds('email', [ 'a@b.com', 'user-1234abcd@example.com' ])
+      yield fails(User, 'email', [ undefined, '', ' ', 'a', 'mail@localhost' ])
+      yield succeeds(User, 'email', [ 'a@b.com', 'user-1234abcd@example.com' ])
     })
 
     it('should validate password', function * () {
-      yield fails('password', [ undefined, '', ' ', '1234567' ])
-      yield succeeds('password', '12345678')
+      yield fails(User, 'password', [ undefined, '', ' ', '1234567' ])
+      yield succeeds(User, 'password', '12345678')
     })
   })
 
