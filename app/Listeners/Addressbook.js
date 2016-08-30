@@ -29,7 +29,7 @@ Addressbook.updateMeContact = function * (user, key) {
 
 function getEncrypted (user) {
   const decoded = {
-    emailAddress$: user.email
+    email_address$: user.email
   }
   const encoded = new Buffer(JSON.stringify(decoded)).toString('base64')
 
