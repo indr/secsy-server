@@ -25,7 +25,7 @@ describe('Acceptance | Controller | KeysController', function () {
   function assertKey (actual, expected) {
     assert.propertyVal(actual, 'email_sha256', expected.email_sha256)
     assert.propertyVal(actual, 'is_public', expected.is_public)
-    assert.propertyVal(actual, 'private_key', expected.private_key)
+    assert.notProperty(actual, 'private_key')
     assert.propertyVal(actual, 'public_key', expected.public_key)
   }
 

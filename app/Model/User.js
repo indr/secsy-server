@@ -1,11 +1,16 @@
 'use strict'
 
+const omit = require('lodash').omit
 const Lucid = use('Lucid')
 
 class User extends Lucid {
 
   apiTokens () {
     return this.hasMany('App/Model/Token')
+  }
+
+  toJSON (values) {
+    return omit(super.toJSON(values), 'password')
   }
 
   static boot () {

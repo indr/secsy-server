@@ -1,7 +1,5 @@
 'use strict'
 
-const _ = require('lodash')
-
 const Key = use('App/Model/Key')
 
 class AuthController {
@@ -26,7 +24,7 @@ class AuthController {
     const user = yield request.auth.getUser()
     const key = yield Key.findBy('owned_by', user.id)
 
-    const result = _.omit(user.toJSON(), 'password')
+    const result = user.toJSON()
     result.private_key = key ? key.private_key : null
     result.public_key = key ? key.public_key : null
 
