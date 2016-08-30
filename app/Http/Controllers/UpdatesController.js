@@ -19,17 +19,18 @@ class UpdatesController {
 
   * store (request, response) {
     const user = yield request.auth.getUser()
-    const receiver = yield User.findBy('email_sha256', request.input('to_email_sha256'))
+    const receiver = yield User.findBy('email_sha256', request.input('email_sha256'))
 
     if (!receiver) {
       // We don't disclose anything
       response.created({})
     }
 
-    const data = request.only('to_email_sha256', 'encrypted_')
+    const data = request.only('encrypted_')
     data.created_by = user.id
     data.owned_by = receiver.id
     data.from_email_sha256 = user.email_sha256
+    data.to_email_sha256 = receiver.email_sha256
 
     const validation = yield Validator.validate(data, Update.rules)
     if (validation.fails()) {
