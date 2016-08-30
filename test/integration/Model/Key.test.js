@@ -37,4 +37,21 @@ describe('Integration | Model | Key', function () {
     assert.equal(fromDb.private_key, 'PRIVATE KEY')
     assert.equal(fromDb.public_key, 'PUBLIC KEY')
   })
+
+  it('should enforce unique email_sha256', function * () {
+    const userId = uuid.v4()
+    const emailSha256 = userId
+    let data = {
+      email_sha256: emailSha256,
+      private_key: 'PRIVATE KEY',
+      public_key: 'PUBLIC_KEY'
+    }
+    yield Key.create(data)
+    try {
+      yield Key.create(data)
+    } catch (err) {
+      assert.equal(err.constraint, 'keys_email_sha256_unique')
+      assert.equal(err.routine, '_bt_check_unique')
+    }
+  })
 })
