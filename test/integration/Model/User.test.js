@@ -45,7 +45,7 @@ describe('Integration | Model | User', function () {
   describe('rules', function () {
     it('should validate username', function * () {
       yield fails(User, 'username', [ undefined, '', ' ', 'four' ])
-      yield succeeds(User, 'username', [ 'user@example.com' ])
+      yield succeeds(User, 'username', [ 'user-rules@example.com' ])
     })
 
     it('should validate email', function * () {

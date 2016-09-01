@@ -24,7 +24,7 @@ Route.group('v1', function () {
   Route.resources('/keys', 'KeysController')
     .only('index', 'store', 'show')
 
-  Route.resources('/shares', 'UpdatesController')
+  Route.resources('/updates', 'UpdatesController')
     .only('index', 'store', 'destroy')
 
   Route.get('/users/me', 'UsersController.me')

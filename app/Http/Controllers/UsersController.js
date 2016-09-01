@@ -12,7 +12,7 @@ class UsersController {
     const data = yield Validator.sanitize(raw, User.sanitations)
     data.username = data.email
 
-    const validation = yield Validator.validate(data, User.rules)
+    const validation = yield Validator.validateAll(data, User.rules)
 
     if (validation.fails()) {
       response.badRequest(validation.messages())

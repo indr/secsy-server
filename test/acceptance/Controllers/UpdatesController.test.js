@@ -12,7 +12,7 @@ const sha256 = require('./../../../lib/sha256')
 
 describe('Acceptance | Controller | UpdatesController', function () {
   function url (id) {
-    return !id ? '/api/shares' : '/api/shares/' + id
+    return !id ? '/api/updates' : '/api/updates/' + id
   }
 
   function makeUpdate (email, encrypted_) {
@@ -22,7 +22,7 @@ describe('Acceptance | Controller | UpdatesController', function () {
     }
   }
 
-  function postShare (sharer, receiver) {
+  function postUpdate (sharer, receiver) {
     return new Promise(function (resolve, reject) {
       sharer.post(url()).send(makeUpdate(receiver.email)).end(function (err) {
         if (err) return reject(err)
@@ -115,7 +115,7 @@ describe('Acceptance | Controller | UpdatesController', function () {
         })
     })
 
-    it('receiver should now have two shares', function (done) {
+    it('receiver should now have two updates', function (done) {
       receiver.get(url()).expect(200).end(function (err, res) {
         assert.isNull(err)
         assert.lengthOf(res.body, 2)
@@ -125,35 +125,35 @@ describe('Acceptance | Controller | UpdatesController', function () {
   })
 
   before(function (done) {
-    postShare(sharer1, user1).then(function () {
-      return postShare(sharer1, admin)
+    postUpdate(sharer1, user1).then(function () {
+      return postUpdate(sharer1, admin)
     }).then(function () {
-      return postShare(sharer2, user1)
+      return postUpdate(sharer2, user1)
     }).then(function () {
-      return postShare(sharer2, user2)
+      return postUpdate(sharer2, user2)
     }).then(done).catch(done)
   })
 
-  var shares = []
+  var updates = []
   describe('#find', function () {
     it('should return 401 as anon', function (done) {
       anon.get(url()).expect(401, done)
     })
 
-    it('should return 200 and two shares as user', function (done) {
+    it('should return 200 and two updates as user', function (done) {
       user1.get(url()).expect(200).end(function (err, res) {
         assert.isNull(err)
         assert.lengthOf(res.body, 2)
-        shares[ 0 ] = res.body
+        updates[ 0 ] = res.body
         done()
       })
     })
 
-    it('should return 200 and one share as admin', function (done) {
+    it('should return 200 and one update as admin', function (done) {
       admin.get(url()).expect(200).end(function (err, res) {
         assert.isNull(err)
         assert.lengthOf(res.body, 1)
-        shares[ 1 ] = res.body
+        updates[ 1 ] = res.body
         done()
       })
     })
@@ -162,44 +162,44 @@ describe('Acceptance | Controller | UpdatesController', function () {
   // #show is not active or implemented
   // These tests where necessary with Sails
   // describe.skip('#show', function () {
-  //   it('should return 401 as anon for non-existing share', function (done) {
+  //   it('should return 401 as anon for non-existing update', function (done) {
   //     anon.get(url(999)).expect(401, done)
   //   })
   //
-  //   it('should return 403 as anon for existing share', function (done) {
-  //     anon.get(url(shares[ 0 ][ 0 ].id)).expect(403, done)
+  //   it('should return 403 as anon for existing update', function (done) {
+  //     anon.get(url(updates[ 0 ][ 0 ].id)).expect(403, done)
   //   })
   //
   //   // TODO: Returns 500 (!)
-  //   it.skip('should return 403 as user for non-existing share', function (done) {
+  //   it.skip('should return 403 as user for non-existing update', function (done) {
   //     user1.get(url(999)).expect(403, done)
   //   })
   //
-  //   it('should return 403 as user for foreign share', function (done) {
-  //     user1.get(url(shares[ 1 ][ 0 ].id)).expect(403, done)
+  //   it('should return 403 as user for foreign update', function (done) {
+  //     user1.get(url(updates[ 1 ][ 0 ].id)).expect(403, done)
   //   })
   //
-  //   it('should return 200 as user for own share', function (done) {
-  //     user1.get(url(shares[ 0 ][ 0 ].id)).expect(200).end(function (err, res) {
+  //   it('should return 200 as user for own update', function (done) {
+  //     user1.get(url(updates[ 0 ][ 0 ].id)).expect(200).end(function (err, res) {
   //       assert.isNull(err)
-  //       assert.deepEqual(res.body, shares[ 0 ][ 0 ])
+  //       assert.deepEqual(res.body, updates[ 0 ][ 0 ])
   //       done()
   //     })
   //   })
   //
   //   // TODO: Returns 500 (!)
-  //   it.skip('should return 403 as admin for non-existing share', function (done) {
+  //   it.skip('should return 403 as admin for non-existing update', function (done) {
   //     admin.get(url(999)).expect(403, done)
   //   })
   //
-  //   it('should return 403 as admin for foreign share', function (done) {
-  //     admin.get(url(shares[ 0 ][ 0 ].id)).expect(403, done)
+  //   it('should return 403 as admin for foreign update', function (done) {
+  //     admin.get(url(updates[ 0 ][ 0 ].id)).expect(403, done)
   //   })
   //
-  //   it('should return 200 as admin for own share', function (done) {
-  //     admin.get(url(shares[ 1 ][ 0 ].id)).expect(200).end(function (err, res) {
+  //   it('should return 200 as admin for own update', function (done) {
+  //     admin.get(url(updates[ 1 ][ 0 ].id)).expect(200).end(function (err, res) {
   //       assert.isNull(err)
-  //       assert.deepEqual(res.body, shares[ 1 ][ 0 ])
+  //       assert.deepEqual(res.body, updates[ 1 ][ 0 ])
   //       done()
   //     })
   //   })
@@ -208,36 +208,36 @@ describe('Acceptance | Controller | UpdatesController', function () {
   // #update is not active or implemented
   // These tests where necessary with Sails
   // describe.skip('#update', function () {
-  //   it('should return 403 as anon for non-existing share', function (done) {
+  //   it('should return 403 as anon for non-existing update', function (done) {
   //     anon.put(url(9999)).expect(403, done)
   //   })
   //
-  //   it('should return 403 as anon for existing share', function (done) {
-  //     anon.put(url(shares[ 0 ][ 0 ].id)).expect(403, done)
+  //   it('should return 403 as anon for existing update', function (done) {
+  //     anon.put(url(updates[ 0 ][ 0 ].id)).expect(403, done)
   //   })
   //
-  //   it('should return 403 as user for non-existing share', function (done) {
+  //   it('should return 403 as user for non-existing update', function (done) {
   //     user1.put(url(9999)).expect(403, done)
   //   })
   //
-  //   it('should return 403 as user for foreign share', function (done) {
-  //     user1.put(url(shares[ 1 ][ 0 ].id)).expect(403, done)
+  //   it('should return 403 as user for foreign update', function (done) {
+  //     user1.put(url(updates[ 1 ][ 0 ].id)).expect(403, done)
   //   })
   //
-  //   it('should return 403 as user for own share', function (done) {
-  //     user1.put(url(shares[ 0 ][ 0 ].id)).expect(403, done)
+  //   it('should return 403 as user for own update', function (done) {
+  //     user1.put(url(updates[ 0 ][ 0 ].id)).expect(403, done)
   //   })
   //
-  //   it('should return 403 as admin for non-existing share', function (done) {
+  //   it('should return 403 as admin for non-existing update', function (done) {
   //     admin.put(url(9999)).expect(403, done)
   //   })
   //
-  //   it('should return 403 as admin for foreign share', function (done) {
-  //     admin.put(url(shares[ 0 ][ 0 ].id)).expect(403, done)
+  //   it('should return 403 as admin for foreign update', function (done) {
+  //     admin.put(url(updates[ 0 ][ 0 ].id)).expect(403, done)
   //   })
   //
-  //   it('should return 403 as admin for own share', function (done) {
-  //     admin.put(url(shares[ 1 ][ 0 ].id)).expect(403, done)
+  //   it('should return 403 as admin for own update', function (done) {
+  //     admin.put(url(updates[ 1 ][ 0 ].id)).expect(403, done)
   //   })
   // })
 
@@ -246,28 +246,28 @@ describe('Acceptance | Controller | UpdatesController', function () {
       anon.delete(url(9999)).expect(401, done)
     })
 
-    it('should return 401 as anon for non-existing share', function (done) {
+    it('should return 401 as anon for non-existing update', function (done) {
       anon.delete(url(uuid.v4())).expect(401, done)
     })
 
-    it('should return 401 as anon for existing share', function (done) {
-      anon.delete(url(shares[ 0 ][ 0 ].id)).expect(401, done)
+    it('should return 401 as anon for existing update', function (done) {
+      anon.delete(url(updates[ 0 ][ 0 ].id)).expect(401, done)
     })
 
     it('should return 404 as user for invalid id', function (done) {
       user1.delete(url(9999)).expect(404, done)
     })
 
-    it('should return 404 as user for non-existing share', function (done) {
+    it('should return 404 as user for non-existing update', function (done) {
       user1.delete(url(uuid.v4())).expect(404, done)
     })
 
-    it('should return 404 as user for foreign share', function (done) {
+    it('should return 404 as user for foreign update', function (done) {
       user1.delete(url()).expect(404, done)
     })
 
-    it('should return 200 as user for own share', function (done) {
-      const id = shares[ 0 ][ 1 ].id
+    it('should return 200 as user for own update', function (done) {
+      const id = updates[ 0 ][ 1 ].id
       user1.delete(url(id)).expect(200, { id }, done)
     })
 
@@ -275,16 +275,16 @@ describe('Acceptance | Controller | UpdatesController', function () {
       admin.delete(url(9999)).expect(404, done)
     })
 
-    it('should return 404 as admin for non-existing share', function (done) {
+    it('should return 404 as admin for non-existing update', function (done) {
       admin.delete(url(uuid.v4())).expect(404, done)
     })
 
-    it('should return 404 as admin for foreign share', function (done) {
-      admin.delete(url(shares[ 0 ][ 0 ].id)).expect(404, done)
+    it('should return 404 as admin for foreign update', function (done) {
+      admin.delete(url(updates[ 0 ][ 0 ].id)).expect(404, done)
     })
 
-    it('should return 200 as admin for own share', function (done) {
-      const id = shares[ 1 ][ 0 ].id
+    it('should return 200 as admin for own update', function (done) {
+      const id = updates[ 1 ][ 0 ].id
       admin.delete(url(id)).expect(200, { id }, done)
     })
   })

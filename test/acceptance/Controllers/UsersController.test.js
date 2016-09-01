@@ -56,6 +56,10 @@ describe('Acceptance | Controller | UsersController', function () {
                 field: 'username',
                 validation: 'unique',
                 message: 'username has already been taken by someone else'
+              }, {
+                field: 'email',
+                validation: 'unique',
+                message: 'email has already been taken by someone else'
               } ], done)
           })
       })
