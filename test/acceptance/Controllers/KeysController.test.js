@@ -142,7 +142,6 @@ describe('Acceptance | Controller | KeysController', function () {
           const user2key = _.find(res.body, { owned_by: user2.id })
           assert.isOk(user2key, util.format('Public key for user %s not found', user2.id, res.body))
           assert.isUndefined(user2key.private_key)
-          // assert.isUndefined(user2key.destroyMe)
           assert.isTrue(_.every(res.body, function (eachKey) {
             return eachKey.is_public || eachKey.owned_by === user1.id
           }), util.format('Contains non public not belonging to user %s', user1.id, res.body))
@@ -161,7 +160,6 @@ describe('Acceptance | Controller | KeysController', function () {
           const user2key = _.find(res.body, { owned_by: user2.id })
           assert.isOk(user2key, util.format('Public key for user %s not found', user2.id, res.body))
           assert.isUndefined(user2key.private_key)
-          // assert.isUndefined(user2key.destroyMe)
           assert.isTrue(_.every(res.body, function (eachKey) {
             return eachKey.is_public || eachKey.owned_by === admin.id
           }), util.format('Contains non public not belonging to admin %s', admin.id, res.body))
@@ -251,7 +249,6 @@ describe('Acceptance | Controller | KeysController', function () {
         .end(function (err, res) {
           assert.isNull(err)
           assert.isUndefined(res.body.private_key)
-          // assert.isUndefined(res.body.destroyMe)
           done()
         })
     })
@@ -269,7 +266,6 @@ describe('Acceptance | Controller | KeysController', function () {
         .end(function (err, res) {
           assert.isNull(err)
           assert.isUndefined(res.body.private_key)
-          // assert.isUndefined(res.body.destroyMe)
           done()
         })
     })
