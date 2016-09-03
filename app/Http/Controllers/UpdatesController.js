@@ -19,7 +19,7 @@ class UpdatesController {
 
   * store (request, response) {
     const user = yield request.auth.getUser()
-    const receiver = yield User.findBy('email_sha256', request.input('email_sha256'))
+    const receiver = yield User.findBy('email_sha256', request.input('to_email_sha256'))
 
     if (!receiver) {
       // We don't disclose anything

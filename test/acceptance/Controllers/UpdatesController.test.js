@@ -17,7 +17,7 @@ describe('Acceptance | Controller | UpdatesController', function () {
 
   function makeUpdate (email, encrypted_) {
     return {
-      email_sha256: _.isUndefined(email) ? sha256('') : sha256(email),
+      to_email_sha256: _.isUndefined(email) ? sha256('') : sha256(email),
       encrypted_: encrypted_ || 'cypher'
     }
   }
