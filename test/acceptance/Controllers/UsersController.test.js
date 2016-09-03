@@ -1,4 +1,5 @@
 /* eslint-env mocha */
+/* global dateTimeRegex */
 'use strict'
 
 const assert = require('chai').assert
@@ -16,7 +17,9 @@ describe('Acceptance | Controller | UsersController', function () {
             const user = res.body
 
             assert.lengthOf(user.id, 36)
+            assert.match(user.created_at, dateTimeRegex)
             assert.closeTo(new Date(user.created_at).getTime(), new Date().getTime(), 1500)
+            assert.match(user.updated_at, dateTimeRegex)
             assert.equal(user.updated_at, user.created_at)
             assert.equal(user.username, agent.email)
             assert.equal(user.email, agent.email)
@@ -81,6 +84,8 @@ describe('Acceptance | Controller | UsersController', function () {
             assert.isNull(err)
             const user = res.body
             assert.equal(user.id, agent.id)
+            assert.match(user.created_at, dateTimeRegex)
+            assert.match(user.updated_at, dateTimeRegex)
             assert.isDefined(user.email_sha256, 'email_sha265 ist not defined')
             assert.isDefined(user.private_key, 'private_key is not defined')
             assert.isDefined(user.public_key, 'public_key is not defined')
@@ -96,6 +101,8 @@ describe('Acceptance | Controller | UsersController', function () {
             assert.isNull(err)
             const user = res.body
             assert.equal(user.id, agent.id)
+            assert.match(user.created_at, dateTimeRegex)
+            assert.match(user.updated_at, dateTimeRegex)
             assert.isDefined(user.email_sha256, 'email_sha265 ist not defined')
             assert.isDefined(user.private_key, 'private_key is not defined')
             assert.isDefined(user.public_key, 'public_key is not defined')

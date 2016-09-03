@@ -3,7 +3,6 @@
  */
 'use strict'
 
-const _ = require('lodash')
 const Key = use('App/Model/Key')
 const Event = use('Event')
 const Validator = use('Validator')
@@ -13,11 +12,9 @@ class KeysController {
     const user = yield request.auth.getUser()
 
     const hash = request.input('h')
-    const keys = yield Key.query().isPublicOrOwnedBy(user.id, hash)
+    const keys = yield Key.query().isPublicOrOwnedBy(user.id, hash).fetch()
 
-    response.ok(_.map(keys, (each) => {
-      return _.omit(each, 'private_key')
-    }))
+    response.ok(keys.toJSON())
   }
 
   * store (request, response) {
@@ -42,7 +39,7 @@ class KeysController {
     key = yield Key.create(data)
     Event.fire('key.created', user, key)
 
-    response.created(key)
+    response.created(key.toJSON())
   }
 
   * show (request, response) {
@@ -56,7 +53,7 @@ class KeysController {
       return
     }
 
-    response.ok(key)
+    response.ok(key.toJSON())
   }
 }
 

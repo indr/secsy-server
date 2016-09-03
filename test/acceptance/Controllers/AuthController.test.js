@@ -1,4 +1,5 @@
 /* eslint-env mocha */
+/* global dateTimeRegex */
 'use strict'
 
 const assert = require('chai').assert
@@ -31,6 +32,8 @@ describe('Acceptance | Controller | AuthController', function () {
         assert.isNull(err)
         const user = res.body
         assert.lengthOf(user.id, 36)
+        assert.match(user.created_at, dateTimeRegex)
+        assert.match(user.updated_at, dateTimeRegex)
         assert.equal(user.username, expected.username)
         assert.equal(user.email, expected.email)
         assert.notProperty(user, 'password')

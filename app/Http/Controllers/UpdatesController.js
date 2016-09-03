@@ -3,21 +3,18 @@
  */
 'use strict'
 
-const _ = require('lodash')
+const uuid = require('node-uuid')
 const Update = use('App/Model/Update')
 const User = use('App/Model/User')
-const uuid = require('node-uuid')
 const Validator = use('Validator')
 
 class UpdatesController {
   * index (request, response) {
     const user = yield request.auth.getUser()
 
-    const updates = yield Update.query().ownedBy(user.id)
+    const updates = yield Update.query().ownedBy(user.id).fetch()
 
-    response.ok(_.map(updates, (each) => {
-      return _.omit(each, 'updated_at', 'created_by', 'owned_by')
-    }))
+    response.ok(updates.toJSON())
   }
 
   * store (request, response) {
@@ -26,7 +23,7 @@ class UpdatesController {
 
     if (!receiver) {
       // We don't disclose anything
-      response.created({})
+      response.created({ id: uuid.v4() })
     }
 
     const data = request.only('encrypted_')
@@ -39,15 +36,15 @@ class UpdatesController {
     if (validation.fails()) {
       console.log('validation failed', validation.messages())
       // We don't disclose anything
-      response.created({})
+      response.created({ id: uuid.v4() })
       // response.badRequest(validation.messages())
       return
     }
 
-    yield Update.create(data)
+    const update = yield Update.create(data)
 
     // We don't disclose anything
-    response.created({})
+    response.created({ id: update.id })
   }
 
   * destroy (request, response) {

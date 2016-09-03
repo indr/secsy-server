@@ -2,6 +2,7 @@
  * Copyright 2016 Reto Inderbitzin <mail@indr.ch>
  */
 /* eslint-env mocha */
+/* global dateTimeRegex */
 'use strict'
 
 const _ = require('lodash')
@@ -37,7 +38,10 @@ describe('Acceptance | Controller | ContactsController', function () {
             const contact = res.body
 
             assert.lengthOf(contact.id, 36)
+
+            assert.match(contact.created_at, dateTimeRegex)
             assert.closeTo(new Date(contact.created_at).getTime(), new Date().getTime(), 1200)
+            assert.match(contact.updated_at, dateTimeRegex)
             assert.equal(contact.updated_at, contact.created_at)
             assert.equal(contact.owned_by, user.id)
             assert.isFalse(contact.me)
@@ -83,6 +87,8 @@ describe('Acceptance | Controller | ContactsController', function () {
           assert.isNull(err)
           assert.lengthOf(res.body, _.filter(res.body, { owned_by: user.id }).length)
           assert.lengthOf(_.filter(res.body, { me: true }), 1)
+          assert.match(res.body[ 0 ].created_at, dateTimeRegex)
+          assert.match(res.body[ 0 ].updated_at, dateTimeRegex)
           done()
         })
     })
@@ -94,6 +100,8 @@ describe('Acceptance | Controller | ContactsController', function () {
           assert.isNull(err)
           assert.lengthOf(res.body, _.filter(res.body, { owned_by: admin.id }).length)
           assert.lengthOf(_.filter(res.body, { me: true }), 1)
+          assert.match(res.body[ 0 ].created_at, dateTimeRegex)
+          assert.match(res.body[ 0 ].updated_at, dateTimeRegex)
           done()
         })
     })
@@ -114,11 +122,15 @@ describe('Acceptance | Controller | ContactsController', function () {
     it('should return 200 as user for own contact', function () {
       return user.get(url(user.contacts[ 0 ])).expect(200).then((res) => {
         assert.equal(res.body.id, user.contacts[ 0 ])
+        assert.match(res.body.created_at, dateTimeRegex)
+        assert.match(res.body.updated_at, dateTimeRegex)
       })
     })
     it('should return 200 as admin for own contact', function () {
       return admin.get(url(admin.contacts[ 0 ])).expect(200).then((res) => {
         assert.equal(res.body.id, admin.contacts[ 0 ])
+        assert.match(res.body.created_at, dateTimeRegex)
+        assert.match(res.body.updated_at, dateTimeRegex)
       })
     })
   })

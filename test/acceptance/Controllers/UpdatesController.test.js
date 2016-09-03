@@ -2,6 +2,7 @@
  * Copyright 2016 Reto Inderbitzin <mail@indr.ch>
  */
 /* eslint-env mocha */
+/* global dateTimeRegex */
 'use strict'
 
 const _ = require('lodash')
@@ -38,6 +39,7 @@ describe('Acceptance | Controller | UpdatesController', function () {
   function assertUpdate (update) {
     const properties = [ 'updated_at', 'created_by', 'owned_by' ]
 
+    assert.match(update.created_at, dateTimeRegex)
     const keys = Object.keys(update)
     properties.forEach(function (each) {
       assert.notInclude(keys, each)
@@ -78,20 +80,22 @@ describe('Acceptance | Controller | UpdatesController', function () {
       anon.post(url()).send(makeUpdate('123abc')).expect(401, done)
     })
 
-    it('should return 201 and empty object as user', function (done) {
+    it('should return 201 and object with an id as user', function (done) {
       user1.post(url()).send(makeUpdate('123abc')).expect(201)
         .end(function (err, res) {
           assert.isNull(err)
-          assert.deepEqual(res.body, {})
+          assert.lengthOf(res.body.id, 36)
+          assert.deepEqual(res.body, { id: res.body.id })
           done()
         })
     })
 
-    it('should return 201 and empty object as admin', function (done) {
+    it('should return 201 and object with an id as admin', function (done) {
       admin.post(url()).send(makeUpdate('123abc')).expect(201)
         .end(function (err, res) {
           assert.isNull(err)
-          assert.deepEqual(res.body, {})
+          assert.lengthOf(res.body.id, 36)
+          assert.deepEqual(res.body, { id: res.body.id })
           done()
         })
     })
@@ -110,20 +114,22 @@ describe('Acceptance | Controller | UpdatesController', function () {
       anon.post(url()).send(makeUpdate(receiver.email)).expect(401, done)
     })
 
-    it('should return 201 and empty object as user', function (done) {
+    it('should return 201 and object with id as user', function (done) {
       user1.post(url()).send(makeUpdate(receiver.email)).expect(201)
         .end(function (err, res) {
           assert.isNull(err)
-          assert.deepEqual(res.body, {})
+          assert.lengthOf(res.body.id, 36)
+          assert.deepEqual(res.body, { id: res.body.id })
           done()
         })
     })
 
-    it('should return 201 and empty object as admin', function (done) {
+    it('should return 201 and object with id as admin', function (done) {
       admin.post(url()).send(makeUpdate(receiver.email)).expect(201)
         .end(function (err, res) {
           assert.isNull(err)
-          assert.deepEqual(res.body, {})
+          assert.lengthOf(res.body.id, 36)
+          assert.deepEqual(res.body, { id: res.body.id })
           done()
         })
     })

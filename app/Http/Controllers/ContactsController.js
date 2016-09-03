@@ -6,9 +6,9 @@ class ContactsController {
   * index (request, response) {
     const user = yield request.auth.getUser()
 
-    const contacts = yield Contact.query().ownedBy(user.id)
+    const contacts = yield Contact.query().ownedBy(user.id).fetch()
 
-    response.ok(contacts)
+    response.ok(contacts.toJSON())
   }
 
   * store (request, response) {
@@ -23,7 +23,7 @@ class ContactsController {
 
     const contact = yield Contact.create(data)
 
-    response.created(contact)
+    response.created(contact.toJSON())
   }
 
   * show (request, response) {
@@ -37,7 +37,7 @@ class ContactsController {
       return
     }
 
-    response.ok(contact)
+    response.ok(contact.toJSON())
   }
 
   * update (request, response) {
@@ -54,7 +54,7 @@ class ContactsController {
     contact.encrypted_ = request.input('encrypted_')
     yield contact.save()
 
-    response.ok(contact)
+    response.ok(contact.toJSON())
   }
 
   * destroy (request, response) {
@@ -70,7 +70,7 @@ class ContactsController {
 
     yield contact.delete()
 
-    response.ok(contact)
+    response.ok(contact.toJSON())
   }
 }
 

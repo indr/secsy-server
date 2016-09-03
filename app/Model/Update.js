@@ -11,6 +11,10 @@ class Update extends Lucid {
     this.addHook('beforeCreate', 'Base.generateId')
   }
 
+  static get hidden () {
+    return [ 'updated_at', 'created_by', 'owned_by' ]
+  }
+
   static get rules () {
     return {
       'from_email_sha256': 'required|min:64|max:64',
