@@ -3,14 +3,9 @@
  */
 'use strict'
 
-const Lucid = use('Lucid')
+const Base = require('./Base')
 
-class Contact extends Lucid {
-  static boot () {
-    super.boot()
-    this.addHook('beforeCreate', 'Base.generateId')
-  }
-
+class Contact extends Base {
   static scopeOwnedBy (builder, ownerId) {
     builder.where('owned_by', ownerId)
   }

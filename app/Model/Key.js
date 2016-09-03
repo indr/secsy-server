@@ -3,15 +3,9 @@
  */
 'use strict'
 
-const Lucid = use('Lucid')
+const Base = require('./Base')
 
-class Key extends Lucid {
-
-  static boot () {
-    super.boot()
-    this.addHook('beforeCreate', 'Base.generateId')
-  }
-
+class Key extends Base {
   static get hidden () {
     return [ 'created_at', 'updated_at', 'created_by', 'owned_by', 'private_key' ]
   }

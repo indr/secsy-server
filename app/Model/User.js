@@ -1,16 +1,14 @@
 'use strict'
 
-const Lucid = use('Lucid')
+const Base = require('./Base')
 
-class User extends Lucid {
-
+class User extends Base {
   apiTokens () {
     return this.hasMany('App/Model/Token')
   }
 
   static boot () {
     super.boot()
-    this.addHook('beforeCreate', 'Base.generateId')
     this.addHook('beforeCreate', 'User.setUsername')
     this.addHook('beforeCreate', 'User.encryptPassword')
     this.addHook('beforeCreate', 'User.setEmailSha256')
