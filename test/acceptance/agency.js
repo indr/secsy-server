@@ -11,8 +11,7 @@ module.exports = defaultAgency
 module.exports.Agency = Agency
 
 function nextAgentNr () {
-  var agentNr = uuid.v4().substring(0, 8)
-  return agentNr
+  return uuid.v4().substring(0, 8)
 }
 
 function Agency (app) {
@@ -84,6 +83,7 @@ function signup () {
       .end(function (err, res) {
         if (err) return reject(err)
         self.id = res.body.id
+        self.emailSha256 = res.body.email_sha256
         return resolve(self)
       })
   })

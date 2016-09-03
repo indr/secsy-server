@@ -25,18 +25,22 @@ describe('Acceptance | Controller | KeysController', function () {
   }
 
   function assertKey (actual, expected) {
+    const notProperties = [ 'created_at', 'updated_at', 'owned_by', 'private_key' ]
+    notProperties.forEach(function (each) {
+      assert.notProperty(actual, each)
+    })
+
     assert.propertyVal(actual, 'email_sha256', expected.email_sha256)
     assert.propertyVal(actual, 'is_public', expected.is_public)
-    assert.notProperty(actual, 'private_key')
     assert.propertyVal(actual, 'public_key', expected.public_key)
   }
 
   function assert201 (res, agent) {
     const key = res.body
     assert.lengthOf(key.id, 36)
-    assert.closeTo(new Date(key.created_at).getTime(), new Date().getTime(), 1200)
-    assert.equal(key.updated_at, key.created_at)
-    assert.equal(key.owned_by, agent.id)
+    // assert.closeTo(new Date(key.created_at).getTime(), new Date().getTime(), 1200)
+    // assert.equal(key.updated_at, key.created_at)
+    assert.equal(key.email_sha256, agent.emailSha256)
 
     assertKey(key, makeKey(agent, false))
   }
@@ -137,14 +141,14 @@ describe('Acceptance | Controller | KeysController', function () {
         .end(function (err, res) {
           assert.isNull(err)
           assert.isAbove(res.body.length, 1)
-          assert.isOk(_.find(res.body, { owned_by: user1.id, is_public: false }),
-            util.format('Own not public key for user %s not found', user1.id, res.body))
-          const user2key = _.find(res.body, { owned_by: user2.id })
-          assert.isOk(user2key, util.format('Public key for user %s not found', user2.id, res.body))
+          assert.isOk(_.find(res.body, { email_sha256: user1.emailSha256, is_public: false }),
+            util.format('Own not public key for user %s not found', user1.emailSha256, res.body))
+          const user2key = _.find(res.body, { email_sha256: user2.emailSha256 })
+          assert.isOk(user2key, util.format('Public key for user %s not found', user2.emailSha256, res.body))
           assert.isUndefined(user2key.private_key)
           assert.isTrue(_.every(res.body, function (eachKey) {
-            return eachKey.is_public || eachKey.owned_by === user1.id
-          }), util.format('Contains non public not belonging to user %s', user1.id, res.body))
+            return eachKey.is_public || eachKey.email_sha256 === user1.emailSha256
+          }), util.format('Contains non public not belonging to user %s', user1.emailSha256, res.body))
           done()
         })
     })
@@ -155,14 +159,14 @@ describe('Acceptance | Controller | KeysController', function () {
         .end(function (err, res) {
           assert.isNull(err)
           assert.isAbove(res.body.length, 1)
-          assert.isOk(_.find(res.body, { owned_by: admin.id, is_public: false }),
-            util.format('Own not public key for user %s not found', admin.id, res.body))
-          const user2key = _.find(res.body, { owned_by: user2.id })
-          assert.isOk(user2key, util.format('Public key for user %s not found', user2.id, res.body))
+          assert.isOk(_.find(res.body, { email_sha256: admin.emailSha256, is_public: false }),
+            util.format('Own not public key for user %s not found', admin.emailSha256, res.body))
+          const user2key = _.find(res.body, { email_sha256: user2.emailSha256 })
+          assert.isOk(user2key, util.format('Public key for user %s not found', user2.emailSha256, res.body))
           assert.isUndefined(user2key.private_key)
           assert.isTrue(_.every(res.body, function (eachKey) {
-            return eachKey.is_public || eachKey.owned_by === admin.id
-          }), util.format('Contains non public not belonging to admin %s', admin.id, res.body))
+            return eachKey.is_public || eachKey.email_sha256 === admin.emailSha256
+          }), util.format('Contains non public not belonging to admin %s', admin.emailSha256, res.body))
           done()
         })
     })
@@ -228,24 +232,24 @@ describe('Acceptance | Controller | KeysController', function () {
         return agency.user()
       }).then(function (agent) {
         user2 = agent
-        admin.post(url()).send(makeKey(admin, false)).expect(201).end(saveId(admin.id, function () {
-          user1.post(url()).send(makeKey(user1, false)).expect(201).end(saveId(user1.id, function () {
-            user2.post(url()).send(makeKey(user2, true)).expect(201).end(saveId(user2.id, done))
+        admin.post(url()).send(makeKey(admin, false)).expect(201).end(saveId(admin.emailSha256, function () {
+          user1.post(url()).send(makeKey(user1, false)).expect(201).end(saveId(user1.emailSha256, function () {
+            user2.post(url()).send(makeKey(user2, true)).expect(201).end(saveId(user2.emailSha256, done))
           }))
         }))
       }).catch(done)
     })
 
     it('should return 401 as anon for public key', function (done) {
-      anon.get(url(userKeyMap[ user2.id ])).expect(401, done)
+      anon.get(url(userKeyMap[ user2.emailSha256 ])).expect(401, done)
     })
 
     it('should return 404 as user for private key', function (done) {
-      user1.get(url(userKeyMap[ admin.id ])).expect(404, done)
+      user1.get(url(userKeyMap[ admin.emailSha256 ])).expect(404, done)
     })
 
     it('should return 200 as user for public key', function (done) {
-      user1.get(url(userKeyMap[ user2.id ])).expect(200)
+      user1.get(url(userKeyMap[ user2.emailSha256 ])).expect(200)
         .end(function (err, res) {
           assert.isNull(err)
           assert.isUndefined(res.body.private_key)
@@ -254,15 +258,15 @@ describe('Acceptance | Controller | KeysController', function () {
     })
 
     it('should return 200 as user for own key', function (done) {
-      user1.get(url(userKeyMap[ user1.id ])).expect(200, done)
+      user1.get(url(userKeyMap[ user1.emailSha256 ])).expect(200, done)
     })
 
     it('should return 404 as admin for private key', function (done) {
-      admin.get(url(userKeyMap[ user1.id ])).expect(404, done)
+      admin.get(url(userKeyMap[ user1.emailSha256 ])).expect(404, done)
     })
 
     it('should return 200 as admin for public key', function (done) {
-      admin.get(url(userKeyMap[ user2.id ])).expect(200)
+      admin.get(url(userKeyMap[ user2.emailSha256 ])).expect(200)
         .end(function (err, res) {
           assert.isNull(err)
           assert.isUndefined(res.body.private_key)
@@ -271,7 +275,7 @@ describe('Acceptance | Controller | KeysController', function () {
     })
 
     it('should return 200 as admin for own key', function (done) {
-      admin.get(url(userKeyMap[ admin.id ])).expect(200, done)
+      admin.get(url(userKeyMap[ admin.emailSha256 ])).expect(200, done)
     })
   })
 })

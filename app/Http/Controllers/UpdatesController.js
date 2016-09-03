@@ -3,6 +3,7 @@
  */
 'use strict'
 
+const _ = require('lodash')
 const Update = use('App/Model/Update')
 const User = use('App/Model/User')
 const uuid = require('node-uuid')
@@ -14,7 +15,9 @@ class UpdatesController {
 
     const updates = yield Update.query().ownedBy(user.id)
 
-    response.ok(updates)
+    response.ok(_.map(updates, (each) => {
+      return _.omit(each, 'updated_at', 'created_by', 'owned_by')
+    }))
   }
 
   * store (request, response) {

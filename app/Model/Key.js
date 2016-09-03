@@ -13,7 +13,7 @@ class Key extends Lucid {
   }
 
   static get hidden () {
-    return [ 'private_key' ]
+    return [ 'created_at', 'updated_at', 'owned_by', 'private_key' ]
   }
 
   static get rules () {

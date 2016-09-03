@@ -31,6 +31,19 @@ describe('Acceptance | Controller | UpdatesController', function () {
     })
   }
 
+  function assertUpdates (updates) {
+    updates.forEach(assertUpdate)
+  }
+
+  function assertUpdate (update) {
+    const properties = [ 'updated_at', 'created_by', 'owned_by' ]
+
+    const keys = Object.keys(update)
+    properties.forEach(function (each) {
+      assert.notInclude(keys, each)
+    })
+  }
+
   let anon, user1, user2, admin, sharer1, sharer2
 
   before(function () {
@@ -119,6 +132,7 @@ describe('Acceptance | Controller | UpdatesController', function () {
       receiver.get(url()).expect(200).end(function (err, res) {
         assert.isNull(err)
         assert.lengthOf(res.body, 2)
+        assertUpdates(res.body)
         done()
       })
     })
@@ -145,6 +159,7 @@ describe('Acceptance | Controller | UpdatesController', function () {
         assert.isNull(err)
         assert.lengthOf(res.body, 2)
         updates[ 0 ] = res.body
+        assertUpdates(res.body)
         done()
       })
     })
@@ -154,6 +169,7 @@ describe('Acceptance | Controller | UpdatesController', function () {
         assert.isNull(err)
         assert.lengthOf(res.body, 1)
         updates[ 1 ] = res.body
+        assertUpdates(res.body)
         done()
       })
     })
