@@ -213,11 +213,11 @@ header .header-content .header-content-inner p {
 }
 .service-box {
   max-width: 400px;
-  min-height: 236px;
   margin: 50px auto 0;
 }
 @media (min-width: 992px) {
   .service-box {
+    min-height: 236px;
     margin: 20px auto 0;
   }
 }
