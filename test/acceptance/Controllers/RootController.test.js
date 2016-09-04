@@ -16,7 +16,7 @@ describe('Acceptance | Controller | RootController', function () {
   function assertFrontPage (lang, done) {
     return function (err, res) {
       assert.isNull(err)
-      assert.equal(res.text.match(/<html lang="([^"]+)">/)[ 1 ], lang)
+      assert.equal(res.text.match(/<html lang="([^"]+)"/)[ 1 ], lang)
       assert.match(res.text, /<h1 id="homeHeading">/)
       done()
     }
