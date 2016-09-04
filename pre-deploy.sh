@@ -32,3 +32,11 @@ cp *.ico $PUBLIC/
 cp *.png $PUBLIC/
 
 cd $SERVER
+
+npm test
+if [ $? -ne 0 ]
+then
+  exit $?
+fi
+
+
