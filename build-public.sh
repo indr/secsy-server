@@ -28,8 +28,7 @@ rm $PUBLIC/vendor/font-awesome/less -rf
 rm $PUBLIC/vendor/font-awesome/scss -rf
 cp de.html $PUBLIC/
 cp en.html $PUBLIC/
-cp $PUBLIC/app/apple-touch-icon-precomposed*.png $PUBLIC/apple-touch-icon-precomposed.png
-cp $PUBLIC/app/favicon.ico $PUBLIC/favicon.ico
-cp $PUBLIC/app/favicon*.png $PUBLIC/favicon.png
+cp *.ico $PUBLIC/
+cp *.png $PUBLIC/
 
 cd $SERVER
