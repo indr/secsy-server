@@ -20,7 +20,7 @@ class UsersController {
     }
 
     const user = yield User.create(data)
-    Event.fire('user.registered', user)
+    Event.fire('user.signed-up', user)
 
     response.created(user.toJSON())
   }
