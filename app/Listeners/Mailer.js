@@ -1,5 +1,6 @@
 'use strict'
 
+const Env = use('Env')
 const Mail = use('Mail')
 
 const Mailer = exports = module.exports = {}
@@ -10,10 +11,9 @@ Mailer.sendSystemMessageUserSignedUp = function * (user) {
       throw new Error('Mailer expects a valid instance of User Model.')
     }
 
-    yield Mail.send([ null, 'emails/system_messages/user-signed-up' ], user.toJSON(), function (message) {
-      // message.to(user.email, user.name)
+    return yield Mail.send([ null, 'emails/system_messages/user-signed-up' ], user.toJSON(), function (message) {
       message.to('admin@secsy.io')
-      message.from('no-reply@secsy.io')
+      message.from(Env.get('MAIL_FROM_EMAIL'), Env.get('MAIL_FROM_NAME'))
       message.subject('Notification: User signed up')
     })
   } catch (err) {
