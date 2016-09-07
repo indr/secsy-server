@@ -5,9 +5,13 @@ const Mail = use('Mail')
 
 const Mailer = exports = module.exports = {}
 
-Mailer.sendSystemMessageUserLoggedIn = function * (login) {
+Mailer.sendSystemMessageUserLoggedIn = function * (user) {
   try {
-    return yield Mail.send([ null, 'emails/system_messages/user-logged-in' ], login, function (message) {
+    if (!user || typeof (user.toJSON) !== 'function') {
+      throw new Error('Mailer expects a valid instance of User Model.')
+    }
+
+    return yield Mail.send([ null, 'emails/system_messages/user-logged-in' ], user.toJSON(), function (message) {
       message.to('admin@secsy.io')
       message.from(Env.get('MAIL_FROM_EMAIL'), Env.get('MAIL_FROM_NAME'))
       message.subject('Notification: User logged in')

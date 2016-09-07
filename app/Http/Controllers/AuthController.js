@@ -12,7 +12,6 @@ class AuthController {
     let login
     try {
       login = yield request.auth.attempt(identifier, password)
-      Event.fire('user.logged-in', login)
     } catch (UserNotFoundException) {
       response.forbidden()
       return
@@ -29,6 +28,8 @@ class AuthController {
     const result = user.toJSON()
     result.private_key = key ? key.private_key : null
     result.public_key = key ? key.public_key : null
+
+    Event.fire('user.logged-in', user)
 
     response.send(result)
   }
