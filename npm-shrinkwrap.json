@@ -73,8 +73,15 @@
     },
     "adonis-mail-provider": {
       "version": "2.0.0",
-      "from": "git+https://github.com/adonisjs/adonis-mail.git",
-      "resolved": "git+https://github.com/adonisjs/adonis-mail.git#09dbde654e833a9c2445a69fa3448e942f76bc96"
+      "from": "git://github.com/adonisjs/adonis-mail.git#7276878fcd5542c2760075841eef08793d5c1d19",
+      "resolved": "git://github.com/adonisjs/adonis-mail.git#7276878fcd5542c2760075841eef08793d5c1d19",
+      "dependencies": {
+        "node-exceptions": {
+          "version": "1.0.3",
+          "from": "node-exceptions@>=1.0.3 <2.0.0",
+          "resolved": "https://registry.npmjs.org/node-exceptions/-/node-exceptions-1.0.3.tgz"
+        }
+      }
     },
     "adonis-middleware": {
       "version": "1.0.7",
@@ -2091,7 +2098,7 @@
     },
     "nodemailer": {
       "version": "2.6.0",
-      "from": "nodemailer@>=2.1.0 <3.0.0",
+      "from": "nodemailer@>=2.5.0 <3.0.0",
       "resolved": "https://registry.npmjs.org/nodemailer/-/nodemailer-2.6.0.tgz"
     },
     "nodemailer-direct-transport": {
