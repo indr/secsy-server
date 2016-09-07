@@ -22,4 +22,5 @@ Event.when('Http.start', 'Http.onStart')
 
 Event.when('user.signed-up', 'Addressbook.createMeContact')
 Event.when('user.signed-up', 'Mailer.sendSystemMessageUserSignedUp')
+Event.when('user.logged-in', 'Mailer.sendSystemMessageUserLoggedIn')
 Event.when('key.created', 'Addressbook.updateMeContact')

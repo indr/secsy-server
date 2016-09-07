@@ -1,5 +1,6 @@
 'use strict'
 
+const Event = use('Event')
 const Key = use('App/Model/Key')
 
 class AuthController {
@@ -11,6 +12,7 @@ class AuthController {
     let login
     try {
       login = yield request.auth.attempt(identifier, password)
+      Event.fire('user.logged-in', login)
     } catch (UserNotFoundException) {
       response.forbidden()
       return
