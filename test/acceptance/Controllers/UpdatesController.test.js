@@ -19,7 +19,7 @@ describe('Acceptance | Controller | UpdatesController', function () {
   function makeUpdate (email, encrypted_) {
     return {
       to_email_sha256: _.isUndefined(email) ? sha256('') : sha256(email),
-      encrypted_: encrypted_ || 'cypher'
+      encrypted_: encrypted_ === undefined ? 'cypher' : encrypted_
     }
   }
 
@@ -75,7 +75,7 @@ describe('Acceptance | Controller | UpdatesController', function () {
     })
   })
 
-  describe('#create for non-existing email hash', function () {
+  describe('#create for non-existing receiver', function () {
     it('should return 401 as anon', function (done) {
       anon.post(url()).send(makeUpdate('123abc')).expect(401, done)
     })
@@ -91,7 +91,41 @@ describe('Acceptance | Controller | UpdatesController', function () {
     })
 
     it('should return 201 and object with an id as admin', function (done) {
-      admin.post(url()).send(makeUpdate('123abc')).expect(201)
+      admin.post(url()).send(makeUpdate('123abc', '')).expect(201)
+        .end(function (err, res) {
+          assert.isNull(err)
+          assert.lengthOf(res.body.id, 36)
+          assert.deepEqual(res.body, { id: res.body.id })
+          done()
+        })
+    })
+  })
+
+  describe('#create with empty _encrypted data', function () {
+    var receiver
+    before(function (done) {
+      agency.user().then(function (agent) {
+        receiver = agent
+        done()
+      })
+    })
+
+    it('should return 401 as anon', function (done) {
+      anon.post(url()).send(makeUpdate(receiver.email, '')).expect(401, done)
+    })
+
+    it('should return 201 and object with an id as user', function (done) {
+      user1.post(url()).send(makeUpdate(receiver.email, '')).expect(201)
+        .end(function (err, res) {
+          assert.isNull(err)
+          assert.lengthOf(res.body.id, 36)
+          assert.deepEqual(res.body, { id: res.body.id })
+          done()
+        })
+    })
+
+    it('should return 201 and object with an id as admin', function (done) {
+      admin.post(url()).send(makeUpdate(receiver.email, '')).expect(201)
         .end(function (err, res) {
           assert.isNull(err)
           assert.lengthOf(res.body.id, 36)

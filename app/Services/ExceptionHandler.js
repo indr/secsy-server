@@ -27,7 +27,7 @@ ExceptionHandler.send = function * (error, request, response) {
     console.error(error.stack)
   }
 
-  const accept = request.accepts('html', 'json')
+  const accept = request.accepts('json', 'html')
   switch (accept) {
     case 'html':
       yield response.status(data.status).sendView('errors/index', { error: data })

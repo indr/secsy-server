@@ -55,15 +55,19 @@ describe('Acceptance | Controller | UsersController', function () {
           .expect(201, function () {
             agent.post('/api/users')
               .send({ email: agent.email, password: agent.password })
-              .expect(400, [ {
-                field: 'username',
-                validation: 'unique',
-                message: 'username has already been taken by someone else'
-              }, {
-                field: 'email',
-                validation: 'unique',
-                message: 'email has already been taken by someone else'
-              } ], done)
+              .expect(400, {
+                status: 400,
+                message: 'Validation failed',
+                fields: [ {
+                  field: 'username',
+                  validation: 'unique',
+                  message: 'username has already been taken by someone else'
+                }, {
+                  field: 'email',
+                  validation: 'unique',
+                  message: 'email has already been taken by someone else'
+                } ]
+              }, done)
           })
       })
     })

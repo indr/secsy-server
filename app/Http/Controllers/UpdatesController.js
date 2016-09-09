@@ -6,7 +6,7 @@
 const uuid = require('node-uuid')
 const Update = use('App/Model/Update')
 const User = use('App/Model/User')
-const Validator = use('Validator')
+const Validator = use('App/Services/Validator')
 
 class UpdatesController {
   * index (request, response) {
@@ -24,6 +24,7 @@ class UpdatesController {
     if (!receiver) {
       // We don't disclose anything
       response.created({ id: uuid.v4() })
+      return
     }
 
     const data = request.only('encrypted_')
@@ -32,19 +33,19 @@ class UpdatesController {
     data.from_email_sha256 = user.email_sha256
     data.to_email_sha256 = receiver.email_sha256
 
-    const validation = yield Validator.validate(data, Update.rules)
-    if (validation.fails()) {
-      console.log('validation failed', validation.messages())
-      // We don't disclose anything
+    try {
+      yield Validator.validate(data, Update.rules)
+
+      const update = yield Update.create(data)
+
+      // Don't disclose anything
+      response.created({ id: update.id })
+    } catch (error) {
+      console.error(error.stack)
+
+      // Don't disclose anything
       response.created({ id: uuid.v4() })
-      // response.badRequest(validation.messages())
-      return
     }
-
-    const update = yield Update.create(data)
-
-    // We don't disclose anything
-    response.created({ id: update.id })
   }
 
   * destroy (request, response) {
