@@ -6,7 +6,7 @@
     "dev": "nodemon --watch app --watch bootstrap --watch config --watch .env -x \"node --harmony_proxies\" server.js",
     "start": "node --harmony_proxies server.js",
     "lint": "standard",
-    "test": "standard && mocha test/**/*.test.js"
+    "test": "standard && mocha test --recursive"
   },
   "author": "",
   "license": "MIT",

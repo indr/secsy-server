@@ -5,7 +5,7 @@
 
 const Key = use('App/Model/Key')
 const Event = use('Event')
-const Validator = use('Validator')
+const Validator = use('App/Services/Validator')
 
 class KeysController {
   * index (request, response) {
@@ -25,11 +25,7 @@ class KeysController {
     data.email_sha256 = user.email_sha256
     data.is_public = data.is_public || false
 
-    const validation = yield Validator.validate(data, Key.rules)
-    if (validation.fails()) {
-      response.badRequest(validation.messages())
-      return
-    }
+    yield Validator.validate(data, Key.rules)
 
     let key = yield Key.query().ownedBy(user.id).first()
     if (key) {

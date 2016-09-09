@@ -3,7 +3,7 @@
 const User = use('App/Model/User')
 const Key = use('App/Model/Key')
 const Event = use('Event')
-const Validator = use('Validator')
+const Validator = use('App/Services/Validator')
 
 class UsersController {
 
@@ -12,12 +12,7 @@ class UsersController {
     const data = yield Validator.sanitize(raw, User.sanitations)
     data.username = data.email
 
-    const validation = yield Validator.validateAll(data, User.rules)
-
-    if (validation.fails()) {
-      response.badRequest(validation.messages())
-      return
-    }
+    yield Validator.validateAll(data, User.rules)
 
     const user = yield User.create(data)
     Event.fire('user.signed-up', user)
