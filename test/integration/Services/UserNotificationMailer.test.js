@@ -3,9 +3,10 @@
 
 const assert = require('chai').assert
 const emailParser = require('./../../test-helpers/email')
+const uuid = require('node-uuid')
 require('./../setup')
 
-describe('Integration | Service | SysMsgMailer', function () {
+describe('Integration | Service | UserNotificationMailer', function () {
   let Config, Env, User, user,
     sut
 
@@ -15,34 +16,31 @@ describe('Integration | Service | SysMsgMailer', function () {
     User = use('App/Model/User')
     user = new User()
     user.email = 'user@example.com'
+    user.name = user.email
   })
 
   beforeEach(function * () {
-    sut = make('App/Services/SysMsgMailer')
+    sut = make('App/Services/UserNotificationMailer')
   })
 
   after(function * () {
     yield emailParser.clean(Config.get('mail.log.toPath'))
   })
 
-  function * assertRecent (subject) {
+  function * assertRecent () {
     const email = yield emailParser.getEmail(Config.get('mail.log.toPath'), 'recent')
     assert.deepEqual(email.from, [ { address: Env.get('MAIL_FROM_EMAIL'), name: Env.get('MAIL_FROM_NAME') } ])
-    assert.deepEqual(email.to, [ { address: 'admin@secsy.io', name: '' } ])
-    assert.equal(email.subject, subject)
     return email
   }
 
-  it('#sendUserLoggedIn', function * () {
-    var response = yield sut.sendUserLoggedIn(user)
-    assert.deepEqual(response.accepted, [ 'admin@secsy.io' ])
-    yield assertRecent('Notification: User logged in')
-  })
+  it('#sendAccountActivation', function * () {
+    let token = uuid.v1()
+    let response = yield sut.sendAccountActivation(user, token)
 
-  it('#sendUserSignedUp', function * () {
-    var response = yield sut.sendUserSignedUp(user)
-    assert.deepEqual(response.accepted, [ 'admin@secsy.io' ])
-    yield assertRecent('Notification: User signed up')
+    assert.deepEqual(response.accepted, [ user.email ])
+    const email = yield assertRecent({})
+    assert.deepEqual(email.to, [ { address: user.email, name: '' } ])
+    assert.equal(email.subject, 'Confirm your new account')
+    assert.isAbove(email.textBody.indexOf(Env.get('BASE_URL') + '/users/activate-account/' + token), -1)
   })
 })
-

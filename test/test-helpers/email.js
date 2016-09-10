@@ -41,6 +41,10 @@ class MailBody {
     return this.parsedMail.from
   }
 
+  get subject () {
+    return this.parsedMail.subject
+  }
+
   /**
    * retruns parsed email body
    *
@@ -50,6 +54,10 @@ class MailBody {
    */
   get htmlBody () {
     return this.parsedMail.html
+  }
+
+  get textBody () {
+    return this.parsedMail.text
   }
 
   /**
