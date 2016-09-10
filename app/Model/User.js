@@ -7,6 +7,10 @@ class User extends Base {
     return this.hasMany('App/Model/Token')
   }
 
+  emailTokens () {
+    return this.hasMany('App/Model/EmailToken')
+  }
+
   static boot () {
     super.boot()
     this.addHook('beforeCreate', 'User.setUsername')

@@ -39,8 +39,7 @@ describe('Integration | Model | EmailToken', function () {
     it('should be able to create a new email token', function * () {
       const emailToken = yield EmailToken.create({
         user_id: user.id,
-        email: 'user@example.com',
-        token: uuid.v1()
+        email: 'user@example.com'
       })
       emailToken.confirmed = false
       emailToken.expired = false

@@ -16,12 +16,13 @@ const fails = validation.fails
 const succeeds = validation.succeeds
 
 describe('Integration | Model | User', function () {
-  let User, Validator
+  let User, Validator, EmailToken
 
   before(function * () {
     yield setup.loadProviders()
     yield setup.start()
 
+    EmailToken = use('App/Model/EmailToken')
     User = use('App/Model/User')
     Validator = use('Validator')
   })
@@ -65,12 +66,17 @@ describe('Integration | Model | User', function () {
         email: `${uuid.v4()}@example.com`,
         password: 'user1234'
       })
+      var emailToken = yield user.emailTokens().create({ email: user.email })
 
-      const fromDb = yield User.find(user.id)
+      var fromDb = yield User.find(user.id)
       assert.lengthOf(fromDb.id, 36)
       assert.equal(fromDb.username, user.email)
       assert.notEqual(fromDb.password, 'user1234')
       assert.equal(fromDb.email_sha256, sha256(user.email))
+
+      fromDb = yield fromDb.emailTokens().fetch()
+      assert.equal(fromDb.size(), 1)
+      assert.equal(fromDb.first().id, emailToken.id)
     })
   })
 })
