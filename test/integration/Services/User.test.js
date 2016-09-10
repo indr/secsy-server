@@ -2,15 +2,16 @@
 /* eslint-env mocha */
 
 const assert = require('chai').assert
+const emailParser = require('./../../test-helpers/email')
 const setup = require('./../setup')
 const uuid = require('node-uuid')
 require('co-mocha')
 
 describe('Integration | Service | User', function () {
-  let Event, User,
+  let Config, Event, User,
     sut
 
-  function email () {
+  function genEmail () {
     return `${uuid.v4()}@example.com`
   }
 
@@ -18,16 +19,21 @@ describe('Integration | Service | User', function () {
     yield setup.loadProviders()
     yield setup.start()
 
+    Config = use('Config')
     Event = use('Event')
     User = use('App/Model/User')
 
     sut = make('App/Services/User')
   })
 
-  describe('#signUp', function () {
+  after(function * () {
+    yield emailParser.clean(Config.get('mail.log.toPath'))
+  })
+
+  describe('#signup', function () {
     it('validates rules', function * () {
       try {
-        yield sut.signUp({})
+        yield sut.signup({})
         assert(false)
       } catch (error) {
         assert.equal(error.name, 'ValidationException')
@@ -35,10 +41,27 @@ describe('Integration | Service | User', function () {
     })
 
     it('should create new user', function * () {
-      const user = yield sut.signUp({ email: email(), password: 'secret1234' })
+      const user = yield sut.signup({ email: genEmail(), password: 'secret1234' })
 
       assert.instanceOf(user, User)
       assert.isFalse(user.isNew())
+    })
+
+    it('should create email token', function * () {
+      const user = yield sut.signup({ email: genEmail(), password: 'secret1234' })
+      const emailTokens = yield user.emailTokens().fetch()
+
+      assert.equal(emailTokens.size(), 1)
+      assert.equal(emailTokens.first().email, user.email)
+    })
+
+    it('should send account activation email', function * () {
+      const user = yield sut.signup({ email: genEmail(), password: 'secret1234' })
+      const emailToken = (yield user.emailTokens().fetch()).first()
+
+      var email = yield emailParser.getEmail(Config.get('mail.log.toPath'), 'recent')
+      assert.deepEqual(email.to, [ { address: user.email, name: '' } ])
+      assert.match(email.textBody, new RegExp(`/app/account/activate/${emailToken.token}`))
     })
 
     it('should fire user.signed-up', function * () {
@@ -50,9 +73,8 @@ describe('Integration | Service | User', function () {
         args = arguments
       })
 
-      const user = yield sut.signUp({ email: email(), password: 'secret1234' })
+      const user = yield sut.signup({ email: genEmail(), password: 'secret1234' })
 
-      // assert.equal(sut.getEvent(), Event)
       assert.isTrue(eventFired)
       assert.equal(args[ 0 ], user)
     })

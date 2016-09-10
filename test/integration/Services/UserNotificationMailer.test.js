@@ -41,6 +41,6 @@ describe('Integration | Service | UserNotificationMailer', function () {
     const email = yield assertRecent({})
     assert.deepEqual(email.to, [ { address: user.email, name: '' } ])
     assert.equal(email.subject, 'Confirm your new account')
-    assert.isAbove(email.textBody.indexOf(Env.get('BASE_URL') + '/users/activate-account/' + token), -1)
+    assert.isAbove(email.textBody.indexOf(Env.get('BASE_URL') + '/app/account/activate/' + token), -1)
   })
 })

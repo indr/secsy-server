@@ -11,7 +11,7 @@ class UsersController {
     const raw = request.only('email', 'password')
     const data = yield Validator.sanitize(raw, User.sanitations)
 
-    const user = yield UserService.signUp(data)
+    const user = yield UserService.signup(data)
 
     response.created(user.toJSON())
   }
