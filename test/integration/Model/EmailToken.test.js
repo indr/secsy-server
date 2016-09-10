@@ -1,10 +1,8 @@
 'use strict'
-
 /* eslint-env mocha */
 
 const chai = require('chai')
 const moment = require('moment')
-const uuid = require('node-uuid')
 require('co-mocha')
 
 const setup = require('../setup')

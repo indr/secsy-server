@@ -42,6 +42,7 @@
   },
   "standard": {
     "globals": [
+      "make",
       "use"
     ],
     "ignore": [

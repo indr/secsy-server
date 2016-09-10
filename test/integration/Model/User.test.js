@@ -1,8 +1,5 @@
-/**
- * Copyright 2016 Reto Inderbitzin
- */
-/* eslint-env mocha */
 'use strict'
+/* eslint-env mocha */
 
 const _ = require('lodash')
 const assert = require('chai').assert
@@ -16,16 +13,19 @@ const fails = validation.fails
 const succeeds = validation.succeeds
 
 describe('Integration | Model | User', function () {
-  let User, Validator, EmailToken
+  let User, Validator
 
   before(function * () {
     yield setup.loadProviders()
     yield setup.start()
 
-    EmailToken = use('App/Model/EmailToken')
     User = use('App/Model/User')
     Validator = use('Validator')
   })
+
+  function makeEmail () {
+    return `${uuid.v4()}@example.com`
+  }
 
   describe('sanitazions', function () {
     function * sanitize (field, value, expected) {
@@ -63,7 +63,7 @@ describe('Integration | Model | User', function () {
   describe('crud', function () {
     it('should be able to create and retrieve a new user', function * () {
       let user = yield User.create({
-        email: `${uuid.v4()}@example.com`,
+        email: makeEmail(),
         password: 'user1234'
       })
       var emailToken = yield user.emailTokens().create({ email: user.email })
