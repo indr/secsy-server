@@ -24,7 +24,7 @@ describe('Integration | Service | User', function () {
     User = use('App/Model/User')
     EmailToken = use('App/Model/EmailToken')
 
-    sut = make('App/Services/User')
+    sut = make('App/Services/UserService')
   })
 
   after(function * () {
@@ -82,24 +82,37 @@ describe('Integration | Service | User', function () {
   })
 
   describe('#confirm', function () {
-    let user, token
+    let userId, token
 
     beforeEach(function * () {
-      user = yield sut.signup({ email: genEmail(), password: 'secret1234' })
+      const user = yield sut.signup({ email: genEmail(), password: 'secret1234' })
+      userId = user.id
       token = (yield user.emailTokens().fetch()).first().token
     })
 
+    it('should throw ValidationException given token is unknown', function * () {
+      try {
+        yield sut.confirm('unkown token')
+        assert(false)
+      } catch (error) {
+        assert.equal(error.name, 'ValidationException')
+        assert.equal(error.message, 'Email token not found')
+        assert.equal(error.status, 404)
+      }
+    })
+
     it('should confirm email token', function * () {
-      yield sut.confirm(user, token)
+      yield sut.confirm(token)
 
       const emailToken = (yield EmailToken.query().where('token', token).fetch()).first()
       assert.isTrue(emailToken.confirmed)
     })
 
     it('should activate user', function * () {
-      yield sut.confirm(user, token)
+      yield sut.confirm(token)
 
-      assert.isTrue(user.active)
+      const user = yield User.findOrFail(userId)
+      assert.isTrue(user.confirmed)
     })
 
     it('should fire user.confirmed', function * () {
@@ -110,10 +123,12 @@ describe('Integration | Service | User', function () {
         eventFired = true
         args = arguments
       })
-      yield sut.confirm(user, token)
+      yield sut.confirm(token)
 
       assert.isTrue(eventFired)
-      assert.equal(args[ 0 ], user)
+      const user = yield User.findOrFail(userId)
+      assert.instanceOf(args[ 0 ], User)
+      assert.equal(args[ 0 ].id, user.id)
     })
   })
 })
