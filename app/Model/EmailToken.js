@@ -17,12 +17,14 @@ class EmailToken extends Base {
     if (moment().subtract(2, 'days').isAfter(this.created_at)) {
       throw new Exceptions.ValidationException('Email token has expired')
     }
-    return this.confirmed = true
+    this.confirmed = true
+    return true
   }
 
   static boot () {
     super.boot()
     this.addHook('beforeCreate', 'EmailToken.createToken')
+    this.addHook('afterCreate', 'EmailToken.expirePreviousTokens')
   }
 }
 

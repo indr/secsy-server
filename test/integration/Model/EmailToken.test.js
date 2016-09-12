@@ -54,6 +54,34 @@ describe('Integration | Model | EmailToken', function () {
     })
   })
 
+  describe('after create', function () {
+    it('should expire previous unconfirmed tokens', function * () {
+      const details = { user_id: user.id, email: user.email }
+      const previousUnconfirmed = yield EmailToken.create(details)
+
+      yield EmailToken.create(details)
+
+      const fromDb = yield EmailToken.find(previousUnconfirmed.id)
+
+      assert.isFalse(fromDb.confirmed)
+      assert.isTrue(fromDb.expired)
+    })
+
+    it('should not expire previous confirmed tokens', function * () {
+      const details = { user_id: user.id, email: user.email }
+      const previousConfirmed = yield EmailToken.create(details)
+      previousConfirmed.confirmed = true
+      yield previousConfirmed.save()
+
+      yield EmailToken.create(details)
+
+      const fromDb = yield EmailToken.find(previousConfirmed.id)
+
+      assert.isTrue(fromDb.confirmed)
+      assert.isFalse(fromDb.expired)
+    })
+  })
+
   describe('#confirm', function () {
     let sut
 
