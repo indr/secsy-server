@@ -27,6 +27,18 @@ class UserService {
 
     return user
   }
+
+  * confirm (user, token) {
+    const emailToken = (yield user.emailTokens().where('token', token).fetch()).first()
+    if (emailToken.confirm()) {
+      user.confirmed = true
+      // TODO: Throw ApplicationException
+      yield user.save()
+      yield emailToken.save()
+
+      this.Event.fire('user.confirmed', user)
+    }
+  }
 }
 
 module.exports = UserService

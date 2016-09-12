@@ -8,7 +8,7 @@ const uuid = require('node-uuid')
 require('co-mocha')
 
 describe('Integration | Service | User', function () {
-  let Config, Event, User,
+  let Config, Event, User, EmailToken,
     sut
 
   function genEmail () {
@@ -22,6 +22,7 @@ describe('Integration | Service | User', function () {
     Config = use('Config')
     Event = use('Event')
     User = use('App/Model/User')
+    EmailToken = use('App/Model/EmailToken')
 
     sut = make('App/Services/User')
   })
@@ -74,6 +75,42 @@ describe('Integration | Service | User', function () {
       })
 
       const user = yield sut.signup({ email: genEmail(), password: 'secret1234' })
+
+      assert.isTrue(eventFired)
+      assert.equal(args[ 0 ], user)
+    })
+  })
+
+  describe('#confirm', function () {
+    let user, token
+
+    beforeEach(function * () {
+      user = yield sut.signup({ email: genEmail(), password: 'secret1234' })
+      token = (yield user.emailTokens().fetch()).first().token
+    })
+
+    it('should confirm email token', function * () {
+      yield sut.confirm(user, token)
+
+      const emailToken = (yield EmailToken.query().where('token', token).fetch()).first()
+      assert.isTrue(emailToken.confirmed)
+    })
+
+    it('should activate user', function * () {
+      yield sut.confirm(user, token)
+
+      assert.isTrue(user.active)
+    })
+
+    it('should fire user.confirmed', function * () {
+      let eventFired = false
+      let args = null
+      Event.removeListeners('user.confirmed')
+      Event.on('user.confirmed', function * () {
+        eventFired = true
+        args = arguments
+      })
+      yield sut.confirm(user, token)
 
       assert.isTrue(eventFired)
       assert.equal(args[ 0 ], user)
