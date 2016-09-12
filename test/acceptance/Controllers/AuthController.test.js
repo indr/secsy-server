@@ -47,29 +47,38 @@ describe('Acceptance | Controller | AuthController', function () {
       }
     }
 
-    it('should return 403 with unknown identifier/email', function (done) {
-      agency.anon().then((agent) => {
-        agent.post('/auth/local')
-          .send({ identifier: 'unknown@example.com', password: 'wrong' })
-          .expect(403, done)
-      })
+    it('should return 403 with unknown identifier/email', function * () {
+      const anon = yield agency.anon()
+
+      const res = yield anon.post('/auth/local')
+        .send({ identifier: 'unknown@example.com', password: 'wrong' })
+        .expect(403)
+
+      assert.equal(res.body.status, 403)
+      assert.equal(res.body.message, 'invalid-username-or-password')
     })
 
-    it('should return 403 with invalid password', function (done) {
-      agency.anon().then((agent) => {
-        agent.post('/auth/local')
-          .send({ identifier: 'admin@example.com', password: 'wrong' })
-          .expect(403, done)
-      })
+    it('should return 403 with invalid password', function * () {
+      const anon = yield agency.anon()
+
+      const res = yield anon.post('/auth/local')
+        .send({ identifier: 'admin@example.com', password: 'wrong' })
+        .expect(403)
+
+      assert.equal(res.body.status, 403)
+      assert.equal(res.body.message, 'invalid-username-or-password')
     })
 
     it('should return 403 given user is not confirmed', function * () {
-      const user = yield agency.anon()
-      yield user.signup()
+      const anon = yield agency.anon()
+      yield anon.signup()
 
-      yield user.post('/auth/local')
-        .send({ identifier: user.email, password: user.password })
+      const res = yield anon.post('/auth/local')
+        .send({ identifier: anon.email, password: anon.password })
         .expect(403)
+
+      assert.equal(res.body.status, 403)
+      assert.equal(res.body.message, 'user-not-confirmed')
     })
 
     it('should return 200 as user', function (done) {
@@ -88,12 +97,9 @@ describe('Acceptance | Controller | AuthController', function () {
   })
 
   describe('#logout | POST /auth/logout', function () {
-    before((done) => {
-      user.login().then(() => {
-        return admin.login()
-      }).then(() => {
-        done()
-      }).catch(done)
+    before(function * () {
+      yield user.login()
+      yield admin.login()
     })
 
     it('should return 200 as anon', function (done) {

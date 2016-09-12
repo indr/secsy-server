@@ -2,6 +2,7 @@
 'use strict'
 
 const _ = require('lodash')
+const assert = require('chai').assert
 const emailParser = require('./../test-helpers/email')
 const uuid = require('node-uuid')
 const request = require('supertest-as-promised')
@@ -47,7 +48,10 @@ function createFactory (app, defaultOptions) {
       return agent
     }).then(function (agent) {
       if (options.login) {
-        return agent.login()
+        return co(agent.login()).then((res) => {
+          assert.equal(res.status, 200)
+          return agent
+        })
       }
       return agent
     }).then(function (agent) {
@@ -102,21 +106,13 @@ function signup () {
   })
 }
 
-function login () {
-  const self = this
-  return new Promise(function (resolve, reject) {
-    const data = {
-      identifier: self.email,
-      password: self.password
-    }
-    self.post('/auth/local')
-      .send(data)
-      .expect(200)
-      .end(function (err, res) {
-        if (err) return reject(err)
-        return resolve(self)
-      })
-  })
+function * login () {
+  const data = {
+    identifier: this.email,
+    password: this.password
+  }
+  return yield this.post('/auth/local')
+    .send(data)
 }
 
 function logout () {

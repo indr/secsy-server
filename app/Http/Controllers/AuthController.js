@@ -13,19 +13,19 @@ class AuthController {
     try {
       login = yield request.auth.attempt(identifier, password)
     } catch (UserNotFoundException) {
-      response.forbidden()
+      response.forbidden({ status: 403, message: 'invalid-username-or-password' })
       return
     }
 
     if (!login) {
       // Should not make it in here actually
-      response.forbidden()
+      response.forbidden({ status: 403, message: 'invalid-username-or-password' })
       return
     }
 
     const user = yield request.auth.getUser()
     if (!user.confirmed) {
-      response.forbidden()
+      response.forbidden({ status: 403, message: 'user-not-confirmed' })
       return
     }
 

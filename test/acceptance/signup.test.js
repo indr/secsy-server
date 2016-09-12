@@ -21,12 +21,10 @@ describe('Acceptance | signup', function () {
   })
 
   it('should not be able to login because email address is not confirmed', function * () {
-    try {
-      yield user.login()
-      assert(false)
-    } catch (error) {
-      assert.equal(error.name, 'Error')
-      assert.match(error.message, /403/)
-    }
+    const res = yield user.login()
+
+    assert.equal(res.status, 403)
+    assert.equal(res.body.status, 403)
+    assert.equal(res.body.message, 'user-not-confirmed')
   })
 })

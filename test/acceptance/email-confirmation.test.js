@@ -17,7 +17,10 @@ describe('Acceptance | Email confirmation', function () {
   it('should be able to login after confirmation', function * () {
     yield user.confirm()
 
-    yield user.login()
+    let res = yield user.login()
+
+    assert.equal(res.status, 200)
+    assert.equal(res.body.id, user.id)
   })
 
   it('should accept token only once', function * () {
@@ -27,7 +30,7 @@ describe('Acceptance | Email confirmation', function () {
 
     assert.equal(res.status, 400)
     assert.equal(res.body.status, 400)
-    assert.equal(res.body.message, 'Email token is already confirmed')
+    assert.equal(res.body.message, 'email-token-already-confirmed')
   })
 
   it.skip('should not confirm previous tokens', function * () {

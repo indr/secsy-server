@@ -100,7 +100,7 @@ describe('Integration | Model | EmailToken', function () {
         assert(false)
       } catch (error) {
         assert.equal(error.name, 'ValidationException')
-        assert.equal(error.message, 'Email token is already confirmed')
+        assert.equal(error.message, 'email-token-already-confirmed')
       }
     })
 
@@ -112,7 +112,7 @@ describe('Integration | Model | EmailToken', function () {
         assert(false)
       } catch (error) {
         assert.equal(error.name, 'ValidationException')
-        assert.equal(error.message, 'Email token has expired')
+        assert.equal(error.message, 'email-token-expired')
       }
     })
 
