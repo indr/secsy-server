@@ -53,4 +53,45 @@ describe('Integration | Model | EmailToken', function () {
       assert.equal(fromDb.expired, false)
     })
   })
+
+  describe('#confirm', function () {
+    let sut
+
+    beforeEach(function * () {
+      sut = yield EmailToken.create({
+        user_id: user.id,
+        email: user.email
+      })
+    })
+
+    it('should throw given already confirmed', function * () {
+      sut.confirmed = true
+
+      try {
+        sut.confirm()
+        assert(false)
+      } catch (error) {
+        assert.equal(error.name, 'ValidationException')
+        assert.equal(error.message, 'Email token is already confirmed')
+      }
+    })
+
+    it('should throw given expired', function * () {
+      sut.created_at = moment().subtract(3, 'days')
+
+      try {
+        sut.confirm()
+        assert(false)
+      } catch (error) {
+        assert.equal(error.name, 'ValidationException')
+        assert.equal(error.message, 'Email token has expired')
+      }
+    })
+
+    it('should return true and be confirmed', function * () {
+      var result = sut.confirm()
+      assert.isTrue(result)
+      assert.isTrue(sut.confirmed)
+    })
+  })
 })
