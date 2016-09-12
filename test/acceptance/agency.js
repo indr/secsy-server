@@ -40,7 +40,9 @@ function createFactory (app, defaultOptions) {
       return agent
     }).then(function (agent) {
       if (options.confirm || options.login) {
-        return co(agent.confirm())
+        return co(agent.confirm()).then(() => {
+          return agent
+        })
       }
       return agent
     }).then(function (agent) {
@@ -75,7 +77,9 @@ function createAgent (app, prefix) {
   agent.prefix = prefix
   agent.role = prefix
   agent.confirm = confirm.bind(agent)
-  agent.getEmail = getEmail.bind(agent)
+  agent.getEmail = getRecentEmail.bind(agent)
+  agent.getRecentEmail = getRecentEmail.bind(agent)
+  agent.getRecentToken = getRecentToken.bind(agent)
   // agent.role = role.bind(agent)
   return agent
 }
@@ -143,16 +147,20 @@ function generateKey () {
   })
 }
 
-function * getEmail () {
-  const email = yield emailParser.getEmail(use('Config').get('mail.log.toPath'), 'recent')
-  return email
+function * getRecentEmail () {
+  return yield emailParser.getEmail(use('Config').get('mail.log.toPath'), 'recent', (each) => {
+    return each.indexOf('To: ' + this.email) >= 0
+  })
 }
 
-function * confirm () {
-  const email = yield this.getEmail()
-  const token = email.textBody.match(/\/activate\/([a-z0-9\-].*)/i)[ 1 ]
-  yield this.post('/api/users/confirm')
+function * getRecentToken () {
+  const email = yield this.getRecentEmail()
+  const match = email.textBody.match(/\/activate\/([a-z0-9\-].*)/i)
+  return match[ 1 ]
+}
+
+function * confirm (token) {
+  token = token || (yield this.getRecentToken())
+  return yield this.post('/api/users/confirm')
     .send({ token: token })
-    .expect(200)
-  return this
 }

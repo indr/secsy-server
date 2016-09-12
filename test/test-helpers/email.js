@@ -10,6 +10,7 @@
  | https://github.com/adonisjs/adonis-rally/blob/c7378d2c3984bffba1049f50e771318ea447107c/tests/parsers/email.js
  */
 
+const _ = require('lodash')
 const fs = require('co-fs')
 const MailParser = require('mailparser').MailParser
 
@@ -100,11 +101,14 @@ const emailParser = module.exports = {}
  *
  * @public
  */
-emailParser.getEmail = function * (emailFile, position) {
+emailParser.getEmail = function * (emailFile, position, filter) {
   position = position || 'recent'
   const emailContents = yield fs.readFile(emailFile, 'utf8')
-  const emailTokens = emailContents.split(/\-\s*EMAIL END\s*-/g)
-  let email = position === 'recent' ? emailTokens[emailTokens.length - 2] : emailTokens[position - 1]
+  let emailTokens = emailContents.trim().split(/\-\s*EMAIL END\s*-\n\n/g)
+  if (filter) {
+    emailTokens = _.filter(emailTokens, filter)
+  }
+  let email = position === 'recent' ? emailTokens[ emailTokens.length - 1 ] : emailTokens[ position - 1 ]
   email = email.replace(/\-\s*EMAIL START\s*-/, '').trim()
   const mailBody = new MailBody()
   yield mailBody.parseBody(email)
