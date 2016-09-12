@@ -1,7 +1,7 @@
 'use strict'
 
 const User = use('App/Model/User')
-const UserService = make('App/Services/User')
+const UserService = make('App/Services/UserService')
 const Key = use('App/Model/Key')
 const Validator = use('App/Services/Validator')
 
@@ -14,6 +14,17 @@ class UsersController {
     const user = yield UserService.signup(data)
 
     response.created(user.toJSON())
+  }
+
+  * confirm (request, response) {
+    const token = request.input('token')
+    if (!token) {
+      response.badRequest()
+      return
+    }
+
+    yield UserService.confirm(token)
+    return response.ok()
   }
 
   * me (request, response) {

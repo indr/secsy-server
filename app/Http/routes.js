@@ -33,6 +33,7 @@ Route.group('v1', function () {
 Route.post('/auth/local', 'AuthController.login')
 Route.post('/auth/logout', 'AuthController.logout')
 Route.post('/api/users', 'UsersController.store')
+Route.post('/api/users/confirm', 'UsersController.confirm')
 
 Route.get('/', 'RootController.index')
 Route.get('/:lang', 'RootController.lang')

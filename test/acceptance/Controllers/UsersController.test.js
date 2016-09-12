@@ -4,6 +4,7 @@
 
 const assert = require('chai').assert
 const agency = require('./../agency')
+require('co-mocha')
 
 describe('Acceptance | Controller | UsersController', function () {
   describe('#store | POST /api/users', function () {
@@ -113,6 +114,34 @@ describe('Acceptance | Controller | UsersController', function () {
             done()
           })
       })
+    })
+  })
+
+  describe('#confirm | POST /api/users/confirm', function () {
+    let agent
+
+    beforeEach(function * () {
+      agent = yield agency.anon()
+    })
+
+    it('should return 400 with invalid token', function * () {
+      yield agent.post('/api/users/confirm')
+        .expect(400)
+    })
+
+    it('should return 404 with unknown token', function * () {
+      yield agent.post('/api/users/confirm')
+        .send({ token: 'invalid' })
+        .expect(404)
+    })
+
+    it('should return 200 with valid token', function * () {
+      yield agent.signup()
+      const email = yield agent.getEmail()
+      const token = email.textBody.match(/\/activate\/([a-z0-9\-].*)/i)[ 1 ]
+      yield agent.post('/api/users/confirm')
+        .send({ token })
+        .expect(200)
     })
   })
 })
