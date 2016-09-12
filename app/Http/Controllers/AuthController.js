@@ -22,9 +22,14 @@ class AuthController {
       response.forbidden()
       return
     }
-    const user = yield request.auth.getUser()
-    const key = yield Key.findBy('owned_by', user.id)
 
+    const user = yield request.auth.getUser()
+    if (!user.confirmed) {
+      response.forbidden()
+      return
+    }
+
+    const key = yield Key.findBy('owned_by', user.id)
     const result = user.toJSON()
     result.private_key = key ? key.private_key : null
     result.public_key = key ? key.public_key : null

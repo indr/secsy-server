@@ -1,9 +1,11 @@
+'use strict'
+
 /* eslint-env mocha */
 /* global dateTimeRegex */
-'use strict'
 
 const assert = require('chai').assert
 const agency = require('./../agency')
+require('co-mocha')
 
 describe('Acceptance | Controller | AuthController', function () {
   let user, admin
@@ -59,6 +61,15 @@ describe('Acceptance | Controller | AuthController', function () {
           .send({ identifier: 'admin@example.com', password: 'wrong' })
           .expect(403, done)
       })
+    })
+
+    it('should return 403 given user is not confirmed', function * () {
+      const user = yield agency.anon()
+      yield user.signup()
+
+      yield user.post('/auth/local')
+        .send({ identifier: user.email, password: user.password })
+        .expect(403)
     })
 
     it('should return 200 as user', function (done) {

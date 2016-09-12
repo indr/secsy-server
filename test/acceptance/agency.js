@@ -2,9 +2,11 @@
 'use strict'
 
 const _ = require('lodash')
+const emailParser = require('./../test-helpers/email')
 const uuid = require('node-uuid')
 const request = require('supertest-as-promised')
 const ctx = require('./bootstrap')
+const co = require('co')
 
 const defaultAgency = new Agency()
 module.exports = defaultAgency
@@ -17,7 +19,7 @@ function nextAgentNr () {
 function Agency (app) {
   return {
     anon: createFactory(app),
-    guest: createFactory(app, { prefix: 'guest', signup: true }),
+    guest: createFactory(app, { prefix: 'guest', signup: true, confirm: true }),
     user: createFactory(app, { prefix: 'user', login: true, key: true }),
     admin: createFactory(app, { prefix: 'admin', login: true, key: true, admin: true })
   }
@@ -34,6 +36,11 @@ function createFactory (app, defaultOptions) {
     }).then(function (agent) {
       if (options.signup || options.login) {
         return agent.signup()
+      }
+      return agent
+    }).then(function (agent) {
+      if (options.confirm || options.login) {
+        return co(agent.confirm())
       }
       return agent
     }).then(function (agent) {
@@ -67,6 +74,8 @@ function createAgent (app, prefix) {
   agent.generateKey = generateKey.bind(agent)
   agent.prefix = prefix
   agent.role = prefix
+  agent.confirm = confirm.bind(agent)
+  agent.getEmail = getEmail.bind(agent)
   // agent.role = role.bind(agent)
   return agent
 }
@@ -98,7 +107,8 @@ function login () {
     }
     self.post('/auth/local')
       .send(data)
-      .end(function (err) {
+      .expect(200)
+      .end(function (err, res) {
         if (err) return reject(err)
         return resolve(self)
       })
@@ -133,3 +143,16 @@ function generateKey () {
   })
 }
 
+function * getEmail () {
+  const email = yield emailParser.getEmail(use('Config').get('mail.log.toPath'), 'recent')
+  return email
+}
+
+function * confirm () {
+  const email = yield this.getEmail()
+  const token = email.textBody.match(/\/activate\/([a-z0-9\-].*)/i)[ 1 ]
+  yield this.post('/api/users/confirm')
+    .send({ token: token })
+    .expect(200)
+  return this
+}
