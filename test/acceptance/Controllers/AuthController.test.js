@@ -81,6 +81,16 @@ describe('Acceptance | Controller | AuthController', function () {
       assert.equal(res.body.message, 'user-not-confirmed')
     })
 
+    it('should not authenticate given user is not confirmed', function * () {
+      const anon = yield agency.anon()
+      yield anon.signup()
+      yield anon.login()
+
+      const res = yield anon.get('/api/users/me')
+
+      assert.equal(res.status, 401)
+    })
+
     it('should return 200 as user', function (done) {
       user.post('/auth/local')
         .send({ identifier: user.email, password: user.password })
