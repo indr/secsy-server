@@ -81,6 +81,7 @@ function createAgent (app, prefix) {
   agent.prefix = prefix
   agent.role = prefix
   agent.confirm = confirm.bind(agent)
+  agent.resend = resend.bind(agent)
   agent.getEmail = getRecentEmail.bind(agent)
   agent.getRecentEmail = getRecentEmail.bind(agent)
   agent.getRecentToken = getRecentToken.bind(agent)
@@ -160,3 +161,9 @@ function * confirm (token) {
   return yield this.post('/api/users/confirm')
     .send({ token: token })
 }
+
+function * resend () {
+  return yield this.post('/api/users/resend')
+    .send({ email: this.email })
+}
+

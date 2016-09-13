@@ -46,6 +46,17 @@ class UserService {
       this.Event.fire('user.confirmed', user)
     }
   }
+
+  * resend (email) {
+    const user = (yield User.query().where('email', email).andWhere('confirmed', false).fetch()).first()
+    if (!user) {
+      throw new Exceptions.ValidationException('user-not-found', 404)
+    }
+
+    let emailToken = yield user.emailTokens().create({ email: user.email })
+
+    yield Mailer.sendAccountActivation(user, emailToken.token)
+  }
 }
 
 module.exports = UserService

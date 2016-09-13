@@ -17,7 +17,6 @@ EmailToken.expirePreviousTokens = function * (next) {
     .andWhere('id', '!=', this.id)
     .andWhere('expired', false).andWhere('confirmed', false).fetch()
   for (var each of previousEmailTokens) {
-    console.log('each', each.confirmed, each.expired)
     each.expired = true
     yield each.save()
   }

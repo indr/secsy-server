@@ -14,7 +14,7 @@ class EmailToken extends Base {
     if (this.confirmed) {
       throw new Exceptions.ValidationException('email-token-already-confirmed')
     }
-    if (moment().subtract(2, 'days').isAfter(this.created_at)) {
+    if (this.expired || moment().subtract(2, 'days').isAfter(this.created_at)) {
       throw new Exceptions.ValidationException('email-token-expired')
     }
     this.confirmed = true

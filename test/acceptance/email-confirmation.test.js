@@ -33,6 +33,13 @@ describe('Acceptance | Email confirmation', function () {
     assert.equal(res.body.message, 'email-token-already-confirmed')
   })
 
-  it.skip('should not confirm previous tokens', function * () {
+  it('should not confirm previous tokens', function * () {
+    let previousToken = yield user.getRecentToken()
+    yield user.resend()
+
+    const res = yield user.confirm(previousToken)
+
+    assert.equal(res.status, 400)
+    assert.deepEqual(res.body, { status: 400, message: 'email-token-expired' })
   })
 })
