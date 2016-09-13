@@ -104,8 +104,20 @@ describe('Integration | Model | EmailToken', function () {
       }
     })
 
-    it('should throw given expired', function * () {
+    it('should throw given token was created more than 2 days ago', function * () {
       sut.created_at = moment().subtract(3, 'days')
+
+      try {
+        sut.confirm()
+        assert(false)
+      } catch (error) {
+        assert.equal(error.name, 'ValidationException')
+        assert.equal(error.message, 'email-token-expired')
+      }
+    })
+
+    it('should throw given token is expired', function * () {
+      sut.expired = true
 
       try {
         sut.confirm()

@@ -27,6 +27,19 @@ class UsersController {
     return response.ok({ status: 200 })
   }
 
+  * resend (request, response) {
+    const raw = request.only('email')
+    const email = (yield Validator.sanitize(raw, User.sanitations)).email
+
+    if (!email) {
+      response.badRequest({ status: 400, message: 'invalid-email' })
+      return
+    }
+
+    yield UserService.resend(email)
+    return response.ok({ status: 200 })
+  }
+
   * me (request, response) {
     const user = yield request.auth.getUser()
 

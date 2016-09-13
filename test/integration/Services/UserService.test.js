@@ -131,4 +131,55 @@ describe('Integration | Service | User', function () {
       assert.equal(args[ 0 ].id, user.id)
     })
   })
+
+  describe('#resend', function () {
+    let user
+
+    beforeEach(function * () {
+      user = yield sut.signup({ email: genEmail(), password: 'secret1234' })
+    })
+
+    it('should throw ValidationException given email is unknown', function * () {
+      try {
+        yield sut.resend('unknown@example.com')
+        assert(false)
+      } catch (error) {
+        assert.equal(error.name, 'ValidationException')
+        assert.equal(error.message, 'user-not-found')
+        assert.equal(error.status, 404)
+      }
+    })
+
+    it('should throw ValidationException given user is already confirmed', function * () {
+      user.confirmed = true
+      yield user.save()
+
+      try {
+        yield sut.resend(user.email)
+        assert(false)
+      } catch (error) {
+        assert.equal(error.name, 'ValidationException')
+        assert.equal(error.message, 'user-not-found')
+        assert.equal(error.status, 404)
+      }
+    })
+
+    it('should create email token', function * () {
+      yield sut.resend(user.email)
+
+      const emailTokens = yield user.emailTokens().fetch()
+      assert.equal(emailTokens.size(), 2)
+    })
+
+    it('should send account activation email', function * () {
+      yield sut.resend(user.email)
+
+      let emailToken = (yield user.emailTokens().where('expired', false).fetch()).first()
+      assert.isFalse(emailToken.confirmed)
+      assert.isFalse(emailToken.expired)
+      let email = yield emailParser.getEmail(Config.get('mail.log.toPath'), 'recent')
+      assert.deepEqual(email.to, [ { address: user.email, name: '' } ])
+      assert.match(email.textBody, new RegExp(`/app/activate/${emailToken.token}`))
+    })
+  })
 })
