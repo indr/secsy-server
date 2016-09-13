@@ -62,7 +62,7 @@ describe('Integration | Service | User', function () {
 
       var email = yield emailParser.getEmail(Config.get('mail.log.toPath'), 'recent')
       assert.deepEqual(email.to, [ { address: user.email, name: '' } ])
-      assert.match(email.textBody, new RegExp(`/app/account/activate/${emailToken.token}`))
+      assert.match(email.textBody, new RegExp(`/app/activate/${emailToken.token}`))
     })
 
     it('should fire user.signed-up', function * () {

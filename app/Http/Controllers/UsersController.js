@@ -19,12 +19,12 @@ class UsersController {
   * confirm (request, response) {
     const token = request.input('token')
     if (!token) {
-      response.badRequest()
+      response.badRequest({ status: 400 })
       return
     }
 
     yield UserService.confirm(token)
-    return response.ok()
+    return response.ok({ status: 200 })
   }
 
   * me (request, response) {
