@@ -85,6 +85,8 @@ function createAgent (app, prefix) {
   agent.getEmail = getRecentEmail.bind(agent)
   agent.getRecentEmail = getRecentEmail.bind(agent)
   agent.getRecentToken = getRecentToken.bind(agent)
+  agent.forgotPassword = forgotPassword.bind(agent)
+  agent.resetPassword = resetPassword.bind(agent)
   // agent.role = role.bind(agent)
   return agent
 }
@@ -107,10 +109,10 @@ function signup () {
   })
 }
 
-function * login () {
+function * login (password) {
   const data = {
     identifier: this.email,
-    password: this.password
+    password: password || this.password
   }
   return yield this.post('/auth/local')
     .send(data)
@@ -167,3 +169,12 @@ function * resend () {
     .send({ email: this.email })
 }
 
+function * forgotPassword () {
+  return yield this.post('/api/users/forgot-password')
+    .send({ email: this.email })
+}
+
+function * resetPassword (token, password) {
+  return yield this.post('/api/users/reset-password')
+    .send({ token, password })
+}
