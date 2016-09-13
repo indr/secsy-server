@@ -2,9 +2,12 @@
 'use strict'
 
 const _ = require('lodash')
+const assert = require('chai').assert
+const emailParser = require('./../test-helpers/email')
 const uuid = require('node-uuid')
 const request = require('supertest-as-promised')
 const ctx = require('./bootstrap')
+const co = require('co')
 
 const defaultAgency = new Agency()
 module.exports = defaultAgency
@@ -17,7 +20,7 @@ function nextAgentNr () {
 function Agency (app) {
   return {
     anon: createFactory(app),
-    guest: createFactory(app, { prefix: 'guest', signup: true }),
+    guest: createFactory(app, { prefix: 'guest', signup: true, confirm: true }),
     user: createFactory(app, { prefix: 'user', login: true, key: true }),
     admin: createFactory(app, { prefix: 'admin', login: true, key: true, admin: true })
   }
@@ -37,8 +40,18 @@ function createFactory (app, defaultOptions) {
       }
       return agent
     }).then(function (agent) {
+      if (options.confirm || options.login) {
+        return co(agent.confirm()).then(() => {
+          return agent
+        })
+      }
+      return agent
+    }).then(function (agent) {
       if (options.login) {
-        return agent.login()
+        return co(agent.login()).then((res) => {
+          assert.equal(res.status, 200)
+          return agent
+        })
       }
       return agent
     }).then(function (agent) {
@@ -67,6 +80,10 @@ function createAgent (app, prefix) {
   agent.generateKey = generateKey.bind(agent)
   agent.prefix = prefix
   agent.role = prefix
+  agent.confirm = confirm.bind(agent)
+  agent.getEmail = getRecentEmail.bind(agent)
+  agent.getRecentEmail = getRecentEmail.bind(agent)
+  agent.getRecentToken = getRecentToken.bind(agent)
   // agent.role = role.bind(agent)
   return agent
 }
@@ -89,20 +106,13 @@ function signup () {
   })
 }
 
-function login () {
-  const self = this
-  return new Promise(function (resolve, reject) {
-    const data = {
-      identifier: self.email,
-      password: self.password
-    }
-    self.post('/auth/local')
-      .send(data)
-      .end(function (err) {
-        if (err) return reject(err)
-        return resolve(self)
-      })
-  })
+function * login () {
+  const data = {
+    identifier: this.email,
+    password: this.password
+  }
+  return yield this.post('/auth/local')
+    .send(data)
 }
 
 function logout () {
@@ -133,3 +143,20 @@ function generateKey () {
   })
 }
 
+function * getRecentEmail () {
+  return yield emailParser.getEmail(use('Config').get('mail.log.toPath'), 'recent', (each) => {
+    return each.indexOf('To: ' + this.email) >= 0
+  })
+}
+
+function * getRecentToken () {
+  const email = yield this.getRecentEmail()
+  const match = email.textBody.match(/\/activate\/([a-z0-9\-].*)/i)
+  return match[ 1 ]
+}
+
+function * confirm (token) {
+  token = token || (yield this.getRecentToken())
+  return yield this.post('/api/users/confirm')
+    .send({ token: token })
+}

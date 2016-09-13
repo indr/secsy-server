@@ -1,8 +1,8 @@
 'use strict'
 
 const User = use('App/Model/User')
+const UserService = make('App/Services/UserService')
 const Key = use('App/Model/Key')
-const Event = use('Event')
 const Validator = use('App/Services/Validator')
 
 class UsersController {
@@ -10,14 +10,21 @@ class UsersController {
   * store (request, response) {
     const raw = request.only('email', 'password')
     const data = yield Validator.sanitize(raw, User.sanitations)
-    data.username = data.email
 
-    yield Validator.validateAll(data, User.rules)
-
-    const user = yield User.create(data)
-    Event.fire('user.signed-up', user)
+    const user = yield UserService.signup(data)
 
     response.created(user.toJSON())
+  }
+
+  * confirm (request, response) {
+    const token = request.input('token')
+    if (!token) {
+      response.badRequest({ status: 400 })
+      return
+    }
+
+    yield UserService.confirm(token)
+    return response.ok({ status: 200 })
   }
 
   * me (request, response) {

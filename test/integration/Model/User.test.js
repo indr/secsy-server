@@ -1,8 +1,5 @@
-/**
- * Copyright 2016 Reto Inderbitzin
- */
-/* eslint-env mocha */
 'use strict'
+/* eslint-env mocha */
 
 const _ = require('lodash')
 const assert = require('chai').assert
@@ -25,6 +22,10 @@ describe('Integration | Model | User', function () {
     User = use('App/Model/User')
     Validator = use('Validator')
   })
+
+  function makeEmail () {
+    return `${uuid.v4()}@example.com`
+  }
 
   describe('sanitazions', function () {
     function * sanitize (field, value, expected) {
@@ -62,15 +63,20 @@ describe('Integration | Model | User', function () {
   describe('crud', function () {
     it('should be able to create and retrieve a new user', function * () {
       let user = yield User.create({
-        email: `${uuid.v4()}@example.com`,
+        email: makeEmail(),
         password: 'user1234'
       })
+      var emailToken = yield user.emailTokens().create({ email: user.email })
 
-      const fromDb = yield User.find(user.id)
+      var fromDb = yield User.find(user.id)
       assert.lengthOf(fromDb.id, 36)
       assert.equal(fromDb.username, user.email)
       assert.notEqual(fromDb.password, 'user1234')
       assert.equal(fromDb.email_sha256, sha256(user.email))
+
+      fromDb = yield fromDb.emailTokens().fetch()
+      assert.equal(fromDb.size(), 1)
+      assert.equal(fromDb.first().id, emailToken.id)
     })
   })
 })

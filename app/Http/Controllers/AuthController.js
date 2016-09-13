@@ -9,22 +9,26 @@ class AuthController {
     const identifier = request.input('identifier')
     const password = request.input('password')
 
-    let login
+    let user
     try {
-      login = yield request.auth.attempt(identifier, password)
+      user = yield request.auth.validate(identifier, password, true)
     } catch (UserNotFoundException) {
-      response.forbidden()
+      response.forbidden({ status: 403, message: 'invalid-username-or-password' })
       return
     }
 
+    if (!user.confirmed) {
+      response.forbidden({ status: 403, message: 'user-not-confirmed' })
+      return
+    }
+
+    let login = yield request.auth.login(user)
     if (!login) {
-      // Should not make it in here actually
-      response.forbidden()
+      response.forbidden({ status: 403, message: 'invalid-username-or-password' })
       return
     }
-    const user = yield request.auth.getUser()
-    const key = yield Key.findBy('owned_by', user.id)
 
+    const key = yield Key.findBy('owned_by', user.id)
     const result = user.toJSON()
     result.private_key = key ? key.private_key : null
     result.public_key = key ? key.public_key : null

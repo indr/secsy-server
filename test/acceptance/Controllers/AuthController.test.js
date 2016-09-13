@@ -1,9 +1,11 @@
+'use strict'
+
 /* eslint-env mocha */
 /* global dateTimeRegex */
-'use strict'
 
 const assert = require('chai').assert
 const agency = require('./../agency')
+require('co-mocha')
 
 describe('Acceptance | Controller | AuthController', function () {
   let user, admin
@@ -45,20 +47,48 @@ describe('Acceptance | Controller | AuthController', function () {
       }
     }
 
-    it('should return 403 with unknown identifier/email', function (done) {
-      agency.anon().then((agent) => {
-        agent.post('/auth/local')
-          .send({ identifier: 'unknown@example.com', password: 'wrong' })
-          .expect(403, done)
-      })
+    it('should return 403 with unknown identifier/email', function * () {
+      const anon = yield agency.anon()
+
+      const res = yield anon.post('/auth/local')
+        .send({ identifier: 'unknown@example.com', password: 'wrong' })
+        .expect(403)
+
+      assert.equal(res.body.status, 403)
+      assert.equal(res.body.message, 'invalid-username-or-password')
     })
 
-    it('should return 403 with invalid password', function (done) {
-      agency.anon().then((agent) => {
-        agent.post('/auth/local')
-          .send({ identifier: 'admin@example.com', password: 'wrong' })
-          .expect(403, done)
-      })
+    it('should return 403 with invalid password', function * () {
+      const anon = yield agency.anon()
+
+      const res = yield anon.post('/auth/local')
+        .send({ identifier: 'admin@example.com', password: 'wrong' })
+        .expect(403)
+
+      assert.equal(res.body.status, 403)
+      assert.equal(res.body.message, 'invalid-username-or-password')
+    })
+
+    it('should return 403 given user is not confirmed', function * () {
+      const anon = yield agency.anon()
+      yield anon.signup()
+
+      const res = yield anon.post('/auth/local')
+        .send({ identifier: anon.email, password: anon.password })
+        .expect(403)
+
+      assert.equal(res.body.status, 403)
+      assert.equal(res.body.message, 'user-not-confirmed')
+    })
+
+    it('should not authenticate given user is not confirmed', function * () {
+      const anon = yield agency.anon()
+      yield anon.signup()
+      yield anon.login()
+
+      const res = yield anon.get('/api/users/me')
+
+      assert.equal(res.status, 401)
     })
 
     it('should return 200 as user', function (done) {
@@ -77,12 +107,9 @@ describe('Acceptance | Controller | AuthController', function () {
   })
 
   describe('#logout | POST /auth/logout', function () {
-    before((done) => {
-      user.login().then(() => {
-        return admin.login()
-      }).then(() => {
-        done()
-      }).catch(done)
+    before(function * () {
+      yield user.login()
+      yield admin.login()
     })
 
     it('should return 200 as anon', function (done) {
