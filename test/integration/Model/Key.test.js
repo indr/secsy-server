@@ -25,8 +25,8 @@ describe('Integration | Model | Key', function () {
 
   describe('rules', function () {
     it('should validate email_sha256', function * () {
-      yield fails(Key, 'email_sha256', [ undefined, '', ' ', 'abc123', Array(66).join('x') ])
-      yield succeeds(Key, 'email_sha256', Array(65).join('x'))
+      yield fails(Key, Key.rules, 'email_sha256', [ undefined, '', ' ', 'abc123', Array(66).join('x') ])
+      yield succeeds(Key, Key.rules, 'email_sha256', Array(65).join('x'))
     })
   })
   describe('crud', function () {

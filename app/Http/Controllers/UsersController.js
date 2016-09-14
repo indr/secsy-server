@@ -18,10 +18,6 @@ class UsersController {
 
   * confirm (request, response) {
     const token = request.input('token')
-    if (!token) {
-      response.badRequest({ status: 400 })
-      return
-    }
 
     yield UserService.confirm(token)
     return response.ok({ status: 200 })
@@ -31,11 +27,6 @@ class UsersController {
     const raw = request.only('email')
     const email = (yield Validator.sanitize(raw, User.sanitations)).email
 
-    if (!email) {
-      response.badRequest({ status: 400, message: 'invalid-email' })
-      return
-    }
-
     yield UserService.resend(email)
     return response.ok({ status: 200 })
   }
@@ -43,11 +34,6 @@ class UsersController {
   * forgotPassword (request, response) {
     const raw = request.only('email')
     const email = (yield Validator.sanitize(raw, User.sanitations)).email
-
-    if (!email) {
-      response.badRequest({ status: 400, message: 'invalid-email' })
-      return
-    }
 
     yield UserService.forgot(email)
     return response.ok({ status: 200 })

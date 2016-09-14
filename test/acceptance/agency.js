@@ -73,7 +73,7 @@ function createAgent (app, prefix) {
   const agent = request.agent(app)
   agent.email = `${prefix}-${agentNr}@example.com`
   agent.username = agent.email
-  agent.password = `password${agentNr}`
+  agent.password = `Secret#${agentNr}`
   agent.signup = signup.bind(agent)
   agent.login = login.bind(agent)
   agent.logout = logout.bind(agent)

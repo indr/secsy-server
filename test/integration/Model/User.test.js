@@ -20,7 +20,7 @@ describe('Integration | Model | User', function () {
     yield setup.start()
 
     User = use('App/Model/User')
-    Validator = use('Validator')
+    Validator = use('App/Services/Validator')
   })
 
   function makeEmail () {
@@ -43,20 +43,27 @@ describe('Integration | Model | User', function () {
     })
   })
 
-  describe('rules', function () {
+  describe('signupRules', function () {
     it('should validate username', function * () {
-      yield fails(User, 'username', [ undefined, '', ' ', 'four' ])
-      yield succeeds(User, 'username', [ 'user-rules@example.com' ])
+      yield fails(User, User.signupRules, 'username', [ undefined, '', ' ', 'four' ])
+      yield succeeds(User, User.signupRules, 'username', [ 'user-rules@example.com' ])
     })
 
     it('should validate email', function * () {
-      yield fails(User, 'email', [ undefined, '', ' ', 'a', 'mail@localhost' ])
-      yield succeeds(User, 'email', [ 'a@b.com', 'user-1234abcd@example.com' ])
+      yield fails(User, User.signupRules, 'email', [ undefined, '', ' ', 'a', 'mail@localhost' ])
+      yield succeeds(User, User.signupRules, 'email', [ 'a@b.com', 'user-1234abcd@example.com' ])
     })
 
     it('should validate password', function * () {
-      yield fails(User, 'password', [ undefined, '', ' ', '1234567' ])
-      yield succeeds(User, 'password', '12345678')
+      yield fails(User, User.signupRules, 'password', [ undefined, '', ' ', '12345678' ])
+      yield succeeds(User, User.signupRules, 'password', 'abcABC123$')
+    })
+  })
+
+  describe('resetPasswordRules', function () {
+    it('should validate password', function * () {
+      yield fails(User, User.resetPasswordRules, 'password', [ undefined, '', ' ', '12345678' ])
+      yield succeeds(User, User.resetPasswordRules, 'password', 'abcABC123$')
     })
   })
 

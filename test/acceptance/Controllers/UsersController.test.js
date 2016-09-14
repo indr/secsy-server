@@ -4,6 +4,7 @@
 
 const assert = require('chai').assert
 const agency = require('./../agency')
+const uuid = require('node-uuid')
 require('co-mocha')
 
 describe('Acceptance | Controller | UsersController', function () {
@@ -131,7 +132,7 @@ describe('Acceptance | Controller | UsersController', function () {
 
     it('should return 404 with unknown token', function * () {
       yield agent.post('/api/users/confirm')
-        .send({ token: 'invalid' })
+        .send({ token: uuid.v4() })
         .expect(404)
     })
 
@@ -158,7 +159,13 @@ describe('Acceptance | Controller | UsersController', function () {
       const res = yield agent.post('/api/users/resend')
         .expect(400)
 
-      assert.deepEqual(res.body, { status: 400, message: 'invalid-email' })
+      assert.deepEqual(res.body, {
+        status: 400,
+        message: 'Validation failed',
+        fields: [
+          { field: 'email', message: 'required validation failed on email', validation: 'required' }
+        ]
+      })
     })
 
     it('should return 404 with unknown email', function * () {
@@ -166,7 +173,7 @@ describe('Acceptance | Controller | UsersController', function () {
         .send({ email: 'unknown@example.com' })
         .expect(404)
 
-      assert.deepEqual(res.body, { status: 404, message: 'user-not-found' })
+      assert.deepEqual(res.body, { status: 404, message: 'email-not-found' })
     })
 
     it('should return 404 with for confirmed user email', function * () {
@@ -176,7 +183,7 @@ describe('Acceptance | Controller | UsersController', function () {
         .send({ email: agent.email })
         .expect(404)
 
-      assert.deepEqual(res.body, { status: 404, message: 'user-not-found' })
+      assert.deepEqual(res.body, { status: 404, message: 'email-not-found' })
     })
 
     it('should return 200 for unconfirmed user email', function * () {
@@ -201,7 +208,13 @@ describe('Acceptance | Controller | UsersController', function () {
       const res = yield agent.post(url)
         .expect(400)
 
-      assert.deepEqual(res.body, { status: 400, message: 'invalid-email' })
+      assert.deepEqual(res.body, {
+        status: 400,
+        message: 'Validation failed',
+        fields: [
+          { field: 'email', message: 'required validation failed on email', validation: 'required' }
+        ]
+      })
     })
 
     it('should return 404 with unknown email', function * () {
@@ -209,7 +222,7 @@ describe('Acceptance | Controller | UsersController', function () {
         .send({ email: 'unknown@example.com' })
         .expect(404)
 
-      assert.deepEqual(res.body, { status: 404, message: 'user-not-found' })
+      assert.deepEqual(res.body, { status: 404, message: 'email-not-found' })
     })
 
     it('should return 200', function * () {
@@ -234,7 +247,7 @@ describe('Acceptance | Controller | UsersController', function () {
 
     it('should return 400 with invalid token', function * () {
       const res = yield agent.post(url)
-        .send({ password: 'newSecret1234' })
+        .send({ password: 'newSecret1234$' })
         .expect(400)
 
       assert.deepEqual(res.body, {
@@ -270,14 +283,14 @@ describe('Acceptance | Controller | UsersController', function () {
         status: 400,
         message: 'Validation failed',
         fields: [
-          { field: 'password', validation: 'min', message: 'min validation failed on password' }
+          { field: 'password', validation: 'password', message: 'password validation failed on password' }
         ]
       })
     })
 
     it('should return 200', function * () {
       const res = yield agent.post(url)
-        .send({ token: token, password: 'newSecret1234' })
+        .send({ token: token, password: 'newSecret1234$' })
         .expect(200)
 
       assert.deepEqual(res.body, { status: 200 })

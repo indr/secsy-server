@@ -22,9 +22,9 @@ describe('Acceptance | Reset password', function () {
 
   it('should be able to login with new password', function * () {
     const token = yield user.getRecentToken()
-    yield user.resetPassword(token, 'new secret')
+    yield user.resetPassword(token, 'newSecret1234$')
 
-    const res = yield user.login('new secret')
+    const res = yield user.login('newSecret1234$')
 
     assert.equal(res.status, 200)
   })

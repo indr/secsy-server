@@ -7,12 +7,12 @@ const assert = require('chai').assert
 const isArray = require('lodash').isArray
 const pick = require('lodash').pick
 
-function * validate (Model, expected, field, values) {
+function * validate (Model, rules, expected, field, values) {
   const Validator = use('Validator')
 
   values = isArray(values) ? values : [ values ]
   const data = {}
-  const rules = pick(Model.rules, field)
+  rules = pick(rules, field)
   for (var i = 0; i < values.length; i++) {
     let value = values[ i ]
     data[ field ] = value
@@ -21,12 +21,12 @@ function * validate (Model, expected, field, values) {
   }
 }
 
-function * fails (Model, field, value) {
-  yield validate(Model, false, field, value)
+function * fails (Model, rules, field, value) {
+  yield validate(Model, rules, false, field, value)
 }
 
-function * succeeds (Model, field, value) {
-  yield validate(Model, true, field, value)
+function * succeeds (Model, rules, field, value) {
+  yield validate(Model, rules, true, field, value)
 }
 
 module.exports = {

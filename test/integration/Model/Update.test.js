@@ -25,18 +25,18 @@ describe('Integration | Model | Update', function () {
 
   describe('rules', function () {
     it('should validate from_email_sha256', function * () {
-      yield fails(Update, 'from_email_sha256', [ undefined, '', ' ', 'abc123', Array(66).join('x') ])
-      yield succeeds(Update, 'from_email_sha256', Array(65).join('x'))
+      yield fails(Update, Update.rules, 'from_email_sha256', [ undefined, '', ' ', 'abc123', Array(66).join('x') ])
+      yield succeeds(Update, Update.rules, 'from_email_sha256', Array(65).join('x'))
     })
 
     it('should validate to_email_sha256', function * () {
-      yield fails(Update, 'to_email_sha256', [ undefined, '', ' ', 'abc123', Array(66).join('x') ])
-      yield succeeds(Update, 'to_email_sha256', Array(65).join('x'))
+      yield fails(Update, Update.rules, 'to_email_sha256', [ undefined, '', ' ', 'abc123', Array(66).join('x') ])
+      yield succeeds(Update, Update.rules, 'to_email_sha256', Array(65).join('x'))
     })
 
     it('should validate encrypted_', function * () {
-      yield fails(Update, 'encrypted_', [ undefined, '' ])
-      yield succeeds(Update, 'encrypted_', 'a')
+      yield fails(Update, Update.rules, 'encrypted_', [ undefined, '' ])
+      yield succeeds(Update, Update.rules, 'encrypted_', 'a')
     })
   })
 

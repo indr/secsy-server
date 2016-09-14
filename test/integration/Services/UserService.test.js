@@ -49,14 +49,14 @@ describe('Integration | Service | User', function () {
     })
 
     it('should create new user', function * () {
-      const user = yield sut.signup({ email: genEmail(), password: 'secret1234' })
+      const user = yield sut.signup({ email: genEmail(), password: 'Secret123$' })
 
       assert.instanceOf(user, User)
       assert.isFalse(user.isNew())
     })
 
     it('should create email token', function * () {
-      const user = yield sut.signup({ email: genEmail(), password: 'secret1234' })
+      const user = yield sut.signup({ email: genEmail(), password: 'Secret123$' })
       const emailTokens = yield user.emailTokens().fetch()
 
       assert.equal(emailTokens.size(), 1)
@@ -64,7 +64,7 @@ describe('Integration | Service | User', function () {
     })
 
     it('should send account activation email', function * () {
-      const user = yield sut.signup({ email: genEmail(), password: 'secret1234' })
+      const user = yield sut.signup({ email: genEmail(), password: 'Secret123$' })
       const emailToken = (yield user.emailTokens().fetch()).first()
 
       var email = yield emailParser.getEmail(Config.get('mail.log.toPath'), 'recent')
@@ -81,7 +81,7 @@ describe('Integration | Service | User', function () {
         args = arguments
       })
 
-      const user = yield sut.signup({ email: genEmail(), password: 'secret1234' })
+      const user = yield sut.signup({ email: genEmail(), password: 'Secret123$' })
 
       assert.isTrue(eventFired)
       assert.equal(args[ 0 ], user)
@@ -92,7 +92,7 @@ describe('Integration | Service | User', function () {
     let userId, token
 
     beforeEach(function * () {
-      const user = yield sut.signup({ email: genEmail(), password: 'secret1234' })
+      const user = yield sut.signup({ email: genEmail(), password: 'Secret123$' })
       userId = user.id
       token = (yield user.emailTokens().fetch()).first().token
     })
@@ -157,7 +157,7 @@ describe('Integration | Service | User', function () {
     let user
 
     beforeEach(function * () {
-      user = yield sut.signup({ email: genEmail(), password: 'secret1234' })
+      user = yield sut.signup({ email: genEmail(), password: 'Secret123$' })
     })
 
     it('should throw ValidationException', function * () {
@@ -222,7 +222,7 @@ describe('Integration | Service | User', function () {
     let user
 
     beforeEach(function * () {
-      user = yield sut.signup({ email: genEmail(), password: 'secret1234' })
+      user = yield sut.signup({ email: genEmail(), password: 'Secret123$' })
     })
 
     it('should throw ValidationException', function * () {
@@ -275,7 +275,7 @@ describe('Integration | Service | User', function () {
     let userId, token, oldPassword
 
     beforeEach(function * () {
-      const user = yield sut.signup({ email: genEmail(), password: 'old password' })
+      const user = yield sut.signup({ email: genEmail(), password: 'OldSecret123$' })
       userId = user.id
       oldPassword = user.password
       token = (yield user.emailTokens().fetch()).first().token
