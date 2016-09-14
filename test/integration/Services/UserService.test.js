@@ -32,12 +32,19 @@ describe('Integration | Service | User', function () {
   })
 
   describe('#signup', function () {
-    it('validates rules', function * () {
+    it('should throw ValidationException', function * () {
       try {
-        yield sut.signup({})
+        yield sut.signup()
         assert(false)
       } catch (error) {
         assert.equal(error.name, 'ValidationException')
+        assert.equal(error.message, 'Validation failed')
+        assert.equal(error.status, 400)
+        assert.deepEqual(error.fields, [
+          { field: 'username', message: 'required validation failed on username', validation: 'required' },
+          { field: 'email', message: 'required validation failed on email', validation: 'required' },
+          { field: 'password', message: 'required validation failed on password', validation: 'required' }
+        ])
       }
     })
 
@@ -90,13 +97,27 @@ describe('Integration | Service | User', function () {
       token = (yield user.emailTokens().fetch()).first().token
     })
 
-    it('should throw ValidationException given token is unknown', function * () {
+    it('should throw ValidationException', function * () {
       try {
-        yield sut.confirm('unknown token')
+        yield sut.confirm()
         assert(false)
       } catch (error) {
         assert.equal(error.name, 'ValidationException')
-        assert.equal(error.message, 'Email token not found')
+        assert.equal(error.message, 'Validation failed')
+        assert.equal(error.status, 400)
+        assert.deepEqual(error.fields, [
+          { field: 'token', validation: 'required', message: 'required validation failed on token' }
+        ])
+      }
+    })
+
+    it('should throw ModelNotFoundException given token is unknown', function * () {
+      try {
+        yield sut.confirm(uuid.v4())
+        assert(false)
+      } catch (error) {
+        assert.equal(error.name, 'ModelNotFoundException')
+        assert.equal(error.message, 'token-not-found')
         assert.equal(error.status, 404)
       }
     })
@@ -139,18 +160,32 @@ describe('Integration | Service | User', function () {
       user = yield sut.signup({ email: genEmail(), password: 'secret1234' })
     })
 
-    it('should throw ValidationException given email is unknown', function * () {
+    it('should throw ValidationException', function * () {
+      try {
+        yield sut.resend()
+        assert(false)
+      } catch (error) {
+        assert.equal(error.name, 'ValidationException')
+        assert.equal(error.message, 'Validation failed')
+        assert.equal(error.status, 400)
+        assert.deepEqual(error.fields, [
+          { field: 'email', validation: 'required', message: 'required validation failed on email' }
+        ])
+      }
+    })
+
+    it('should throw ModelNotFoundException given email is unknown', function * () {
       try {
         yield sut.resend('unknown@example.com')
         assert(false)
       } catch (error) {
-        assert.equal(error.name, 'ValidationException')
-        assert.equal(error.message, 'user-not-found')
+        assert.equal(error.name, 'ModelNotFoundException')
+        assert.equal(error.message, 'email-not-found')
         assert.equal(error.status, 404)
       }
     })
 
-    it('should throw ValidationException given user is already confirmed', function * () {
+    it('should throw ModelNotFoundException given user is already confirmed', function * () {
       user.confirmed = true
       yield user.save()
 
@@ -158,8 +193,8 @@ describe('Integration | Service | User', function () {
         yield sut.resend(user.email)
         assert(false)
       } catch (error) {
-        assert.equal(error.name, 'ValidationException')
-        assert.equal(error.message, 'user-not-found')
+        assert.equal(error.name, 'ModelNotFoundException')
+        assert.equal(error.message, 'email-not-found')
         assert.equal(error.status, 404)
       }
     })
@@ -190,13 +225,27 @@ describe('Integration | Service | User', function () {
       user = yield sut.signup({ email: genEmail(), password: 'secret1234' })
     })
 
-    it('should throw ValidationException given email is unknown', function * () {
+    it('should throw ValidationException', function * () {
+      try {
+        yield sut.forgot()
+        assert(false)
+      } catch (error) {
+        assert.equal(error.name, 'ValidationException')
+        assert.equal(error.message, 'Validation failed')
+        assert.equal(error.status, 400)
+        assert.deepEqual(error.fields, [
+          { field: 'email', validation: 'required', message: 'required validation failed on email' }
+        ])
+      }
+    })
+
+    it('should throw ModelNotFoundException given email is unknown', function * () {
       try {
         yield sut.forgot('unknown@example.com')
         assert(false)
       } catch (error) {
-        assert.equal(error.name, 'ValidationException')
-        assert.equal(error.message, 'user-not-found')
+        assert.equal(error.name, 'ModelNotFoundException')
+        assert.equal(error.message, 'email-not-found')
         assert.equal(error.status, 404)
       }
     })
@@ -221,6 +270,8 @@ describe('Integration | Service | User', function () {
   })
 
   describe('#reset', function () {
+    const newPassword = 'newPassword1234$'
+
     let userId, token, oldPassword
 
     beforeEach(function * () {
@@ -230,26 +281,41 @@ describe('Integration | Service | User', function () {
       token = (yield user.emailTokens().fetch()).first().token
     })
 
-    it('should throw ValidationException given token is unknown', function * () {
+    it('should throw ValidationException', function * () {
       try {
-        yield sut.reset(uuid.v1(), 'new secret')
+        yield sut.reset()
         assert(false)
       } catch (error) {
         assert.equal(error.name, 'ValidationException')
-        assert.equal(error.message, 'Email token not found')
+        assert.equal(error.message, 'Validation failed')
+        assert.equal(error.status, 400)
+        assert.deepEqual(error.fields, [
+          { field: 'token', validation: 'required', message: 'required validation failed on token' },
+          { field: 'password', validation: 'required', message: 'required validation failed on password' }
+        ])
+      }
+    })
+
+    it('should throw ModelNotFoundException given email token is unknown', function * () {
+      try {
+        yield sut.reset(uuid.v1(), newPassword)
+        assert(false)
+      } catch (error) {
+        assert.equal(error.name, 'ModelNotFoundException')
+        assert.equal(error.message, 'token-not-found')
         assert.equal(error.status, 404)
       }
     })
 
     it('should confirm email token', function * () {
-      yield sut.reset(token, 'new secret')
+      yield sut.reset(token, newPassword)
 
       const emailToken = (yield EmailToken.query().where('token', token).fetch()).first()
       assert.isTrue(emailToken.confirmed)
     })
 
     it('should set hashed password', function * () {
-      yield sut.reset(token, 'new secret')
+      yield sut.reset(token, newPassword)
 
       const user = yield User.findOrFail(userId)
       assert.notEqual(user.password, oldPassword)

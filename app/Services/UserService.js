@@ -18,8 +18,9 @@ class UserService {
   }
 
   * signup (data) {
+    data = data || {}
     data.username = data.email
-    yield Validator.validateAll(data, User.rules)
+    yield Validator.validateAll(data, User.signupRules)
 
     let user = yield User.create({ email: data.email, password: data.password })
     let emailToken = yield user.emailTokens().create({ email: user.email })
@@ -32,12 +33,14 @@ class UserService {
   }
 
   * confirm (token) {
+    yield Validator.validateAll({ token }, { token: 'required|token' })
+
     const emailToken = (yield EmailToken.query().where('token', token).fetch()).first()
     if (!emailToken) {
-      throw new Exceptions.ValidationException('Email token not found', 404)
+      throw new Exceptions.ModelNotFoundException('token-not-found')
     }
-    const user = yield emailToken.user().fetch()
 
+    const user = yield emailToken.user().fetch()
     if (emailToken.confirm()) {
       user.confirmed = true
       // TODO: Throw ApplicationException
@@ -49,9 +52,11 @@ class UserService {
   }
 
   * resend (email) {
+    yield Validator.validateAll({ email }, { email: 'required|email' })
+
     const user = (yield User.query().where('email', email).andWhere('confirmed', false).fetch()).first()
     if (!user) {
-      throw new Exceptions.ValidationException('user-not-found', 404)
+      throw new Exceptions.ModelNotFoundException('email-not-found')
     }
 
     let emailToken = yield user.emailTokens().create({ email: user.email })
@@ -60,9 +65,11 @@ class UserService {
   }
 
   * forgot (email) {
+    yield Validator.validateAll({ email }, { email: 'required|email' })
+
     const user = (yield User.query().where('email', email).fetch()).first()
     if (!user) {
-      throw new Exceptions.ValidationException('user-not-found', 404)
+      throw new Exceptions.ModelNotFoundException('email-not-found')
     }
 
     let emailToken = yield user.emailTokens().create({ email: user.email })
@@ -75,10 +82,10 @@ class UserService {
 
     const emailToken = (yield EmailToken.query().where('token', token).fetch()).first()
     if (!emailToken) {
-      throw new Exceptions.ValidationException('Email token not found', 404)
+      throw new Exceptions.ModelNotFoundException('token-not-found')
     }
-    const user = yield emailToken.user().fetch()
 
+    const user = yield emailToken.user().fetch()
     if (emailToken.confirm()) {
       // TODO: Add some salt and pepper?
       user.password = yield Hash.make(password)
