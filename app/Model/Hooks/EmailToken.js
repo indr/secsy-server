@@ -5,7 +5,7 @@ const uuid = require('node-uuid')
 const EmailToken = exports = module.exports = {}
 
 EmailToken.createToken = function * (next) {
-  this.token = uuid.v1()
+  this.token = uuid.v4()
 
   yield next
 }
