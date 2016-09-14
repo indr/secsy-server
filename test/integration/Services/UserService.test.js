@@ -92,7 +92,7 @@ describe('Integration | Service | User', function () {
 
     it('should throw ValidationException given token is unknown', function * () {
       try {
-        yield sut.confirm('unkown token')
+        yield sut.confirm('unknown token')
         assert(false)
       } catch (error) {
         assert.equal(error.name, 'ValidationException')
@@ -180,6 +180,80 @@ describe('Integration | Service | User', function () {
       let email = yield emailParser.getEmail(Config.get('mail.log.toPath'), 'recent')
       assert.deepEqual(email.to, [ { address: user.email, name: '' } ])
       assert.match(email.textBody, new RegExp(`/app/activate/${emailToken.token}`))
+    })
+  })
+
+  describe('#forgot', function () {
+    let user
+
+    beforeEach(function * () {
+      user = yield sut.signup({ email: genEmail(), password: 'secret1234' })
+    })
+
+    it('should throw ValidationException given email is unknown', function * () {
+      try {
+        yield sut.forgot('unknown@example.com')
+        assert(false)
+      } catch (error) {
+        assert.equal(error.name, 'ValidationException')
+        assert.equal(error.message, 'user-not-found')
+        assert.equal(error.status, 404)
+      }
+    })
+
+    it('should create email token', function * () {
+      yield sut.forgot(user.email)
+
+      const emailTokens = yield user.emailTokens().fetch()
+      assert.equal(emailTokens.size(), 2)
+    })
+
+    it('should send reset password email', function * () {
+      yield sut.forgot(user.email)
+
+      let emailToken = (yield user.emailTokens().where('expired', false).fetch()).first()
+      assert.isFalse(emailToken.confirmed)
+      assert.isFalse(emailToken.expired)
+      let email = yield emailParser.getEmail(Config.get('mail.log.toPath'), 'recent')
+      assert.deepEqual(email.to, [ { address: user.email, name: '' } ])
+      assert.match(email.textBody, new RegExp(`/app/password-reset/${emailToken.token}`))
+    })
+  })
+
+  describe('#reset', function () {
+    let userId, token, oldPassword
+
+    beforeEach(function * () {
+      const user = yield sut.signup({ email: genEmail(), password: 'old password' })
+      userId = user.id
+      oldPassword = user.password
+      token = (yield user.emailTokens().fetch()).first().token
+    })
+
+    it('should throw ValidationException given token is unknown', function * () {
+      try {
+        yield sut.reset(uuid.v1(), 'new secret')
+        assert(false)
+      } catch (error) {
+        assert.equal(error.name, 'ValidationException')
+        assert.equal(error.message, 'Email token not found')
+        assert.equal(error.status, 404)
+      }
+    })
+
+    it('should confirm email token', function * () {
+      yield sut.reset(token, 'new secret')
+
+      const emailToken = (yield EmailToken.query().where('token', token).fetch()).first()
+      assert.isTrue(emailToken.confirmed)
+    })
+
+    it('should set hashed password', function * () {
+      yield sut.reset(token, 'new secret')
+
+      const user = yield User.findOrFail(userId)
+      assert.notEqual(user.password, oldPassword)
+      assert.notEqual(user.password, 'new secret')
     })
   })
 })

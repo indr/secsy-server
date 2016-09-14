@@ -138,6 +138,7 @@ describe('Acceptance | Controller | UsersController', function () {
     it('should return 200 with valid token', function * () {
       yield agent.signup()
       const email = yield agent.getEmail()
+      // TODO: Use agent.getRecentToken()
       const token = email.textBody.match(/\/activate\/([a-z0-9\-].*)/i)[ 1 ]
       yield agent.post('/api/users/confirm')
         .send({ token })
@@ -145,7 +146,7 @@ describe('Acceptance | Controller | UsersController', function () {
     })
   })
 
-  describe('#resend | PUT /api/users/resend', function () {
+  describe('#resend | POST /api/users/resend', function () {
     let agent
 
     beforeEach(function * () {
@@ -178,9 +179,105 @@ describe('Acceptance | Controller | UsersController', function () {
       assert.deepEqual(res.body, { status: 404, message: 'user-not-found' })
     })
 
-    it('should return 200 with for unconfirmed user email', function * () {
+    it('should return 200 for unconfirmed user email', function * () {
       const res = yield agent.post('/api/users/resend')
         .send({ email: agent.email.toUpperCase() })
+        .expect(200)
+
+      assert.deepEqual(res.body, { status: 200 })
+    })
+  })
+
+  describe('#forgot | POST /api/users/forgot-password', function () {
+    const url = '/api/users/forgot-password'
+    let agent
+
+    beforeEach(function * () {
+      agent = yield agency.user()
+      yield agent.logout()
+    })
+
+    it('should return 400 with invalid email', function * () {
+      const res = yield agent.post(url)
+        .expect(400)
+
+      assert.deepEqual(res.body, { status: 400, message: 'invalid-email' })
+    })
+
+    it('should return 404 with unknown email', function * () {
+      const res = yield agent.post(url)
+        .send({ email: 'unknown@example.com' })
+        .expect(404)
+
+      assert.deepEqual(res.body, { status: 404, message: 'user-not-found' })
+    })
+
+    it('should return 200', function * () {
+      const res = yield agent.post(url)
+        .send({ email: agent.email.toUpperCase() })
+        .expect(200)
+
+      assert.deepEqual(res.body, { status: 200 })
+    })
+  })
+
+  describe('#reset | POST /api/users/reset-password', function () {
+    const url = '/api/users/reset-password'
+    let agent, token
+
+    beforeEach(function * () {
+      agent = yield agency.user()
+      yield agent.logout()
+      yield agent.forgotPassword()
+      token = yield agent.getRecentToken()
+    })
+
+    it('should return 400 with invalid token', function * () {
+      const res = yield agent.post(url)
+        .send({ password: 'newSecret1234' })
+        .expect(400)
+
+      assert.deepEqual(res.body, {
+        status: 400,
+        message: 'Validation failed',
+        fields: [
+          { field: 'token', validation: 'required', message: 'required validation failed on token' }
+        ]
+      })
+    })
+
+    it('should return 400 with invalid password', function * () {
+      console.log('length', token.length)
+      const res = yield agent.post(url)
+        .send({ token: token })
+        .expect(400)
+
+      assert.deepEqual(res.body, {
+        status: 400,
+        message: 'Validation failed',
+        fields: [
+          { field: 'password', validation: 'required', message: 'required validation failed on password' }
+        ]
+      })
+    })
+
+    it('should return 400 with weak password', function * () {
+      const res = yield agent.post(url)
+        .send({ token: token, password: 'weak' })
+        .expect(400)
+
+      assert.deepEqual(res.body, {
+        status: 400,
+        message: 'Validation failed',
+        fields: [
+          { field: 'password', validation: 'min', message: 'min validation failed on password' }
+        ]
+      })
+    })
+
+    it('should return 200', function * () {
+      const res = yield agent.post(url)
+        .send({ token: token, password: 'newSecret1234' })
         .expect(200)
 
       assert.deepEqual(res.body, { status: 200 })

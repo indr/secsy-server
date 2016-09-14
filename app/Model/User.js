@@ -28,10 +28,20 @@ class User extends Base {
     }
   }
 
+  // TODO: Rename to signupRules
   static get rules () {
     return {
       username: 'required|email|min:5|unique:users',
       email: 'required|email|unique:users',
+      // TODO: Add strong validator
+      password: 'required|min:8'
+    }
+  }
+
+  static get resetPasswordRules () {
+    return {
+      // TODO: Add guid validator
+      token: 'required|min:36',
       password: 'required|min:8'
     }
   }
