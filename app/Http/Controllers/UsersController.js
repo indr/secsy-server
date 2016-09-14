@@ -40,7 +40,7 @@ class UsersController {
     return response.ok({ status: 200 })
   }
 
-  * forgot (request, response) {
+  * forgotPassword (request, response) {
     const raw = request.only('email')
     const email = (yield Validator.sanitize(raw, User.sanitations)).email
 
@@ -50,6 +50,22 @@ class UsersController {
     }
 
     yield UserService.forgot(email)
+    return response.ok({ status: 200 })
+  }
+
+  * resetPassword (request, response) {
+    const data = request.only('token', 'password')
+
+    // if (!data.token) {
+    //   response.badRequest({ status: 400, message: 'invalid-token' })
+    //   return
+    // }
+    // if (!data.password) {
+    //   response.badRequest({ status: 400, message: 'invalid-password' })
+    //   return
+    // }
+
+    yield UserService.reset(data.token, data.password)
     return response.ok({ status: 200 })
   }
 

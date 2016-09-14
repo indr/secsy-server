@@ -232,7 +232,7 @@ describe('Integration | Service | User', function () {
 
     it('should throw ValidationException given token is unknown', function * () {
       try {
-        yield sut.reset('unknown token', 'new secret')
+        yield sut.reset(uuid.v1(), 'new secret')
         assert(false)
       } catch (error) {
         assert.equal(error.name, 'ValidationException')
