@@ -154,8 +154,8 @@ function * getRecentEmail () {
 
 function * getRecentToken () {
   const email = yield this.getRecentEmail()
-  const match = email.textBody.match(/\/activate\/([a-z0-9\-].*)/i)
-  return match[ 1 ]
+  const match = email.textBody.match(/\/(activate|password-reset)\/([a-z0-9\-].*)/i)
+  return match[ 2 ]
 }
 
 function * confirm (token) {

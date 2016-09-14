@@ -17,7 +17,7 @@ describe('Acceptance | Reset password', function () {
 
   it('should receive email to reset password', function * () {
     const email = yield user.getEmail()
-    assert.equal(email.subject, 'Password reset')
+    assert.equal(email.subject, 'Reset password')
   })
 
   it('should be able to login with new password', function * () {

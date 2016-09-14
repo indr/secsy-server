@@ -145,7 +145,7 @@ describe('Acceptance | Controller | UsersController', function () {
     })
   })
 
-  describe('#resend | PUT /api/users/resend', function () {
+  describe('#resend | POST /api/users/resend', function () {
     let agent
 
     beforeEach(function * () {
@@ -178,8 +178,41 @@ describe('Acceptance | Controller | UsersController', function () {
       assert.deepEqual(res.body, { status: 404, message: 'user-not-found' })
     })
 
-    it('should return 200 with for unconfirmed user email', function * () {
+    it('should return 200 for unconfirmed user email', function * () {
       const res = yield agent.post('/api/users/resend')
+        .send({ email: agent.email.toUpperCase() })
+        .expect(200)
+
+      assert.deepEqual(res.body, { status: 200 })
+    })
+  })
+
+  describe('#forgot | POST /api/users/forgot-password', function () {
+    const url = '/api/users/forgot-password'
+    let agent
+
+    beforeEach(function * () {
+      agent = yield agency.user()
+      yield agent.logout()
+    })
+
+    it('should return 400 with invalid email', function * () {
+      const res = yield agent.post(url)
+        .expect(400)
+
+      assert.deepEqual(res.body, { status: 400, message: 'invalid-email' })
+    })
+
+    it('should return 404 with unknown email', function * () {
+      const res = yield agent.post(url)
+        .send({ email: 'unknown@example.com' })
+        .expect(404)
+
+      assert.deepEqual(res.body, { status: 404, message: 'user-not-found' })
+    })
+
+    it('should return 200', function * () {
+      const res = yield agent.post(url)
         .send({ email: agent.email.toUpperCase() })
         .expect(200)
 
