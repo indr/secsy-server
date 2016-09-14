@@ -2,6 +2,12 @@
 
 const NE = use('node-exceptions')
 
+class ModelNotFoundException extends NE.LogicalException {
+  constructor (message, status) {
+    super(message, status || 404)
+  }
+}
+
 class ValidationException extends NE.LogicalException {
   constructor (message, status) {
     super(message, status || 400)
@@ -14,4 +20,4 @@ class ValidationException extends NE.LogicalException {
   }
 }
 
-module.exports = { ValidationException }
+module.exports = { ModelNotFoundException, ValidationException }
