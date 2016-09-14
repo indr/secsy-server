@@ -57,6 +57,17 @@ class UserService {
 
     yield Mailer.sendAccountActivation(user, emailToken.token)
   }
+
+  * forgot (email) {
+    const user = (yield User.query().where('email', email).fetch()).first()
+    if (!user) {
+      throw new Exceptions.ValidationException('user-not-found', 404)
+    }
+
+    let emailToken = yield user.emailTokens().create({ email: user.email })
+
+    yield Mailer.sendResetPassword(user, emailToken.token)
+  }
 }
 
 module.exports = UserService

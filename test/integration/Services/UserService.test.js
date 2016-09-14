@@ -182,4 +182,41 @@ describe('Integration | Service | User', function () {
       assert.match(email.textBody, new RegExp(`/app/activate/${emailToken.token}`))
     })
   })
+
+  describe('#forgot', function () {
+    let user
+
+    beforeEach(function * () {
+      user = yield sut.signup({ email: genEmail(), password: 'secret1234' })
+    })
+
+    it('should throw ValidationException given email is unknown', function * () {
+      try {
+        yield sut.forgot('unknown@example.com')
+        assert(false)
+      } catch (error) {
+        assert.equal(error.name, 'ValidationException')
+        assert.equal(error.message, 'user-not-found')
+        assert.equal(error.status, 404)
+      }
+    })
+
+    it('should create email token', function * () {
+      yield sut.forgot(user.email)
+
+      const emailTokens = yield user.emailTokens().fetch()
+      assert.equal(emailTokens.size(), 2)
+    })
+
+    it('should send reset password email', function * () {
+      yield sut.forgot(user.email)
+
+      let emailToken = (yield user.emailTokens().where('expired', false).fetch()).first()
+      assert.isFalse(emailToken.confirmed)
+      assert.isFalse(emailToken.expired)
+      let email = yield emailParser.getEmail(Config.get('mail.log.toPath'), 'recent')
+      assert.deepEqual(email.to, [ { address: user.email, name: '' } ])
+      assert.match(email.textBody, new RegExp(`/app/password-reset/${emailToken.token}`))
+    })
+  })
 })
