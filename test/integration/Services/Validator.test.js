@@ -2,6 +2,7 @@
 
 /* eslint-env mocha */
 
+const _ = require('lodash')
 const assert = require('chai').assert
 const setup = require('./../setup')
 const uuid = require('node-uuid')
@@ -18,25 +19,17 @@ describe('Unit | Service | Validator', function () {
   })
 
   describe('Validator password', function () {
-    const validPasswords = [
-      'abcDEF123!',
-      'abcDEF123@',
-      'abcDEF123#',
-      'abcDEF123$',
-      'abcDEF123%',
-      'abcDEF123^',
-      'abcDEF123&',
-      'abcDEF123*',
-      'abcDEF123(',
-      'abcDEF123)',
-      'abcDEF123_'
-    ]
+    const validSpecialChars = '`~!@#$%^&*()-_=+[]{};:\'"|\\,.<>?/'
+
+    const validPasswords = _.map(validSpecialChars.split(''), (each) => {
+      return 'abcDEF1234' + each
+    })
     const invalidPasswords = [
       'tooshort',
       'UPPERCASEONLY',
       'lowercaseonly',
       '1234567890',
-      '!@#$%^&*_'
+      validSpecialChars
     ]
 
     describe('Raw validator', function () {

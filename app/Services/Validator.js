@@ -17,7 +17,7 @@ const skippable = function (value) {
 AdonisValidator.is.extend('password', function (data) {
   // http://indicative.adonisjs.com/#indicative-extending-extending-raw-validator
 
-  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*\(\)_])(?=.{8,})/
+  const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[`~!@#\$%^&\*\(\)\-_=\+\[\]\{\};:'"\|\\,\.<>\?\/])(?=.{8,})/
   return passwordRegex.test(data)
 })
 
