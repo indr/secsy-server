@@ -87,6 +87,7 @@ function createAgent (app, prefix) {
   agent.getRecentToken = getRecentToken.bind(agent)
   agent.forgotPassword = forgotPassword.bind(agent)
   agent.resetPassword = resetPassword.bind(agent)
+  agent.deleteAccount = deleteAccount.bind(agent)
   // agent.role = role.bind(agent)
   return agent
 }
@@ -177,4 +178,9 @@ function * forgotPassword () {
 function * resetPassword (token, password) {
   return yield this.post('/api/users/reset-password')
     .send({ token, password })
+}
+
+function * deleteAccount () {
+  return yield this.delete('/api/users/me')
+    .send({ password: this.password })
 }

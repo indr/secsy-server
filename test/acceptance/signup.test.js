@@ -6,7 +6,7 @@ const assert = require('chai').assert
 const agency = require('./agency')
 require('co-mocha')
 
-describe('Acceptance | signup', function () {
+describe('Acceptance | Signup', function () {
   let user
 
   beforeEach(function * () {
@@ -14,7 +14,7 @@ describe('Acceptance | signup', function () {
     yield user.signup()
   })
 
-  it('should receive email to confirm new account', function * () {
+  it('should send email to confirm new account', function * () {
     const email = yield user.getEmail()
 
     assert.equal(email.subject, 'Confirm your new account')
