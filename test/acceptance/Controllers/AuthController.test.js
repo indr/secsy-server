@@ -38,6 +38,7 @@ describe('Acceptance | Controller | AuthController', function () {
         assert.match(user.updated_at, dateTimeRegex)
         assert.equal(user.username, expected.username)
         assert.equal(user.email, expected.email)
+        assert.equal(user.locale, 'en-US')
         assert.notProperty(user, 'password')
         assert.property(user, 'private_key')
         assert.property(user, 'public_key')
