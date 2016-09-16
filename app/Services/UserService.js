@@ -89,7 +89,6 @@ class UserService {
 
     const user = yield emailToken.user().fetch()
     if (emailToken.confirm()) {
-      // TODO: Add some salt and pepper?
       user.password = yield Hash.make(password)
 
       yield user.save()

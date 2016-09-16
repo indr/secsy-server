@@ -12,7 +12,6 @@ User.setUsername = function * (next) {
 }
 
 User.encryptPassword = function * (next) {
-  // TODO: Add some salt and pepper?
   this.password = yield Hash.make(this.password)
 
   yield next
