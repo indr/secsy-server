@@ -14,7 +14,7 @@ class UserNotificationMailer {
       email_token: emailToken
     }
 
-    return yield this.send('Confirm your new account', 'account-activation', model, user)
+    return yield this.send('account-activation', model, user)
   }
 
   * sendResetPassword (user, emailToken) {
@@ -26,21 +26,48 @@ class UserNotificationMailer {
       email_token: emailToken
     }
 
-    return yield this.send('Reset password', 'reset-password', model, user)
+    return yield this.send('reset-password', model, user)
   }
 
   * sendAccountDeleted (user) {
     UserNotificationMailer.assertIsModel(user, 'User')
 
-    return yield this.send('Account deleted', 'account-deleted', user.toJSON(), user)
+    return yield this.send('account-deleted', user.toJSON(), user)
   }
 
-  * send (subject, template, model, user) {
-    return yield Mail.send([ null, 'emails/user_notifications/' + template ], model, function (message) {
+  * send (key, model, user) {
+    const template = UserNotificationMailer.template(key, user.locale)
+    return yield Mail.send([ null, template ], model, function (message) {
       message.to(user.email)
       message.from(Env.get('MAIL_FROM_EMAIL'), Env.get('MAIL_FROM_NAME'))
-      message.subject(subject)
+      message.subject(UserNotificationMailer.t(key, user.locale))
     })
+  }
+
+  static template (key, locale) {
+    locale = locale ? locale.substr(0, 2).toLocaleLowerCase() : 'en'
+    const locales = { 'en': 'en', 'de': 'de' }
+    locale = locales[ locale ] || 'en'
+    return 'emails/user_notifications/' + locale + '/' + key
+  }
+
+  static t (key, locale) {
+    locale = locale ? locale.substr(0, 2).toLowerCase() : 'en'
+
+    const translations = {
+      'en': {
+        'account-activation': 'Confirm your new account',
+        'reset-password': 'Reset password',
+        'account-deleted': 'Account deleted'
+      },
+      'de': {
+        'account-activation': 'Bestätigen Sie Ihr neues Konto',
+        'reset-password': 'Passwort-Zurücksetzung',
+        'account-deleted': 'Konto entfernt'
+      }
+    }
+
+    return translations[ locale ][ key ]
   }
 
   static assertIsModel (instance, modelName) {

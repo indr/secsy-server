@@ -1,6 +1,6 @@
 'use strict'
 
-const SysMsgMailer = use('App/Services/SysMsgMailer')
+const SysMsgMailer = make('App/Services/SysMsgMailer')
 
 const Mailer = exports = module.exports = {}
 

@@ -4,7 +4,7 @@ const Db = use('Database')
 const EmailToken = use('App/Model/EmailToken')
 const Exceptions = use('App/Exceptions')
 const Hash = use('Hash')
-const Mailer = use('App/Services/UserNotificationMailer')
+const Mailer = make('App/Services/UserNotificationMailer')
 const User = use('App/Model/User')
 const Validator = use('App/Services/Validator')
 
