@@ -45,7 +45,7 @@ class UserService {
     const user = yield emailToken.user().fetch()
     if (emailToken.confirm()) {
       user.confirmed = true
-      // TODO: Throw ApplicationException
+
       yield user.save()
       yield emailToken.save()
 
@@ -91,7 +91,7 @@ class UserService {
     if (emailToken.confirm()) {
       // TODO: Add some salt and pepper?
       user.password = yield Hash.make(password)
-      // TODO: Throw ApplicationException
+
       yield user.save()
       yield emailToken.save()
     }
@@ -102,11 +102,10 @@ class UserService {
       throw new Exceptions.ValidationException('invalid-password')
     }
 
-    // TODO: Throw ApplicationExcpetion
-    yield user.delete()
+    yield Db.raw(`DELETE FROM updates WHERE owned_by='${user.id}'`)
     yield Db.raw(`DELETE FROM contacts WHERE owned_by='${user.id}'`)
     yield Db.raw(`DELETE FROM keys WHERE owned_by='${user.id}'`)
-    yield Db.raw(`DELETE FROM updates WHERE owned_by='${user.id}'`)
+    yield user.delete()
 
     yield Mailer.sendAccountDeleted(user)
 
