@@ -24,7 +24,8 @@ class User extends Base {
 
   static get sanitations () {
     return {
-      email: 'normalize_email'
+      email: 'normalize_email',
+      locale: 'normalize_locale'
     }
   }
 

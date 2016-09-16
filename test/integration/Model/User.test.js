@@ -41,6 +41,10 @@ describe('Integration | Model | User', function () {
       yield sanitize('email', 'User@Example.Com', 'user@example.com')
       yield sanitize('email', 'bar.sneaky+foo@gmail.com', 'barsneaky@gmail.com')
     })
+
+    it('should sanitize locale', function * () {
+      yield sanitize('locale', 'EN-us', 'en-US')
+    })
   })
 
   describe('signupRules', function () {

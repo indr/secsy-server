@@ -121,4 +121,23 @@ describe('Unit | Service | Validator', function () {
       })
     })
   })
+
+  describe('Sanitazor normalizeLocale', function () {
+    describe('Raw sanitazor', function () {
+      it('should ignore undefined', function () {
+        assert.equal(sut.sanitizor.normalizeLocale(), undefined)
+      })
+
+      it('should lower case language code and upper case country code', function () {
+        assert.equal(sut.sanitizor.normalizeLocale('EN-us'), 'en-US')
+      })
+    })
+
+    describe('Schema sanitazor', function () {
+      it('should lower case langauge code and upper case country code', function * () {
+        const actual = yield sut.sanitize({ locale: 'EN-us' }, { locale: 'normalize_locale' })
+        assert.equal(actual.locale, 'en-US')
+      })
+    })
+  })
 })

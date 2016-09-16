@@ -15,7 +15,7 @@ describe('Acceptance | Controller | UsersController', function () {
           .send({
             email: agent.email.toUpperCase(),
             password: agent.password,
-            locale: 'de-CH'
+            locale: 'de-ch'
           })
           .expect(201)
           .end(function (err, res) {

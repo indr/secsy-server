@@ -56,8 +56,20 @@ AdonisValidator.extend('token', function (data, field, message, args, get) {
   })
 })
 
+AdonisValidator.sanitizor.extend('normalizeLocale', function (value) {
+  if (!value) {
+    return value
+  }
+  const values = value.split('-')
+  if (values.length !== 2) {
+    return value
+  }
+  return values[ 0 ].toLowerCase() + '-' + values[ 1 ].toUpperCase()
+})
+
 const Validator = exports = module.exports = {
-  is: Raw
+  is: Raw,
+  sanitizor: AdonisValidator.sanitizor
 }
 
 Validator.validate = function * (data, rules) {
