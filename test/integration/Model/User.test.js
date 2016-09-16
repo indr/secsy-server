@@ -58,6 +58,11 @@ describe('Integration | Model | User', function () {
       yield fails(User, User.signupRules, 'password', [ undefined, '', ' ', '12345678' ])
       yield succeeds(User, User.signupRules, 'password', 'abcABC123$')
     })
+
+    it('should validate locale', function * () {
+      yield fails(User, User.signupRules, 'locale', [ undefined, '', ' ', 'abcde', 'de-de', 'de_DE' ])
+      yield succeeds(User, User.signupRules, 'locale', [ 'en-US', 'de-CH', 'de-DE' ])
+    })
   })
 
   describe('resetPasswordRules', function () {
