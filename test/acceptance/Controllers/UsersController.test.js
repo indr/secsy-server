@@ -296,4 +296,32 @@ describe('Acceptance | Controller | UsersController', function () {
       assert.deepEqual(res.body, { status: 200 })
     })
   })
+
+  describe('#delete | DELETE /api/users/me', function () {
+    const url = '/api/users/me'
+    let user
+
+    beforeEach(function * () {
+      user = yield agency.user()
+    })
+
+    it('should return 400 given password is wrong', function * () {
+      const res = yield user.delete(url)
+        .send({ password: 'wrong password' })
+        .expect(400)
+
+      assert.deepEqual(res.body, {
+        status: 400,
+        message: 'invalid-password'
+      })
+    })
+
+    it('should return 200', function * () {
+      const res = yield user.delete(url)
+        .send({ password: user.password, message: 'Just cause' })
+        .expect(200)
+
+      assert.deepEqual(res.body, { status: 200 })
+    })
+  })
 })

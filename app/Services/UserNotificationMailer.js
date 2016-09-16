@@ -3,6 +3,7 @@
 const Env = use('Env')
 const Mail = use('Mail')
 
+// TODO: Refactor to class
 const UserNotificationMailer = exports = module.exports = {}
 
 UserNotificationMailer.sendAccountActivation = function * (user, emailToken) {
@@ -40,5 +41,17 @@ UserNotificationMailer.sendResetPassword = function * (user, emailToken) {
     message.to(user.email)
     message.from(Env.get('MAIL_FROM_EMAIL'), Env.get('MAIL_FROM_NAME'))
     message.subject('Reset password')
+  })
+}
+
+UserNotificationMailer.sendAccountDeleted = function * (user) {
+  if (!user || typeof (user.toJSON) !== 'function') {
+    throw new Error('Mailer expects a valid instance of User Model')
+  }
+
+  return yield Mail.send([ null, 'emails/user_notifications/account-deleted' ], user.toJSON(), function (message) {
+    message.to(user.email)
+    message.from(Env.get('MAIL_FROM_EMAIL'), Env.get('MAIL_FROM_NAME'))
+    message.subject('Account deleted')
   })
 }

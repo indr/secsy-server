@@ -11,3 +11,7 @@ Mailer.sendSystemMessageUserLoggedIn = function * (user) {
 Mailer.sendSystemMessageUserSignedUp = function * (user) {
   return yield SysMsgMailer.sendUserSignedUp(user)
 }
+
+Mailer.sendSystemMessageAccountDeleted = function * (user, message) {
+  return yield SysMsgMailer.sendAccountDeleted(user, message)
+}

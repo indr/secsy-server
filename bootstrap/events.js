@@ -20,6 +20,7 @@ const Event = use('Event')
 Event.when('Http.error.*', 'Http.handleError')
 Event.when('Http.start', 'Http.onStart')
 
+Event.when('user.deleted', 'Mailer.sendSystemMessageAccountDeleted')
 Event.when('user.signed-up', 'Addressbook.createMeContact')
 Event.when('user.signed-up', 'Mailer.sendSystemMessageUserSignedUp')
 Event.when('user.logged-in', 'Mailer.sendSystemMessageUserLoggedIn')

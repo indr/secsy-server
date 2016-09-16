@@ -54,4 +54,13 @@ describe('Integration | Service | UserNotificationMailer', function () {
     assert.equal(email.subject, 'Reset password')
     assert.isAbove(email.textBody.indexOf(Env.get('BASE_URL') + '/app/password-reset/' + token), -1)
   })
+
+  it('#sendAccountDeleted', function * () {
+    let response = yield sut.sendAccountDeleted(user)
+
+    assert.deepEqual(response.accepted, [ user.email ])
+    const email = yield assertRecent({})
+    assert.deepEqual(email.to, [ { address: user.email, name: '' } ])
+    assert.equal(email.subject, 'Account deleted')
+  })
 })

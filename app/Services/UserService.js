@@ -1,5 +1,6 @@
 'use strict'
 
+const Db = use('Database')
 const EmailToken = use('App/Model/EmailToken')
 const Exceptions = use('App/Exceptions')
 const Hash = use('Hash')
@@ -93,6 +94,22 @@ class UserService {
       yield user.save()
       yield emailToken.save()
     }
+  }
+
+  * deleteAccount (user, password, message) {
+    if (!(yield Hash.verify(password, user.password))) {
+      throw new Exceptions.ValidationException('invalid-password')
+    }
+
+    // TODO: Throw ApplicationExcpetion
+    yield user.delete()
+    yield Db.raw(`DELETE FROM contacts WHERE owned_by='${user.id}'`)
+    yield Db.raw(`DELETE FROM keys WHERE owned_by='${user.id}'`)
+    yield Db.raw(`DELETE FROM updates WHERE owned_by='${user.id}'`)
+
+    yield Mailer.sendAccountDeleted(user)
+
+    this.Event.fire('user.deleted', user, message)
   }
 }
 

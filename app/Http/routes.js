@@ -28,6 +28,7 @@ Route.group('v1', function () {
     .only('index', 'store', 'destroy')
 
   Route.get('/users/me', 'UsersController.me')
+  Route.delete('/users/me', 'UsersController.deleteAccount')
 }).prefix('/api').middleware('auth')
 
 Route.post('/auth/local', 'AuthController.login')

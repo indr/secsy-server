@@ -8,7 +8,7 @@ const uuid = require('node-uuid')
 require('co-mocha')
 
 describe('Integration | Service | User', function () {
-  let Config, Event, User, EmailToken,
+  let Config, Event, Update, User, EmailToken, Key, Contact,
     sut
 
   function genEmail () {
@@ -21,8 +21,11 @@ describe('Integration | Service | User', function () {
 
     Config = use('Config')
     Event = use('Event')
+    Update = use('App/Model/Update')
     User = use('App/Model/User')
     EmailToken = use('App/Model/EmailToken')
+    Key = use('App/Model/Key')
+    Contact = use('App/Model/Contact')
 
     sut = make('App/Services/UserService')
   })
@@ -320,6 +323,85 @@ describe('Integration | Service | User', function () {
       const user = yield User.findOrFail(userId)
       assert.notEqual(user.password, oldPassword)
       assert.notEqual(user.password, 'new secret')
+    })
+  })
+
+  describe('#deleteAccount', function () {
+    const password = 'Secret123$'
+    let user
+
+    beforeEach(function * () {
+      user = yield sut.signup({ email: genEmail(), password })
+    })
+
+    it('should throw ValidationException given password is wrong', function * () {
+      try {
+        yield sut.deleteAccount(user, 'wrong password')
+        assert(false)
+      } catch (error) {
+        assert.equal(error.name, 'ValidationException')
+        assert.equal(error.message, 'invalid-password')
+        assert.equal(error.status, 400)
+      }
+    })
+
+    it('should delete user', function * () {
+      yield sut.deleteAccount(user, password)
+
+      const fromDb = yield User.find(user.id)
+      assert.isNull(fromDb)
+    })
+
+    it('should delete users key, contacts and updates', function * () {
+      yield Contact.create({ owned_by: user.id })
+      yield Key.create({
+        owned_by: user.id,
+        email_sha256: user.email_sha256,
+        private_key: 'private',
+        public_key: 'public'
+      })
+      yield Update.create({
+        owned_by: user.id,
+        from_email_sha256: user.email_sha256,
+        to_email_sha256: user.email_sha256,
+        encrypted_: 'cypher'
+      })
+
+      yield sut.deleteAccount(user, password)
+
+      const contacts = yield Contact.query().where('owned_by', user.id).fetch()
+      const keys = yield Key.query().where('owned_by', user.id).fetch()
+      const updates = yield Update.query().where('owned_by', user.id).fetch()
+
+      assert.equal(contacts.size(), 0, 'contacts.size()')
+      assert.equal(keys.size(), 0, 'keys.size()')
+      assert.equal(updates.size(), 0, 'updates.size()')
+    })
+
+    it('should send account deleted notification', function * () {
+      yield sut.deleteAccount(user, password)
+
+      let email = yield emailParser.getEmail(Config.get('mail.log.toPath'), 'recent', (each) => {
+        return each.indexOf('To: ' + user.email) >= 0
+      })
+      assert.deepEqual(email.to, [ { address: user.email, name: '' } ])
+      assert.match(email.textBody, /account has been deleted/)
+    })
+
+    it('should fire user.deleted', function * () {
+      let eventFired = false
+      let args = null
+      Event.removeListeners('user.deleted')
+      Event.on('user.deleted', function * () {
+        eventFired = true
+        args = arguments
+      })
+
+      yield sut.deleteAccount(user, password, 'Users message')
+
+      assert.isTrue(eventFired)
+      assert.instanceOf(args[ 0 ], User)
+      assert.equal(args[ 1 ], 'Users message')
     })
   })
 })

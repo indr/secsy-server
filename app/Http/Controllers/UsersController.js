@@ -42,15 +42,6 @@ class UsersController {
   * resetPassword (request, response) {
     const data = request.only('token', 'password')
 
-    // if (!data.token) {
-    //   response.badRequest({ status: 400, message: 'invalid-token' })
-    //   return
-    // }
-    // if (!data.password) {
-    //   response.badRequest({ status: 400, message: 'invalid-password' })
-    //   return
-    // }
-
     yield UserService.reset(data.token, data.password)
     return response.ok({ status: 200 })
   }
@@ -70,6 +61,13 @@ class UsersController {
     result.public_key = key ? key.public_key : null
 
     response.ok(result)
+  }
+
+  * deleteAccount (request, response) {
+    const data = request.only('password', 'message')
+
+    yield UserService.deleteAccount(request.currentUser, data.password, data.message)
+    response.ok({ status: 200 })
   }
 }
 

@@ -44,5 +44,13 @@ describe('Integration | Service | SysMsgMailer', function () {
     assert.deepEqual(response.accepted, [ 'admin@secsy.io' ])
     yield assertRecent('Notification: User signed up')
   })
+
+  it('#sendAccountDeleted', function * () {
+    var response = yield sut.sendAccountDeleted(user, 'Just because')
+    assert.deepEqual(response.accepted, [ 'admin@secsy.io' ])
+    const email = yield assertRecent('Notification: Account deleted')
+    assert.isAbove(email.textBody.indexOf(user.email), -1)
+    assert.match(email.textBody, /Just because/)
+  })
 })
 

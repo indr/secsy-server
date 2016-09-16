@@ -11,6 +11,7 @@
  */
 
 const _ = require('lodash')
+const assert = require('chai').assert
 const fs = require('co-fs')
 const MailParser = require('mailparser').MailParser
 
@@ -109,7 +110,10 @@ emailParser.getEmail = function * (emailFile, position, filter) {
     emailTokens = _.filter(emailTokens, filter)
   }
   let email = position === 'recent' ? emailTokens[ emailTokens.length - 1 ] : emailTokens[ position - 1 ]
-  email = email.replace(/\-\s*EMAIL START\s*-/, '').trim()
+
+  const emailStartRegex = /\-\s*EMAIL START\s*-/
+  assert.match(email, emailStartRegex)
+  email = email.replace(emailStartRegex, '').trim()
   const mailBody = new MailBody()
   yield mailBody.parseBody(email)
   return mailBody
