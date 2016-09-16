@@ -52,10 +52,11 @@ describe('Integration | Service | User', function () {
     })
 
     it('should create new user', function * () {
-      const user = yield sut.signup({ email: genEmail(), password: 'Secret123$' })
+      const user = yield sut.signup({ email: genEmail(), password: 'Secret123$', locale: 'de-CH' })
 
       assert.instanceOf(user, User)
       assert.isFalse(user.isNew())
+      assert.equal(user.locale, 'de-CH')
     })
 
     it('should create email token', function * () {

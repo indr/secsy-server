@@ -8,7 +8,7 @@ const Validator = use('App/Services/Validator')
 class UsersController {
 
   * store (request, response) {
-    const raw = request.only('email', 'password')
+    const raw = request.only('email', 'password', 'locale')
     const data = yield Validator.sanitize(raw, User.sanitations)
 
     const user = yield UserService.signup(data)

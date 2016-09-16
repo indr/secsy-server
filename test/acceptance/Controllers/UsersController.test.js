@@ -12,7 +12,11 @@ describe('Acceptance | Controller | UsersController', function () {
     it('should return 201 and user with lower case email', function (done) {
       agency.anon().then((agent) => {
         agent.post('/api/users')
-          .send({ email: agent.email.toUpperCase(), password: agent.password })
+          .send({
+            email: agent.email.toUpperCase(),
+            password: agent.password,
+            locale: 'de-CH'
+          })
           .expect(201)
           .end(function (err, res) {
             assert.isNull(err)
@@ -25,6 +29,7 @@ describe('Acceptance | Controller | UsersController', function () {
             assert.equal(user.updated_at, user.created_at)
             assert.equal(user.username, agent.email)
             assert.equal(user.email, agent.email)
+            assert.equal(user.locale, 'de-CH')
             assert.notProperty(user, 'password')
             assert.isDefined(user.email_sha256, 'email_sha265 ist not defined')
             assert.isUndefined(user.private_key, 'private_key is not undefined')
