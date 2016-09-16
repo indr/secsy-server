@@ -3,55 +3,57 @@
 const Env = use('Env')
 const Mail = use('Mail')
 
-// TODO: Refactor to class
-const UserNotificationMailer = exports = module.exports = {}
+class UserNotificationMailer {
 
-UserNotificationMailer.sendAccountActivation = function * (user, emailToken) {
-  if (!user || typeof (user.toJSON) !== 'function') {
-    throw new Error('Mailer expects a valid instance of User Model')
-  }
-  if (!emailToken || emailToken.length !== 36) {
-    throw new Error('Mailer expects a valid email token')
+  * sendAccountActivation (user, emailToken) {
+    UserNotificationMailer.assertIsModel(user, 'User')
+    UserNotificationMailer.assertIsToken(emailToken)
+
+    const model = {
+      base_url: Env.get('BASE_URL'),
+      email_token: emailToken
+    }
+
+    return yield this.send('Confirm your new account', 'account-activation', model, user)
   }
 
-  const model = {
-    base_url: Env.get('BASE_URL'),
-    email_token: emailToken
+  * sendResetPassword (user, emailToken) {
+    UserNotificationMailer.assertIsModel(user, 'User')
+    UserNotificationMailer.assertIsToken(emailToken)
+
+    const model = {
+      base_url: Env.get('BASE_URL'),
+      email_token: emailToken
+    }
+
+    return yield this.send('Reset password', 'reset-password', model, user)
   }
-  return yield Mail.send([ null, 'emails/user_notifications/account-activation' ], model, function (message) {
-    message.to(user.email)
-    message.from(Env.get('MAIL_FROM_EMAIL'), Env.get('MAIL_FROM_NAME'))
-    message.subject('Confirm your new account')
-  })
+
+  * sendAccountDeleted (user) {
+    UserNotificationMailer.assertIsModel(user, 'User')
+
+    return yield this.send('Account deleted', 'account-deleted', user.toJSON(), user)
+  }
+
+  * send (subject, template, model, user) {
+    return yield Mail.send([ null, 'emails/user_notifications/' + template ], model, function (message) {
+      message.to(user.email)
+      message.from(Env.get('MAIL_FROM_EMAIL'), Env.get('MAIL_FROM_NAME'))
+      message.subject(subject)
+    })
+  }
+
+  static assertIsModel (instance, modelName) {
+    if (!instance || typeof (instance.toJSON) !== 'function') {
+      throw new Error(`Mailer expects a valid instance of ${modelName} model`)
+    }
+  }
+
+  static assertIsToken (token) {
+    if (!token || token.length !== 36) {
+      throw new Error('Mailer expects a valid token')
+    }
+  }
 }
 
-UserNotificationMailer.sendResetPassword = function * (user, emailToken) {
-  if (!user || typeof (user.toJSON) !== 'function') {
-    throw new Error('Mailer expects a valid instance of User Model')
-  }
-  if (!emailToken || emailToken.length !== 36) {
-    throw new Error('Mailer expects a valid email token')
-  }
-
-  const model = {
-    base_url: Env.get('BASE_URL'),
-    email_token: emailToken
-  }
-  return yield Mail.send([ null, 'emails/user_notifications/reset-password' ], model, function (message) {
-    message.to(user.email)
-    message.from(Env.get('MAIL_FROM_EMAIL'), Env.get('MAIL_FROM_NAME'))
-    message.subject('Reset password')
-  })
-}
-
-UserNotificationMailer.sendAccountDeleted = function * (user) {
-  if (!user || typeof (user.toJSON) !== 'function') {
-    throw new Error('Mailer expects a valid instance of User Model')
-  }
-
-  return yield Mail.send([ null, 'emails/user_notifications/account-deleted' ], user.toJSON(), function (message) {
-    message.to(user.email)
-    message.from(Env.get('MAIL_FROM_EMAIL'), Env.get('MAIL_FROM_NAME'))
-    message.subject('Account deleted')
-  })
-}
+module.exports = UserNotificationMailer
