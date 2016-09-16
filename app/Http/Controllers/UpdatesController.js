@@ -10,7 +10,7 @@ const Validator = use('App/Services/Validator')
 
 class UpdatesController {
   * index (request, response) {
-    const user = yield request.auth.getUser()
+    const user = request.currentUser
 
     const updates = yield Update.query().ownedBy(user.id).fetch()
 
@@ -18,7 +18,7 @@ class UpdatesController {
   }
 
   * store (request, response) {
-    const user = yield request.auth.getUser()
+    const user = request.currentUser
     const receiver = yield User.findBy('email_sha256', request.input('to_email_sha256'))
 
     if (!receiver) {
@@ -49,7 +49,7 @@ class UpdatesController {
   }
 
   * destroy (request, response) {
-    const user = yield request.auth.getUser()
+    const user = request.currentUser
     const id = uuid.unparse(uuid.parse(request.param('id')))
 
     const update = yield Update.query().ownedBy(user.id).where('id', id).first()

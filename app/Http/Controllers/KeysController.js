@@ -9,7 +9,7 @@ const Validator = use('App/Services/Validator')
 
 class KeysController {
   * index (request, response) {
-    const user = yield request.auth.getUser()
+    const user = request.currentUser
 
     const hash = request.input('h')
     const keys = yield Key.query().isPublicOrOwnedBy(user.id, hash).fetch()
@@ -18,7 +18,7 @@ class KeysController {
   }
 
   * store (request, response) {
-    const user = yield request.auth.getUser()
+    const user = request.currentUser
     const data = request.only('private_key', 'public_key', 'is_public')
     data.created_by = user.id
     data.owned_by = user.id
@@ -39,7 +39,7 @@ class KeysController {
   }
 
   * show (request, response) {
-    const user = yield request.auth.getUser()
+    const user = request.currentUser
     const id = request.param('id')
 
     const key = yield Key.query().isPublicOrOwnedBy(user.id).where('id', id).first()

@@ -4,7 +4,7 @@ const Contact = use('App/Model/Contact')
 
 class ContactsController {
   * index (request, response) {
-    const user = yield request.auth.getUser()
+    const user = request.currentUser
 
     const contacts = yield Contact.query().ownedBy(user.id).fetch()
 
@@ -12,7 +12,7 @@ class ContactsController {
   }
 
   * store (request, response) {
-    const user = yield request.auth.getUser()
+    const user = request.currentUser
 
     const data = request.only('encrypted_')
     data.created_by = user.id
@@ -27,7 +27,7 @@ class ContactsController {
   }
 
   * show (request, response) {
-    const user = yield request.auth.getUser()
+    const user = request.currentUser
     const id = request.param('id')
 
     const contact = yield Contact.query().ownedBy(user.id).where({ 'id': id }).first()
@@ -41,7 +41,7 @@ class ContactsController {
   }
 
   * update (request, response) {
-    const user = yield request.auth.getUser()
+    const user = request.currentUser
     const id = request.param('id')
 
     const contact = yield Contact.query().ownedBy(user.id).id(id).first()
@@ -58,7 +58,7 @@ class ContactsController {
   }
 
   * destroy (request, response) {
-    const user = yield request.auth.getUser()
+    const user = request.currentUser
     const id = request.param('id')
 
     const contact = yield Contact.query().ownedBy(user.id).id(id).first()

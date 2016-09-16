@@ -47,7 +47,7 @@ class UsersController {
   }
 
   * me (request, response) {
-    const user = yield request.auth.getUser()
+    const user = request.currentUser
 
     if (!user) {
       response.unauthorized('You must login to to get your user')
