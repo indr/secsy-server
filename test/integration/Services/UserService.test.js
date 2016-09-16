@@ -405,4 +405,32 @@ describe('Integration | Service | User', function () {
       assert.equal(args[ 1 ], 'Users message')
     })
   })
+
+  describe('#update', function () {
+    let user
+
+    beforeEach(function * () {
+      user = yield sut.signup({ email: genEmail(), password: 'Secret123$' })
+    })
+
+    it('should throw ValidationException', function * () {
+      try {
+        yield sut.update(user)
+        assert(false)
+      } catch (error) {
+        assert.equal(error.name, 'ValidationException')
+        assert.equal(error.status, 400)
+        assert.deepEqual(error.fields, [
+          { field: 'locale', message: 'required validation failed on locale', validation: 'required' }
+        ])
+      }
+    })
+
+    it('should update users locale', function * () {
+      yield sut.update(user, { locale: 'fr-FR' })
+
+      const fromDb = yield User.find(user.id)
+      assert.equal(fromDb.locale, 'fr-FR')
+    })
+  })
 })

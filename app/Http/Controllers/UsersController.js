@@ -63,6 +63,15 @@ class UsersController {
     response.ok(result)
   }
 
+  * updatePreferences (request, response) {
+    const raw = request.only('locale')
+    const data = yield Validator.sanitize(raw, User.sanitations)
+
+    yield UserService.update(request.currentUser, data)
+
+    response.ok({ status: 200 })
+  }
+
   * deleteAccount (request, response) {
     const data = request.only('password', 'message')
 

@@ -27,8 +27,10 @@ Route.group('v1', function () {
   Route.resources('/updates', 'UpdatesController')
     .only('index', 'store', 'destroy')
 
+  // TODO: Clean up this mess
   Route.get('/users/me', 'UsersController.me')
   Route.delete('/users/me', 'UsersController.deleteAccount')
+  Route.patch('/users/me', 'UsersController.updatePreferences')
 }).prefix('/api').middleware('auth')
 
 Route.post('/auth/local', 'AuthController.login')

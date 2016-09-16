@@ -112,6 +112,13 @@ class UserService {
 
     this.Event.fire('user.deleted', user, message)
   }
+
+  * update (user, data) {
+    yield Validator.validateAll(data, User.updateRules)
+
+    user.locale = data.locale
+    yield user.save()
+  }
 }
 
 module.exports = UserService

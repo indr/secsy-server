@@ -330,4 +330,35 @@ describe('Acceptance | Controller | UsersController', function () {
       assert.deepEqual(res.body, { status: 200 })
     })
   })
+
+  describe('#update | PATCH /api/users/me', function () {
+    const url = '/api/users/me'
+    let user
+
+    beforeEach(function * () {
+      user = yield agency.user()
+    })
+
+    it('should return 400 with invalid locale', function * () {
+      const res = yield user.patch(url)
+        .send({ locale: 'invalid' })
+        .expect(400)
+
+      assert.deepEqual(res.body, {
+        status: 400,
+        message: 'Validation failed',
+        fields: [
+          { field: 'locale', message: 'regex validation failed on locale', validation: 'regex' }
+        ]
+      })
+    })
+
+    it('should return 200', function * () {
+      const res = yield user.patch(url)
+        .send({ locale: 'en-US' })
+        .expect(200)
+
+      assert.deepEqual(res.body, { status: 200 })
+    })
+  })
 })

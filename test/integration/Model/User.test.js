@@ -76,6 +76,13 @@ describe('Integration | Model | User', function () {
     })
   })
 
+  describe('updateRules', function () {
+    it('should validate locale', function * () {
+      yield fails(User, User.updateRules, 'locale', [ undefined, '', ' ', 'abcde', 'de-de', 'de_DE' ])
+      yield succeeds(User, User.updateRules, 'locale', [ 'en-US', 'de-CH', 'de-DE' ])
+    })
+  })
+
   describe('crud', function () {
     it('should be able to create and retrieve a new user', function * () {
       let user = yield User.create({

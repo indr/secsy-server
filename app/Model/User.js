@@ -44,6 +44,12 @@ class User extends Base {
       password: 'required|password'
     }
   }
+
+  static get updateRules () {
+    return {
+      locale: 'required|regex:^[a-z]{2}\\-[A-Z]{2}$'
+    }
+  }
 }
 
 module.exports = User
