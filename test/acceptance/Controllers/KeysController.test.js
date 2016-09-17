@@ -9,6 +9,8 @@ const assert = require('chai').assert
 const agency = require('./../agency')
 const sha256 = require('./../../../lib/sha256')
 const util = require('util')
+const uuid = require('node-uuid')
+require('co-mocha')
 
 describe('Acceptance | Controller | KeysController', function () {
   function url (id) {
@@ -106,6 +108,54 @@ describe('Acceptance | Controller | KeysController', function () {
             assert.notEqual(res.body.id, keyId)
           })
         })
+      })
+    })
+  })
+
+  describe('#patch | PATCH /api/keys/my', function () {
+    let user
+
+    beforeEach(function * () {
+      user = yield agency.user()
+      yield user.generateKey()
+    })
+
+    it('should return 401', function * () {
+      const anon = yield agency.anon()
+      yield anon.patch(url('my'))
+        .expect(401)
+    })
+
+    it('should return 403 with key id not equal "my"', function * () {
+      yield user.patch(url(uuid.v4()))
+        .expect(403)
+    })
+
+    it('should return 400 with invalid public_key or private_key', function * () {
+      var res = yield user.patch(url('my'))
+        .expect(400)
+
+      assert.deepEqual(res.body, {
+        status: 400,
+        message: 'Validation failed',
+        fields: [
+          { field: 'public_key', message: 'required validation failed on public_key', validation: 'required' },
+          { field: 'private_key', message: 'required validation failed on private_key', validation: 'required' }
+        ]
+      })
+    })
+
+    it('should return 200 and key', function * () {
+      var res = yield user.patch(url('my'))
+        .send({ private_key: 'NEW PRIVATE', public_key: 'NEW PUBLIC' })
+        .expect(200)
+
+      delete res.body.id
+      assert.deepEqual(res.body, {
+        email_sha256: user.emailSha256,
+        is_public: true,
+        public_key: 'NEW PUBLIC',
+        private_key: 'NEW PRIVATE'
       })
     })
   })

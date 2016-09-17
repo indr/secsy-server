@@ -22,7 +22,7 @@ Route.group('v1', function () {
     .only('index', 'store', 'show', 'update', 'destroy')
 
   Route.resources('/keys', 'KeysController')
-    .only('index', 'store', 'show')
+    .only('index', 'store', 'show', 'update')
 
   Route.resources('/updates', 'UpdatesController')
     .only('index', 'store', 'destroy')
