@@ -39,10 +39,15 @@ class KeysController {
   }
 
   * show (request, response) {
-    const user = request.currentUser
+    const currentUserId = request.currentUser.id
     const id = request.param('id')
 
-    const key = yield Key.query().isPublicOrOwnedBy(user.id).where('id', id).first()
+    let key
+    if (id === 'my') {
+      key = yield Key.query().ownedBy(currentUserId).first()
+    } else {
+      key = yield Key.query().isPublicOrOwnedBy(currentUserId).where('id', id).first()
+    }
 
     if (!key) {
       response.notFound()

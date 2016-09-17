@@ -311,6 +311,13 @@ describe('Acceptance | Controller | KeysController', function () {
       user1.get(url(userKeyMap[ user1.emailSha256 ])).expect(200, done)
     })
 
+    it('should return 200 with id "my" as user', function * () {
+      const res = yield user1.get(url('my'))
+        .expect(200)
+
+      assert.equal(res.body.id, userKeyMap[ user1.emailSha256 ])
+    })
+
     it('should return 404 as admin for private key', function (done) {
       admin.get(url(userKeyMap[ user1.emailSha256 ])).expect(404, done)
     })
@@ -326,6 +333,13 @@ describe('Acceptance | Controller | KeysController', function () {
 
     it('should return 200 as admin for own key', function (done) {
       admin.get(url(userKeyMap[ admin.emailSha256 ])).expect(200, done)
+    })
+
+    it('should return 200 as with id "my" as admin', function * () {
+      const res = yield admin.get(url('my'))
+        .expect(200)
+
+      assert.equal(res.body.id, userKeyMap[ admin.emailSha256 ])
     })
   })
 })
