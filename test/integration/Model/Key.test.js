@@ -28,7 +28,30 @@ describe('Integration | Model | Key', function () {
       yield fails(Key, Key.rules, 'email_sha256', [ undefined, '', ' ', 'abc123', Array(66).join('x') ])
       yield succeeds(Key, Key.rules, 'email_sha256', Array(65).join('x'))
     })
+
+    it('should validate private_key', function * () {
+      yield fails(Key, Key.rules, 'private_key', [ undefined, '' ])
+      yield succeeds(Key, Key.rules, 'private_key', ' ')
+    })
+
+    it('should validate public_key', function * () {
+      yield fails(Key, Key.rules, 'public_key', [ undefined, '' ])
+      yield succeeds(Key, Key.rules, 'public_key', ' ')
+    })
   })
+
+  describe('updateRules', function () {
+    it('should validate private_key', function * () {
+      yield fails(Key, Key.updateRules, 'private_key', [ undefined, '' ])
+      yield succeeds(Key, Key.updateRules, 'private_key', ' ')
+    })
+
+    it('should validate public_key', function * () {
+      yield fails(Key, Key.updateRules, 'public_key', [ undefined, '' ])
+      yield succeeds(Key, Key.updateRules, 'public_key', ' ')
+    })
+  })
+
   describe('crud', function () {
     it('should be able to create and retrieve a new key', function * () {
       const userId = uuid.v4()
@@ -64,6 +87,42 @@ describe('Integration | Model | Key', function () {
         assert.equal(err.constraint, 'keys_email_sha256_unique')
         assert.equal(err.routine, '_bt_check_unique')
       }
+    })
+  })
+
+  describe('#toJSON', function () {
+    let userId, emailSha256, key
+
+    beforeEach(function * () {
+      userId = uuid.v4()
+      emailSha256 = `${userId}@example.com`
+      key = yield Key.create({
+        owned_by: userId,
+        email_sha256: emailSha256,
+        private_key: 'PRIVATE KEY',
+        public_key: 'PUBLIC KEY'
+      })
+    })
+
+    it('should omit private_key for not owned key', function * () {
+      var json = key.toJSON()
+
+      assert.deepEqual(json, {
+        email_sha256: emailSha256,
+        id: key.id,
+        public_key: 'PUBLIC KEY'
+      })
+    })
+
+    it('should return private_key for owned key', function * () {
+      var json = key.toJSON(userId)
+
+      assert.deepEqual(json, {
+        email_sha256: emailSha256,
+        id: key.id,
+        private_key: 'PRIVATE KEY',
+        public_key: 'PUBLIC KEY',
+      })
     })
   })
 })

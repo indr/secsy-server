@@ -6,13 +6,31 @@
 const Base = require('./Base')
 
 class Key extends Base {
+
+  toJSON (userId) {
+    let result = super.toJSON()
+    if (userId === this.owned_by) {
+      result.private_key = this.private_key
+    }
+    return result
+  }
+
   static get hidden () {
     return [ 'created_at', 'updated_at', 'created_by', 'owned_by', 'private_key' ]
   }
 
   static get rules () {
     return {
-      'email_sha256': 'required|min:64|max:64'
+      'email_sha256': 'required|min:64|max:64',
+      'public_key': 'required',
+      'private_key': 'required'
+    }
+  }
+
+  static get updateRules () {
+    return {
+      'public_key': 'required',
+      'private_key': 'required'
     }
   }
 
