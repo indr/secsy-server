@@ -113,26 +113,35 @@ describe('Acceptance | Controller | KeysController', function () {
   })
 
   describe('#patch | PATCH /api/keys/my', function () {
-    let user
+    let user, user1, user2, keyId1, keyId2
 
     beforeEach(function * () {
-      user = yield agency.user()
-      yield user.generateKey()
+      user1 = user = yield agency.user()
+      user2 = yield agency.user()
+      keyId1 = (yield user1.post(url()).send(makeKey(user1, true)).expect(201)).body.id
+      keyId2 = (yield user2.post(url()).send(makeKey(user2, true)).expect(201)).body.id
     })
 
     it('should return 401', function * () {
       const anon = yield agency.anon()
-      yield anon.patch(url('my'))
+      yield anon.patch(url(keyId1))
         .expect(401)
     })
 
-    it('should return 403 with key id not equal "my"', function * () {
+    it('should return 403 for unknown key id', function * () {
       yield user.patch(url(uuid.v4()))
+        .send({ private_key: 'NEW PRIVATE', public_key: 'NEW PUBLIC' })
+        .expect(403)
+    })
+
+    it('should return 403 for not owned key', function * () {
+      yield user.patch(url(keyId2))
+        .send({ private_key: 'NEW PRIVATE', public_key: 'NEW PUBLIC' })
         .expect(403)
     })
 
     it('should return 400 with invalid public_key or private_key', function * () {
-      var res = yield user.patch(url('my'))
+      var res = yield user.patch(url(keyId1))
         .expect(400)
 
       assert.deepEqual(res.body, {
@@ -146,7 +155,7 @@ describe('Acceptance | Controller | KeysController', function () {
     })
 
     it('should return 200 and key', function * () {
-      var res = yield user.patch(url('my'))
+      var res = yield user.patch(url(keyId1))
         .send({ private_key: 'NEW PRIVATE', public_key: 'NEW PUBLIC' })
         .expect(200)
 
@@ -316,6 +325,7 @@ describe('Acceptance | Controller | KeysController', function () {
         .expect(200)
 
       assert.equal(res.body.id, userKeyMap[ user1.emailSha256 ])
+      assert.property(res.body, 'private_key')
     })
 
     it('should return 404 as admin for private key', function (done) {
@@ -340,6 +350,7 @@ describe('Acceptance | Controller | KeysController', function () {
         .expect(200)
 
       assert.equal(res.body.id, userKeyMap[ admin.emailSha256 ])
+      assert.property(res.body, 'private_key')
     })
   })
 })

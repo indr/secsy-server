@@ -54,21 +54,22 @@ class KeysController {
       return
     }
 
-    response.ok(key.toJSON())
+    response.ok(key.toJSON(currentUserId))
   }
 
   * update (request, response) {
     const currentUserId = request.currentUser.id
     const id = request.param('id')
-    if (id !== 'my') {
-      response.forbidden()
-      return
-    }
 
     const data = request.only('public_key', 'private_key')
     yield Validator.validateAll(data, Key.updateRules)
 
-    const key = yield Key.query().ownedBy(currentUserId).first()
+    const key = yield Key.query().ownedBy(currentUserId).where('id', id).first()
+    if (!key) {
+      response.forbidden()
+      return
+    }
+
     key.private_key = data.private_key
     key.public_key = data.public_key
     yield key.save()
