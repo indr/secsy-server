@@ -10,17 +10,18 @@ const uuid = require('node-uuid')
 require('co-mocha')
 
 describe('Integration | Model | Contact', function () {
-  let Contact
+  let userId, Contact
 
   before(function * () {
     yield setup.loadProviders()
     yield setup.start()
 
     Contact = use('App/Model/Contact')
+    const User = use('App/Model/User')
+    userId = (yield User.create({ email: uuid.v4() + '@example.com', password: 'Secret123$' })).id
   })
 
   it('should be able to create and retrieve a new key', function * () {
-    const userId = uuid.v4()
     let contact = yield Contact.create({
       owned_by: userId,
       encrypted_: 'cypher'

@@ -14,13 +14,15 @@ const fails = validation.fails
 const succeeds = validation.succeeds
 
 describe('Integration | Model | Key', function () {
-  let Key
+  let userId, Key
 
   before(function * () {
     yield setup.loadProviders()
     yield setup.start()
 
     Key = use('App/Model/Key')
+    const User = use('App/Model/User')
+    userId = (yield User.create({ email: uuid.v1() + '@exampel.com', password: 'Secret123$' })).id
   })
 
   describe('rules', function () {
@@ -54,7 +56,6 @@ describe('Integration | Model | Key', function () {
 
   describe('crud', function () {
     it('should be able to create and retrieve a new key', function * () {
-      const userId = uuid.v4()
       const emailSha256 = `${userId}@example.com`
       let key = yield Key.create({
         owned_by: userId,
@@ -73,7 +74,6 @@ describe('Integration | Model | Key', function () {
     })
 
     it('should enforce unique email_sha256', function * () {
-      const userId = uuid.v4()
       const emailSha256 = userId
       let data = {
         email_sha256: emailSha256,
@@ -91,11 +91,10 @@ describe('Integration | Model | Key', function () {
   })
 
   describe('#toJSON', function () {
-    let userId, emailSha256, key
+    let emailSha256, key
 
     beforeEach(function * () {
-      userId = uuid.v4()
-      emailSha256 = `${userId}@example.com`
+      emailSha256 = `${uuid.v4()}@example.com`
       key = yield Key.create({
         owned_by: userId,
         email_sha256: emailSha256,
@@ -121,7 +120,7 @@ describe('Integration | Model | Key', function () {
         email_sha256: emailSha256,
         id: key.id,
         private_key: 'PRIVATE KEY',
-        public_key: 'PUBLIC KEY',
+        public_key: 'PUBLIC KEY'
       })
     })
   })
