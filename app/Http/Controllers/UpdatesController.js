@@ -12,6 +12,11 @@ class UpdatesController {
   * index (request, response) {
     const user = request.currentUser
 
+    if (!user.sync_enabled) {
+      response.forbidden({ status: 403, message: 'sync-disabled' })
+      return
+    }
+
     const updates = yield Update.query().ownedBy(user.id).fetch()
 
     response.ok(updates.toJSON())

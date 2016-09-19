@@ -218,6 +218,18 @@ describe('Acceptance | Controller | UpdatesController', function () {
       anon.get(url()).expect(401, done)
     })
 
+    it('should return 403 as user with sync disabled', function * () {
+      assert.isFalse(user3.options.sync_enabled)
+
+      const res = yield user3.get(url())
+        .expect(403)
+
+      assert.deepEqual(res.body, {
+        status: 403,
+        message: 'sync-disabled'
+      })
+    })
+
     it('should return 200 and two updates as user', function (done) {
       user1.get(url()).expect(200).end(function (err, res) {
         assert.isNull(err)
