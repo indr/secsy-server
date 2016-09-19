@@ -1,5 +1,6 @@
 'use strict'
 
+const Env = use('Env')
 const User = use('App/Model/User')
 const UserService = make('App/Services/UserService')
 const Key = use('App/Model/Key')
@@ -57,6 +58,7 @@ class UsersController {
     const key = yield Key.findBy('owned_by', user.id)
 
     let result = user.toJSON()
+    result.hash_salt = Env.get('HASH_SALT')
     result.private_key = key ? key.private_key : null
     result.public_key = key ? key.public_key : null
 

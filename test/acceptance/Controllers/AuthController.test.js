@@ -39,6 +39,7 @@ describe('Acceptance | Controller | AuthController', function () {
         assert.equal(user.username, expected.username)
         assert.equal(user.email, expected.email)
         assert.equal(user.locale, 'en-US')
+        assert.lengthOf(user.hash_salt, 32)
         assert.notProperty(user, 'password')
         assert.property(user, 'private_key')
         assert.property(user, 'public_key')
