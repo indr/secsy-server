@@ -11,7 +11,7 @@ class AddForeignKeysToUsersSchema extends Schema {
   }
 
   down () {
-    this.table('add_foreign_keys_to_users', (table) => {
+    this.table('keys', (table) => {
       table.dropForeign('owned_by')
     })
   }
