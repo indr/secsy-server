@@ -421,13 +421,14 @@ describe('Integration | Service | User', function () {
 
     it('should throw ValidationException', function * () {
       try {
-        yield sut.update(user)
+        yield sut.update(user, { locale: 'invalid', sync_enabled: 'invalid' })
         assert(false)
       } catch (error) {
         assert.equal(error.name, 'ValidationException')
         assert.equal(error.status, 400)
         assert.deepEqual(error.fields, [
-          { field: 'locale', message: 'required validation failed on locale', validation: 'required' }
+          { field: 'locale', message: 'regex validation failed on locale', validation: 'regex' },
+          { field: 'sync_enabled', message: 'boolean validation failed on sync_enabled', validation: 'boolean' }
         ])
       }
     })
@@ -437,6 +438,31 @@ describe('Integration | Service | User', function () {
 
       const fromDb = yield User.find(user.id)
       assert.equal(fromDb.locale, 'fr-FR')
+      assert.equal(fromDb.sync_enabled, user.sync_enabled)
+    })
+
+    it('should update users sync_enabled', function * () {
+      const newValue = !user.sync_enabled
+      yield sut.update(user, { sync_enabled: newValue })
+
+      const fromDb = yield User.find(user.id)
+      assert.equal(fromDb.locale, user.locale)
+      assert.equal(fromDb.sync_enabled, newValue)
+    })
+
+    it('should update users key is_public', function * () {
+      yield Key.create({
+        created_by: user.id,
+        owned_by: user.id,
+        email_sha256: user.email_sha256,
+        private_key: 'PRIVATE',
+        public_key: 'PUBLIC'
+      })
+      const newValue = !user.sync_enabled
+      yield sut.update(user, { sync_enabled: newValue })
+
+      const fromDb = (yield Key.query().where('owned_by', user.id).fetch()).first()
+      assert.equal(fromDb.is_public, newValue)
     })
   })
 })

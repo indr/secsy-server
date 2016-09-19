@@ -48,7 +48,8 @@ class User extends Base {
 
   static get updateRules () {
     return {
-      locale: 'required|regex:^[a-z]{2}\\-[A-Z]{2}$'
+      locale: 'required|regex:^[a-z]{2}\\-[A-Z]{2}$',
+      sync_enabled: 'boolean'
     }
   }
 }

@@ -87,6 +87,11 @@ describe('Integration | Model | User', function () {
       yield fails(User, User.updateRules, 'locale', [ undefined, '', ' ', 'abcde', 'de-de', 'de_DE' ])
       yield succeeds(User, User.updateRules, 'locale', [ 'en-US', 'de-CH', 'de-DE' ])
     })
+
+    it('should validate sync_enabled', function * () {
+      yield fails(User, User.updateRules, 'sync_enabled', [ 'a', 2 ])
+      yield succeeds(User, User.updateRules, 'sync_enabled', [ undefined, false, true, '', 0, 1 ])
+    })
   })
 
   describe('crud', function () {

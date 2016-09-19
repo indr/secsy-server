@@ -4,6 +4,7 @@ const Db = use('Database')
 const EmailToken = use('App/Model/EmailToken')
 const Exceptions = use('App/Exceptions')
 const Hash = use('App/Services/Hash')
+const Key = use('App/Model/Key')
 const Mailer = make('App/Services/UserNotificationMailer')
 const User = use('App/Model/User')
 const Validator = use('App/Services/Validator')
@@ -118,10 +119,19 @@ class UserService {
   }
 
   * update (user, data) {
+    data.locale = data.locale || user.locale
+    data.sync_enabled = data.sync_enabled !== undefined ? data.sync_enabled : user.sync_enabled
     yield Validator.validateAll(data, User.updateRules)
 
     user.locale = data.locale
+    user.sync_enabled = data.sync_enabled
     yield user.save()
+
+    const key = (yield Key.query().where('owned_by', user.id).fetch()).first()
+    if (key) {
+      key.is_public = user.sync_enabled
+      yield key.save()
+    }
   }
 }
 

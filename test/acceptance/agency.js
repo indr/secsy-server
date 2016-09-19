@@ -89,6 +89,9 @@ function createAgent (app, options) {
   agent.forgotPassword = forgotPassword.bind(agent)
   agent.resetPassword = resetPassword.bind(agent)
   agent.deleteAccount = deleteAccount.bind(agent)
+  agent.getMe = getMe.bind(agent)
+  agent.getKey = getKey.bind(agent)
+  agent.setPreferences = setPreferences.bind(agent)
   // agent.role = role.bind(agent)
   return agent
 }
@@ -185,4 +188,17 @@ function * resetPassword (token, password) {
 function * deleteAccount () {
   return yield this.delete('/api/users/me')
     .send({ password: this.password })
+}
+
+function * getMe () {
+  return (yield this.get('/api/users/me')).body
+}
+
+function * getKey () {
+  return (yield this.get('/api/keys/my')).body
+}
+
+function * setPreferences (preferences) {
+  preferences = _.assign({}, preferences)
+  return yield this.patch('/api/users/me').send(preferences)
 }

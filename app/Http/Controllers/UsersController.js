@@ -66,7 +66,7 @@ class UsersController {
   }
 
   * updatePreferences (request, response) {
-    const raw = request.only('locale')
+    const raw = request.only('locale', 'sync_enabled')
     const data = yield Validator.sanitize(raw, User.sanitations)
 
     yield UserService.update(request.currentUser, data)

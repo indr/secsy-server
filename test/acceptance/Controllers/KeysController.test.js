@@ -196,9 +196,9 @@ describe('Acceptance | Controller | KeysController', function () {
 
   before(function (done) {
     this.timeout(4000)
-    agency.admin().then(function (agent) {
+    agency.admin({ sync_enabled: false }).then(function (agent) {
       admin = agent
-      return agency.user()
+      return agency.user({ sync_enabled: false })
     }).then(function (agent) {
       user1 = agent
       return agency.user()
@@ -306,9 +306,9 @@ describe('Acceptance | Controller | KeysController', function () {
 
     before(function (done) {
       this.timeout(4000)
-      agency.admin().then(function (agent) {
+      agency.admin({ sync_enabled: false }).then(function (agent) {
         admin = agent
-        return agency.user()
+        return agency.user({ sync_enabled: false })
       }).then(function (agent) {
         user1 = agent
         return agency.user()

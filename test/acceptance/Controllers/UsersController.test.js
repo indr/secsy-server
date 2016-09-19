@@ -346,23 +346,24 @@ describe('Acceptance | Controller | UsersController', function () {
       user = yield agency.user()
     })
 
-    it('should return 400 with invalid locale', function * () {
+    it('should return 400 with invalid locale, sync_enabled', function * () {
       const res = yield user.patch(url)
-        .send({ locale: 'invalid' })
+        .send({ locale: 'invalid', sync_enabled: 'invalid' })
         .expect(400)
 
       assert.deepEqual(res.body, {
         status: 400,
         message: 'Validation failed',
         fields: [
-          { field: 'locale', message: 'regex validation failed on locale', validation: 'regex' }
+          { field: 'locale', message: 'regex validation failed on locale', validation: 'regex' },
+          { field: 'sync_enabled', message: 'boolean validation failed on sync_enabled', validation: 'boolean' }
         ]
       })
     })
 
     it('should return 200', function * () {
       const res = yield user.patch(url)
-        .send({ locale: 'en-US' })
+        .send({ locale: 'en-US', sync_enabled: true })
         .expect(200)
 
       assert.deepEqual(res.body, { status: 200 })
