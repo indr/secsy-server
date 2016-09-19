@@ -3,7 +3,7 @@
 const Db = use('Database')
 const EmailToken = use('App/Model/EmailToken')
 const Exceptions = use('App/Exceptions')
-const Hash = use('Hash')
+const Hash = use('App/Services/Hash')
 const Mailer = make('App/Services/UserNotificationMailer')
 const User = use('App/Model/User')
 const Validator = use('App/Services/Validator')
@@ -89,7 +89,7 @@ class UserService {
 
     const user = yield emailToken.user().fetch()
     if (emailToken.confirm()) {
-      user.password = yield Hash.make(password)
+      user.password = yield Hash.bcrypt.make(password)
 
       yield user.save()
       yield emailToken.save()
@@ -97,7 +97,7 @@ class UserService {
   }
 
   * deleteAccount (user, password, message) {
-    if (!(yield Hash.verify(password, user.password))) {
+    if (!(yield Hash.bcrypt.verify(password, user.password))) {
       throw new Exceptions.ValidationException('invalid-password')
     }
 

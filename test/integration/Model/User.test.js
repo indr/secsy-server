@@ -5,20 +5,21 @@ const _ = require('lodash')
 const assert = require('chai').assert
 require('co-mocha')
 const setup = require('./../setup')
+const utils = require('./../../test-helpers/utils')
 const uuid = require('node-uuid')
-const sha256 = require('./../../../lib/sha256')
 const validation = require('./../validation')
 
 const fails = validation.fails
 const succeeds = validation.succeeds
 
 describe('Integration | Model | User', function () {
-  let User, Validator
+  let Env, User, Validator
 
   before(function * () {
     yield setup.loadProviders()
     yield setup.start()
 
+    Env = use('Env')
     User = use('App/Model/User')
     Validator = use('App/Services/Validator')
   })
@@ -95,7 +96,7 @@ describe('Integration | Model | User', function () {
       assert.lengthOf(fromDb.id, 36)
       assert.equal(fromDb.username, user.email)
       assert.notEqual(fromDb.password, 'user1234')
-      assert.equal(fromDb.email_sha256, sha256(user.email))
+      assert.equal(fromDb.email_sha256, utils.sha256(user.email, Env.get('HASH_SALT')))
 
       fromDb = yield fromDb.emailTokens().fetch()
       assert.equal(fromDb.size(), 1)

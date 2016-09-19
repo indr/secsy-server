@@ -1,7 +1,6 @@
 'use strict'
 
-const Hash = use('Hash')
-const sha256 = require('./../../../lib/sha256')
+const Hash = use('App/Services/Hash')
 
 const User = exports = module.exports = {}
 
@@ -12,13 +11,13 @@ User.setUsername = function * (next) {
 }
 
 User.encryptPassword = function * (next) {
-  this.password = yield Hash.make(this.password)
+  this.password = yield Hash.bcrypt.make(this.password)
 
   yield next
 }
 
 User.setEmailSha256 = function * (next) {
-  this.email_sha256 = sha256(this.email)
+  this.email_sha256 = Hash.sha256.make(this.email)
 
   yield next
 }

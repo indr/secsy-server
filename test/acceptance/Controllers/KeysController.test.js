@@ -7,19 +7,25 @@
 const _ = require('lodash')
 const assert = require('chai').assert
 const agency = require('./../agency')
-const sha256 = require('./../../../lib/sha256')
 const util = require('util')
+const utils = require('./../../test-helpers/utils')
 const uuid = require('node-uuid')
 require('co-mocha')
 
 describe('Acceptance | Controller | KeysController', function () {
+  let Env
+
+  before(function * () {
+    Env = use('Env')
+  })
+
   function url (id) {
     return !id ? '/api/keys' : '/api/keys/' + id
   }
 
   function makeKey (agent, isPublic) {
     return {
-      email_sha256: sha256(agent.email),
+      email_sha256: utils.sha256(agent.email, Env.get('HASH_SALT')),
       is_public: isPublic,
       private_key: 'BEGIN PRIVATE KEY...',
       public_key: 'BEGIN PUBLIC KEY...'

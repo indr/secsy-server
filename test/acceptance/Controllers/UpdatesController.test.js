@@ -5,20 +5,26 @@
 /* global dateTimeRegex */
 'use strict'
 
-const _ = require('lodash')
 const assert = require('chai').assert
 const agency = require('./../agency')
+const utils = require('./../../test-helpers/utils')
 const uuid = require('node-uuid')
-const sha256 = require('./../../../lib/sha256')
+require('co-mocha')
 
 describe('Acceptance | Controller | UpdatesController', function () {
+  let Env
+
+  before(function * () {
+    Env = use('Env')
+  })
+
   function url (id) {
     return !id ? '/api/updates' : '/api/updates/' + id
   }
 
   function makeUpdate (email, encrypted_) {
     return {
-      to_email_sha256: _.isUndefined(email) ? sha256('') : sha256(email),
+      to_email_sha256: utils.sha256(email || '', Env.get('HASH_SALT')),
       encrypted_: encrypted_ === undefined ? 'cypher' : encrypted_
     }
   }
