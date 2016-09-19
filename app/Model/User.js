@@ -34,7 +34,8 @@ class User extends Base {
       username: 'required|email|min:5|unique:users',
       email: 'required|email|unique:users',
       password: 'required|password',
-      locale: 'required|regex:^[a-z]{2}\\-[A-Z]{2}$'
+      locale: 'required|regex:^[a-z]{2}\\-[A-Z]{2}$',
+      sync_enabled: 'boolean'
     }
   }
 

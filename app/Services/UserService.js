@@ -22,9 +22,15 @@ class UserService {
     data = data || {}
     data.username = data.email
     data.locale = data.locale || 'en-US'
+    data.sync_enabled = data.sync_enabled || false
     yield Validator.validateAll(data, User.signupRules)
 
-    let user = yield User.create({ email: data.email, password: data.password, locale: data.locale })
+    let user = yield User.create({
+      email: data.email,
+      password: data.password,
+      locale: data.locale,
+      sync_enabled: data.sync_enabled
+    })
     let emailToken = yield user.emailTokens().create({ email: user.email })
 
     yield Mailer.sendAccountActivation(user, emailToken.token)

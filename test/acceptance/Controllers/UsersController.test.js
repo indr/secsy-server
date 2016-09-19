@@ -15,7 +15,8 @@ describe('Acceptance | Controller | UsersController', function () {
           .send({
             email: agent.email.toUpperCase(),
             password: agent.password,
-            locale: 'de-ch'
+            locale: 'de-ch',
+            sync_enabled: true
           })
           .expect(201)
           .end(function (err, res) {
@@ -30,6 +31,7 @@ describe('Acceptance | Controller | UsersController', function () {
             assert.equal(user.username, agent.email)
             assert.equal(user.email, agent.email)
             assert.equal(user.locale, 'de-CH')
+            assert.equal(user.sync_enabled, true)
             assert.notProperty(user, 'password')
             assert.isDefined(user.email_sha256, 'email_sha265 ist not defined')
             assert.isUndefined(user.private_key, 'private_key is not undefined')
@@ -89,7 +91,7 @@ describe('Acceptance | Controller | UsersController', function () {
     })
 
     it('should return 200 as user', function (done) {
-      agency.user().then((agent) => {
+      agency.user({ sync_enabled: true }).then((agent) => {
         agent.get('/api/users/me')
           .expect(200, function (err, res) {
             assert.isNull(err)
@@ -98,6 +100,7 @@ describe('Acceptance | Controller | UsersController', function () {
             assert.match(user.created_at, dateTimeRegex)
             assert.match(user.updated_at, dateTimeRegex)
             assert.equal(user.locale, 'en-US')
+            assert.equal(user.sync_enabled, true)
             assert.lengthOf(user.hash_salt, 32)
             assert.isDefined(user.email_sha256, 'email_sha265 ist not defined')
             assert.isDefined(user.private_key, 'private_key is not defined')
@@ -108,7 +111,7 @@ describe('Acceptance | Controller | UsersController', function () {
     })
 
     it('should return 200 as admin', function (done) {
-      agency.admin().then((agent) => {
+      agency.admin({ sync_enabled: false }).then((agent) => {
         agent.get('/api/users/me')
           .expect(200, function (err, res) {
             assert.isNull(err)
@@ -117,6 +120,7 @@ describe('Acceptance | Controller | UsersController', function () {
             assert.match(user.created_at, dateTimeRegex)
             assert.match(user.updated_at, dateTimeRegex)
             assert.equal(user.locale, 'en-US')
+            assert.equal(user.sync_enabled, false)
             assert.lengthOf(user.hash_salt, 32)
             assert.isDefined(user.email_sha256, 'email_sha265 ist not defined')
             assert.isDefined(user.private_key, 'private_key is not defined')

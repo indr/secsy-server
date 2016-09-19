@@ -21,8 +21,8 @@ function Agency (app) {
   return {
     anon: createFactory(app),
     guest: createFactory(app, { prefix: 'guest', signup: true, confirm: true }),
-    user: createFactory(app, { prefix: 'user', login: true, key: true }),
-    admin: createFactory(app, { prefix: 'admin', login: true, key: true, admin: true })
+    user: createFactory(app, { prefix: 'user', login: true, key: true, sync_enabled: true }),
+    admin: createFactory(app, { prefix: 'admin', login: true, key: true, admin: true, sync_enabled: true })
   }
 }
 
@@ -35,6 +35,7 @@ function createFactory (app, defaultOptions) {
     return new Promise(function (resolve) {
       resolve(createAgent(app, options.prefix || 'agent'))
     }).then(function (agent) {
+      agent.options = options
       if (options.signup || options.login) {
         return agent.signup()
       }
@@ -97,7 +98,8 @@ function signup () {
   return new Promise(function (resolve, reject) {
     const data = {
       email: self.email,
-      password: self.password
+      password: self.password,
+      sync_enabled: self.options.sync_enabled
     }
     self.post('/api/users')
       .send(data)

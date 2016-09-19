@@ -68,6 +68,11 @@ describe('Integration | Model | User', function () {
       yield fails(User, User.signupRules, 'locale', [ undefined, '', ' ', 'abcde', 'de-de', 'de_DE' ])
       yield succeeds(User, User.signupRules, 'locale', [ 'en-US', 'de-CH', 'de-DE' ])
     })
+
+    it('should validate sync_enabled', function * () {
+      yield fails(User, User.signupRules, 'sync_enabled', [ 'a', 2 ])
+      yield succeeds(User, User.signupRules, 'sync_enabled', [ undefined, false, true, '', 0, 1 ])
+    })
   })
 
   describe('resetPasswordRules', function () {
@@ -97,6 +102,8 @@ describe('Integration | Model | User', function () {
       assert.equal(fromDb.username, user.email)
       assert.notEqual(fromDb.password, 'user1234')
       assert.equal(fromDb.email_sha256, utils.sha256(user.email, Env.get('HASH_SALT')))
+      assert.equal(fromDb.locale, 'en-US')
+      assert.equal(fromDb.sync_enabled, false)
 
       fromDb = yield fromDb.emailTokens().fetch()
       assert.equal(fromDb.size(), 1)
