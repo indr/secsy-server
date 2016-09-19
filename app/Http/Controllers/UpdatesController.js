@@ -19,9 +19,15 @@ class UpdatesController {
 
   * store (request, response) {
     const user = request.currentUser
+
+    if (!user.sync_enabled) {
+      response.forbidden({ status: 403, message: 'sync-disabled' })
+      return
+    }
+
     const receiver = yield User.findBy('email_sha256', request.input('to_email_sha256'))
 
-    if (!receiver) {
+    if (!receiver || !receiver.sync_enabled) {
       // We don't disclose anything
       response.created({ id: uuid.v4() })
       return

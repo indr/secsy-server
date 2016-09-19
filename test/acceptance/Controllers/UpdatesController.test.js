@@ -12,10 +12,11 @@ const uuid = require('node-uuid')
 require('co-mocha')
 
 describe('Acceptance | Controller | UpdatesController', function () {
-  let Env
+  let Env, Update
 
   before(function * () {
     Env = use('Env')
+    Update = use('App/Model/Update')
   })
 
   function url (id) {
@@ -52,22 +53,15 @@ describe('Acceptance | Controller | UpdatesController', function () {
     })
   }
 
-  let anon, user1, user2, admin, sharer1, sharer2
+  let anon, user1, user2, user3, admin, sharer1, sharer2
 
-  before(function () {
+  before(function * () {
     this.timeout(4000)
-    return agency.anon().then((agent) => {
-      anon = agent
-      return agency.user()
-    }).then((agent) => {
-      user1 = agent
-      return agency.user()
-    }).then((agent) => {
-      user2 = agent
-      return agency.admin()
-    }).then((agent) => {
-      admin = agent
-    })
+    anon = yield agency.anon()
+    user1 = yield agency.user()
+    user2 = yield agency.user()
+    user3 = yield agency.user({ sync_enabled: false })
+    admin = yield agency.admin()
   })
 
   before(function (done) {
@@ -81,29 +75,53 @@ describe('Acceptance | Controller | UpdatesController', function () {
     })
   })
 
+  describe('#create', function () {
+    it('should return 401', function * () {
+      yield anon.post(url())
+        .send(makeUpdate('123abc'))
+        .expect(401)
+    })
+
+    it('should return 403 given user sync disabled', function * () {
+      const res = yield user3.post(url())
+        .send(makeUpdate('123abc'))
+        .expect(403)
+
+      assert.deepEqual(res.body, {
+        status: 403,
+        message: 'sync-disabled'
+      })
+    })
+  })
+
   describe('#create for non-existing receiver', function () {
-    it('should return 401 as anon', function (done) {
-      anon.post(url()).send(makeUpdate('123abc')).expect(401, done)
+    it('should return 201 and id', function * () {
+      const res = yield user1.post(url())
+        .send(makeUpdate('123abc'))
+        .expect(201)
+
+      assert.lengthOf(res.body.id, 36)
+      assert.deepEqual(res.body, { id: res.body.id })
+    })
+  })
+
+  describe('#create for non-syncing receiver', function () {
+    let res
+    before(function * () {
+      res = yield user1.post(url())
+        .send(makeUpdate(user3.email))
+        .expect(201)
     })
 
-    it('should return 201 and object with an id as user', function (done) {
-      user1.post(url()).send(makeUpdate('123abc')).expect(201)
-        .end(function (err, res) {
-          assert.isNull(err)
-          assert.lengthOf(res.body.id, 36)
-          assert.deepEqual(res.body, { id: res.body.id })
-          done()
-        })
+    it('should return 201 and id', function * () {
+      assert.lengthOf(res.body.id, 36)
+      assert.deepEqual(res.body, { id: res.body.id })
     })
 
-    it('should return 201 and object with an id as admin', function (done) {
-      admin.post(url()).send(makeUpdate('123abc', '')).expect(201)
-        .end(function (err, res) {
-          assert.isNull(err)
-          assert.lengthOf(res.body.id, 36)
-          assert.deepEqual(res.body, { id: res.body.id })
-          done()
-        })
+    it('should not create update', function * () {
+      const update = yield Update.find(res.body.id)
+
+      assert.isNull(update)
     })
   })
 
