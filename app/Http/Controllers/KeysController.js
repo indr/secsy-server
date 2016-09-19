@@ -19,11 +19,11 @@ class KeysController {
 
   * store (request, response) {
     const user = request.currentUser
-    const data = request.only('private_key', 'public_key', 'is_public')
+    const data = request.only('private_key', 'public_key')
     data.created_by = user.id
     data.owned_by = user.id
     data.email_sha256 = user.email_sha256
-    data.is_public = data.is_public || false
+    data.is_public = user.sync_enabled
 
     yield Validator.validate(data, Key.rules)
 

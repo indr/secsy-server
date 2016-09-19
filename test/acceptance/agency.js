@@ -19,7 +19,7 @@ function nextAgentNr () {
 
 function Agency (app) {
   return {
-    anon: createFactory(app),
+    anon: createFactory(app, {}),
     guest: createFactory(app, { prefix: 'guest', signup: true, confirm: true }),
     user: createFactory(app, { prefix: 'user', login: true, key: true, sync_enabled: true }),
     admin: createFactory(app, { prefix: 'admin', login: true, key: true, admin: true, sync_enabled: true })
@@ -29,13 +29,11 @@ function Agency (app) {
 function createFactory (app, defaultOptions) {
   return function (options) {
     app = app || ctx.http
-    defaultOptions = defaultOptions || {}
-    options = _.assign(defaultOptions, options)
+    options = _.assign({}, defaultOptions, options)
 
     return new Promise(function (resolve) {
-      resolve(createAgent(app, options.prefix || 'agent'))
+      resolve(createAgent(app, options))
     }).then(function (agent) {
-      agent.options = options
       if (options.signup || options.login) {
         return agent.signup()
       }
@@ -69,18 +67,20 @@ function createFactory (app, defaultOptions) {
   }
 }
 
-function createAgent (app, prefix) {
+function createAgent (app, options) {
+  options.prefix = options.prefix || 'agent'
   const agentNr = nextAgentNr()
   const agent = request.agent(app)
-  agent.email = `${prefix}-${agentNr}@example.com`
+  agent.options = options
+  agent.email = `${options.prefix}-${agentNr}@example.com`
   agent.username = agent.email
   agent.password = `Secret#${agentNr}`
   agent.signup = signup.bind(agent)
   agent.login = login.bind(agent)
   agent.logout = logout.bind(agent)
   agent.generateKey = generateKey.bind(agent)
-  agent.prefix = prefix
-  agent.role = prefix
+  agent.prefix = options.prefix
+  agent.role = options.prefix
   agent.confirm = confirm.bind(agent)
   agent.resend = resend.bind(agent)
   agent.getEmail = getRecentEmail.bind(agent)

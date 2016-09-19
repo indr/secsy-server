@@ -43,14 +43,14 @@ describe('Acceptance | Controller | KeysController', function () {
     assert.propertyVal(actual, 'public_key', expected.public_key)
   }
 
-  function assert201 (res, agent) {
+  function assert201 (res, agent, isPublic) {
     const key = res.body
     assert.lengthOf(key.id, 36)
     // assert.closeTo(new Date(key.created_at).getTime(), new Date().getTime(), 1200)
     // assert.equal(key.updated_at, key.created_at)
     assert.equal(key.email_sha256, agent.emailSha256)
 
-    assertKey(key, makeKey(agent, false))
+    assertKey(key, makeKey(agent, isPublic))
   }
 
   let anon
@@ -61,18 +61,13 @@ describe('Acceptance | Controller | KeysController', function () {
   })
 
   describe('#store | POST /api/keys', function () {
-    let anon, user, admin
-    before(function () {
+    let anon, user1, user2, admin
+    before(function * () {
       this.timeout(4000)
-      return agency.anon().then((agent) => {
-        anon = agent
-        return agency.user({ key: false })
-      }).then((agent) => {
-        user = agent
-        return agency.admin({ key: false })
-      }).then((agent) => {
-        admin = agent
-      })
+      anon = yield agency.anon()
+      user1 = yield agency.user({ key: false, sync_enabled: true })
+      user2 = yield agency.user({ key: false, sync_enabled: false })
+      admin = yield agency.admin({ key: false })
     })
 
     describe('given user has no key', function () {
@@ -80,23 +75,31 @@ describe('Acceptance | Controller | KeysController', function () {
         return anon.post(url()).send(makeKey(anon)).expect(401)
       })
 
-      it('user: should return 201', function () {
-        return user.post(url()).send(makeKey(user)).expect(201).then((res) => {
-          assert201(res, user)
+      it('user: should return 201 with is_public true', function () {
+        return user1.post(url()).send(makeKey(user1)).expect(201).then((res) => {
+          assert201(res, user1, true)
         })
       })
-      it('should return 201 as admin', function () {
+
+      it('user: should return 201 with is_public false', function () {
+        return user2.post(url()).send(makeKey(user2)).expect(201).then((res) => {
+          assert201(res, user2, false)
+        })
+      })
+
+      it('admin: should return 201', function () {
         return admin.post(url()).send(makeKey(admin)).expect(201).then((res) => {
-          assert201(res, admin)
+          assert201(res, admin, true)
         })
       })
     })
 
     describe('given user has already a key', function () {
       // There must be a better way to accomplish this
-      let agents = [ 'user', 'admin' ]
+      let agents = [ 'user1', 'user2', 'admin' ]
       before(function () {
-        agents.user = user
+        agents.user1 = user1
+        agents.user2 = user2
         agents.admin = admin
       })
 
@@ -105,12 +108,12 @@ describe('Acceptance | Controller | KeysController', function () {
           let agent = agents[ role ]
           let keyId
           return agent.post(url()).send(makeKey(agent)).expect(201).then((res) => {
-            assert201(res, agent)
+            assert201(res, agent, agent.options.sync_enabled)
             keyId = res.body.id
           }).then(() => {
             return agent.post(url()).send(makeKey(agent)).expect(201)
           }).then((res) => {
-            assert201(res, agent)
+            assert201(res, agent, agent.options.sync_enabled)
             assert.notEqual(res.body.id, keyId)
           })
         })
@@ -121,9 +124,9 @@ describe('Acceptance | Controller | KeysController', function () {
   describe('#patch | PATCH /api/keys/my', function () {
     let user, user1, user2, keyId1, keyId2
 
-    beforeEach(function * () {
-      user1 = user = yield agency.user()
-      user2 = yield agency.user()
+    before(function * () {
+      user1 = user = yield agency.user({ sync_enabled: true })
+      user2 = yield agency.user({ sync_enabled: false })
       keyId1 = (yield user1.post(url()).send(makeKey(user1, true)).expect(201)).body.id
       keyId2 = (yield user2.post(url()).send(makeKey(user2, true)).expect(201)).body.id
     })
@@ -160,15 +163,29 @@ describe('Acceptance | Controller | KeysController', function () {
       })
     })
 
-    it('should return 200 and key', function * () {
-      var res = yield user.patch(url(keyId1))
+    it('should return 200 and key with is_public true', function * () {
+      const res = yield user1.patch(url(keyId1))
         .send({ private_key: 'NEW PRIVATE', public_key: 'NEW PUBLIC' })
         .expect(200)
 
       delete res.body.id
       assert.deepEqual(res.body, {
-        email_sha256: user.emailSha256,
+        email_sha256: user1.emailSha256,
         is_public: true,
+        public_key: 'NEW PUBLIC',
+        private_key: 'NEW PRIVATE'
+      })
+    })
+
+    it('should return 200 and key with is_public false', function * () {
+      const res = yield user2.patch(url(keyId2))
+        .send({ private_key: 'NEW PRIVATE', public_key: 'NEW PUBLIC' })
+        .expect(200)
+
+      delete res.body.id
+      assert.deepEqual(res.body, {
+        email_sha256: user2.emailSha256,
+        is_public: false,
         public_key: 'NEW PUBLIC',
         private_key: 'NEW PRIVATE'
       })
