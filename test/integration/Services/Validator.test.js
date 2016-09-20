@@ -5,6 +5,7 @@
 const _ = require('lodash')
 const assert = require('chai').assert
 const setup = require('./../setup')
+const sha = require('sha.js')
 const uuid = require('node-uuid')
 require('co-mocha')
 
@@ -16,6 +17,33 @@ describe('Unit | Service | Validator', function () {
     yield setup.start()
 
     sut = make('App/Services/Validator')
+  })
+
+  describe('Validator emailHash', function () {
+    const validEmailHashes = [
+      sha('sha256').update('valid').digest('hex')
+    ]
+    const invalidEmailHashes = [
+      0,
+      'abc',
+      sha('sha256').update('valid').digest('hex') + 'a'
+    ]
+
+    it('Raw validator should pass for valid email hashes', function * () {
+      assertRawPass('emailHash', validEmailHashes)
+    })
+
+    it('Raw validator should fail for invalid email hashes', function * () {
+      assertRawFail('emailHash', invalidEmailHashes)
+    })
+
+    it('Schema validator should pass for valid email hashes', function * () {
+      yield assertSchemaPass('email_hash', validEmailHashes)
+    })
+
+    it('Schema validator should fail for invalid email hashes', function * () {
+      yield assertSchemaFail('email_hash', invalidEmailHashes)
+    })
   })
 
   describe('Validator password', function () {
@@ -32,41 +60,20 @@ describe('Unit | Service | Validator', function () {
       validSpecialChars
     ]
 
-    describe('Raw validator', function () {
-      it('should pass for valid passwords', function * () {
-        for (let each of validPasswords) {
-          assert.isTrue(sut.is.password(each), each)
-        }
-      })
-
-      it('should fail for invalid passwords', function * () {
-        for (let each of invalidPasswords) {
-          assert.isFalse(sut.is.password(each), each)
-        }
-      })
+    it('Raw validator should pass for valid passwords', function * () {
+      assertRawPass('password', validPasswords)
     })
 
-    describe('Schema validator', function () {
-      it('should pass for valid passwords', function * () {
-        for (let each of validPasswords) {
-          let validation = yield sut.validate({ field: each }, { field: 'password' })
-          assert.isTrue(validation)
-        }
-      })
+    it('Raw validator should fail for invalid passwords', function * () {
+      assertRawFail('password', invalidPasswords)
+    })
 
-      it('should fail for invalid passwords', function * () {
-        for (let each of invalidPasswords) {
-          try {
-            yield sut.validate({ field: each }, { field: 'password' })
-            assert(false)
-          } catch (error) {
-            assert.equal(error.name, 'ValidationException', each)
-            assert.deepEqual(error.fields, [ {
-              field: 'field', message: 'password validation failed on field', validation: 'password'
-            } ])
-          }
-        }
-      })
+    it('Schema validator should pass for valid passwords', function * () {
+      yield assertSchemaPass('password', validPasswords)
+    })
+
+    it('Schema validator should fail for invalid passwords', function * () {
+      yield assertSchemaFail('password', invalidPasswords)
     })
   })
 
@@ -84,43 +91,55 @@ describe('Unit | Service | Validator', function () {
       '{' + uuid.v4() + '}'
     ]
 
-    describe('Raw validator', function () {
-      it('should pass for valid tokens', function * () {
-        for (let each of validTokens) {
-          assert.isTrue(sut.is.token(each), each)
-        }
-      })
-
-      it('should fail for invalid tokens', function * () {
-        for (let each of invalidTokens) {
-          assert.isFalse(sut.is.token(each), each)
-        }
-      })
+    it('Raw validator should pass for valid tokens', function * () {
+      assertRawPass('token', validTokens)
     })
 
-    describe('Schema validator', function () {
-      it('should pass for valid tokens', function * () {
-        for (let each of validTokens) {
-          let validation = yield sut.validate({ field: each }, { field: 'token' })
-          assert.isTrue(validation)
-        }
-      })
+    it('Raw validator should fail for invalid tokens', function * () {
+      assertRawFail('token', invalidTokens)
+    })
 
-      it('should fail for invalid tokens', function * () {
-        for (let each of invalidTokens) {
-          try {
-            yield sut.validate({ field: each }, { field: 'token' })
-            assert(false)
-          } catch (error) {
-            assert.equal(error.name, 'ValidationException', each)
-            assert.deepEqual(error.fields, [ {
-              field: 'field', message: 'token validation failed on field', validation: 'token'
-            } ])
-          }
-        }
-      })
+    it('Schema validator should pass for valid tokens', function * () {
+      yield assertSchemaPass('token', validTokens)
+    })
+
+    it('Schema validator should fail for invalid tokens', function * () {
+      yield assertSchemaFail('token', invalidTokens)
     })
   })
+
+  function assertRawPass (validator, values) {
+    for (let each of values) {
+      assert.isTrue(sut.is[ validator ](each), each)
+    }
+  }
+
+  function assertRawFail (validator, values) {
+    for (let each of values) {
+      assert.isFalse(sut.is[ validator ](each), each)
+    }
+  }
+
+  function * assertSchemaPass (field, values) {
+    for (let each of values) {
+      let validation = yield sut.validate({ field: each }, { field: field })
+      assert.isTrue(validation)
+    }
+  }
+
+  function * assertSchemaFail (field, values) {
+    for (let each of values) {
+      try {
+        yield sut.validate({ field: each }, { field: field })
+        assert(false)
+      } catch (error) {
+        assert.equal(error.name, 'ValidationException', 'Each: ' + each)
+        assert.deepEqual(error.fields, [
+          { field: 'field', message: `${field} validation failed on field`, validation: field }
+        ])
+      }
+    }
+  }
 
   describe('Sanitazor normalizeLocale', function () {
     describe('Raw sanitazor', function () {

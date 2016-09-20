@@ -14,9 +14,28 @@ const skippable = function (value) {
   return !Raw.existy(value) && value !== null
 }
 
+AdonisValidator.is.extend('emailHash', function (data) {
+  const emailHashRegex = /^[0-9a-z]{64}$/i
+  return emailHashRegex.test(data)
+})
+
+AdonisValidator.extend('emailHash', function (data, field, message, args, get) {
+  return new Promise((resolve, reject) => {
+    const fieldValue = get(data, field)
+    if (skippable(fieldValue)) {
+      resolve('validation skipped')
+      return
+    }
+    if (Raw.emailHash(fieldValue)) {
+      resolve('validation passed')
+      return
+    }
+    reject(message)
+  })
+})
+
 AdonisValidator.is.extend('password', function (data) {
   // http://indicative.adonisjs.com/#indicative-extending-extending-raw-validator
-
   const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[`~!@#\$%^&\*\(\)\-_=\+\[\]\{\};:'"\|\\,\.<>\?\/])(?=.{8,})/
   return passwordRegex.test(data)
 })
