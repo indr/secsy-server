@@ -8,6 +8,7 @@
 const _ = require('lodash')
 const assert = require('chai').assert
 const agency = require('./../agency')
+require('co-mocha')
 
 describe('Acceptance | Controller | ContactsController', function () {
   function url (id) {
@@ -21,34 +22,43 @@ describe('Acceptance | Controller | ContactsController', function () {
   }
 
   describe('#store | POST /api/contacts', function () {
-    it('should return 401 as anon', function (done) {
+    let user
+
+    before(function * () {
+      user = yield agency.user()
+    })
+
+    it('should return 401', function (done) {
       agency.anon().then((agent) => {
         agent.post(url()).send(makeContact())
           .expect(401, done)
       })
     })
 
+    it('should return 400 with invalid encrypted_', function * () {
+      yield user.post('/api/contacts')
+        .expect(400)
+    })
+
     it('should return 201 and contact as user', function (done) {
-      agency.user().then((user) => {
-        user.post('/api/contacts')
-          .send(makeContact())
-          .expect(201)
-          .end(function (err, res) {
-            assert.isNull(err)
-            const contact = res.body
+      user.post('/api/contacts')
+        .send(makeContact())
+        .expect(201)
+        .end(function (err, res) {
+          assert.isNull(err)
+          const contact = res.body
 
-            assert.lengthOf(contact.id, 36)
+          assert.lengthOf(contact.id, 36)
 
-            assert.match(contact.created_at, dateTimeRegex)
-            assert.closeTo(new Date(contact.created_at).getTime(), new Date().getTime(), 1200)
-            assert.match(contact.updated_at, dateTimeRegex)
-            assert.equal(contact.updated_at, contact.created_at)
-            assert.equal(contact.owned_by, user.id)
-            assert.isFalse(contact.me)
-            assert.equal(contact.encrypted_, 'cypher')
-            done()
-          })
-      })
+          assert.match(contact.created_at, dateTimeRegex)
+          assert.closeTo(new Date(contact.created_at).getTime(), new Date().getTime(), 1200)
+          assert.match(contact.updated_at, dateTimeRegex)
+          assert.equal(contact.updated_at, contact.created_at)
+          assert.equal(contact.owned_by, user.id)
+          assert.isFalse(contact.me)
+          assert.equal(contact.encrypted_, 'cypher')
+          done()
+        })
     })
   })
 
@@ -140,9 +150,15 @@ describe('Acceptance | Controller | ContactsController', function () {
       return anon.put(url(user.contacts[ 0 ])).send(makeContact('updated')).expect(401)
     })
 
+    it('should return 400 with invalid encrypte_', function * () {
+      yield user.put(url(user.contacts[ 0 ]))
+        .expect(400)
+    })
+
     it('should return 404 as user for others contact', function () {
       return user.put(url(admin.contacts[ 0 ])).send(makeContact('updated')).expect(404)
     })
+
     it('should return 404 as admin for others contact', function () {
       return admin.put(url(user.contacts[ 0 ])).send(makeContact('updated')).expect(404)
     })
@@ -150,6 +166,7 @@ describe('Acceptance | Controller | ContactsController', function () {
     it('should return 200 as user for own contact', function () {
       return user.put(url(user.contacts[ 0 ])).send(makeContact('updated')).expect(200)
     })
+
     it('should return 200 as admin for own contact', function () {
       return admin.put(url(admin.contacts[ 0 ])).send(makeContact('updated')).expect(200)
     })

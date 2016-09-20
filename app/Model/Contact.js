@@ -6,6 +6,12 @@
 const Base = require('./Base')
 
 class Contact extends Base {
+  static get rules () {
+    return {
+      'encrypted_': 'required|max:4096'
+    }
+  }
+
   static scopeOwnedBy (builder, ownerId) {
     builder.where('owned_by', ownerId)
   }

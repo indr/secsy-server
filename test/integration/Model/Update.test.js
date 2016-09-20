@@ -1,14 +1,12 @@
-/**
- * Copyright 2016 Reto Inderbitzin <mail@indr.ch>
- */
-/* eslint-env mocha */
 'use strict'
 
+/* eslint-env mocha */
+
 const assert = require('chai').assert
-require('co-mocha')
 const setup = require('./../setup')
 const uuid = require('node-uuid')
 const validation = require('./../validation')
+require('co-mocha')
 
 const fails = validation.fails
 const succeeds = validation.succeeds
@@ -35,8 +33,9 @@ describe('Integration | Model | Update', function () {
     })
 
     it('should validate encrypted_', function * () {
-      yield fails(Update, Update.rules, 'encrypted_', [ undefined, '' ])
-      yield succeeds(Update, Update.rules, 'encrypted_', 'a')
+      const len = Array(4097).join('x')
+      yield fails(Update, Update.rules, 'encrypted_', [ undefined, '', len + 'y' ])
+      yield succeeds(Update, Update.rules, 'encrypted_', [ 'a', len ])
     })
   })
 

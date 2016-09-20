@@ -44,6 +44,8 @@ class UpdatesController {
     data.from_email_sha256 = user.email_sha256
     data.to_email_sha256 = receiver.email_sha256
 
+    yield Validator.validateAll(data, Update.rules)
+
     try {
       yield Validator.validate(data, Update.rules)
 

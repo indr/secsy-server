@@ -14,7 +14,7 @@ class Update extends Base {
     return {
       'from_email_sha256': 'required|min:64|max:64',
       'to_email_sha256': 'required|min:64|max:64',
-      'encrypted_': 'required'
+      'encrypted_': 'required|max:4096'
     }
   }
 

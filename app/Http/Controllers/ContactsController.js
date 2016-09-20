@@ -1,6 +1,7 @@
 'use strict'
 
 const Contact = use('App/Model/Contact')
+const Validator = use('App/Services/Validator')
 
 class ContactsController {
   * index (request, response) {
@@ -18,6 +19,8 @@ class ContactsController {
     data.created_by = user.id
     data.owned_by = user.id
     data.me = false
+
+    yield Validator.validateAll(data, Contact.rules)
 
     const contact = yield Contact.create(data)
 
@@ -50,6 +53,9 @@ class ContactsController {
     }
 
     contact.encrypted_ = request.input('encrypted_')
+
+    yield Validator.validateAll(contact, Contact.rules)
+
     yield contact.save()
 
     response.ok(contact.toJSON())

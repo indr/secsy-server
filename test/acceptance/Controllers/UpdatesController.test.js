@@ -26,7 +26,7 @@ describe('Acceptance | Controller | UpdatesController', function () {
   function makeUpdate (email, encrypted_) {
     return {
       to_email_sha256: utils.sha256(email || '', Env.get('HASH_SALT')),
-      encrypted_: encrypted_ === undefined ? 'cypher' : encrypted_
+      encrypted_: arguments.length === 1 ? 'cypher' : encrypted_
     }
   }
 
@@ -138,25 +138,31 @@ describe('Acceptance | Controller | UpdatesController', function () {
       anon.post(url()).send(makeUpdate(receiver.email, '')).expect(401, done)
     })
 
-    it('should return 201 and object with an id as user', function (done) {
-      user1.post(url()).send(makeUpdate(receiver.email, '')).expect(201)
-        .end(function (err, res) {
-          assert.isNull(err)
-          assert.lengthOf(res.body.id, 36)
-          assert.deepEqual(res.body, { id: res.body.id })
-          done()
-        })
+    it('should return 400', function * () {
+      yield user1.post(url()).send(makeUpdate(receiver.email, ''))
+        .expect(400)
     })
 
-    it('should return 201 and object with an id as admin', function (done) {
-      admin.post(url()).send(makeUpdate(receiver.email, '')).expect(201)
-        .end(function (err, res) {
-          assert.isNull(err)
-          assert.lengthOf(res.body.id, 36)
-          assert.deepEqual(res.body, { id: res.body.id })
-          done()
-        })
-    })
+    // TODO: Why did I think it should be allowed?
+    // it('should return 201 and object with an id as user', function (done) {
+    //   user1.post(url()).send(makeUpdate(receiver.email, '')).expect(201)
+    //     .end(function (err, res) {
+    //       assert.isNull(err)
+    //       assert.lengthOf(res.body.id, 36)
+    //       assert.deepEqual(res.body, { id: res.body.id })
+    //       done()
+    //     })
+    // })
+    //
+    // it('should return 201 and object with an id as admin', function (done) {
+    //   admin.post(url()).send(makeUpdate(receiver.email, '')).expect(201)
+    //     .end(function (err, res) {
+    //       assert.isNull(err)
+    //       assert.lengthOf(res.body.id, 36)
+    //       assert.deepEqual(res.body, { id: res.body.id })
+    //       done()
+    //     })
+    // })
   })
 
   describe('#create for existing email hash', function () {
