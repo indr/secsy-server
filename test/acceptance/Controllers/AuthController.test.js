@@ -21,12 +21,8 @@ describe('Acceptance | Controller | AuthController', function () {
   })
 
   describe('#login | POST /auth/local', function () {
-    before((done) => {
-      user.logout().then(() => {
-        return admin.logout()
-      }).then(() => {
-        done()
-      }).catch(done)
+    beforeEach(function * () {
+      yield user.logout()
     })
 
     function assertUser (expected, done) {
@@ -64,7 +60,7 @@ describe('Acceptance | Controller | AuthController', function () {
       const anon = yield agency.anon()
 
       const res = yield anon.post('/auth/local')
-        .send({ identifier: 'admin@example.com', password: 'wrong' })
+        .send({ identifier: 'valid@example.com', password: 'wrong' })
         .expect(403)
 
       assert.equal(res.body.status, 403)
@@ -100,11 +96,11 @@ describe('Acceptance | Controller | AuthController', function () {
         .end(assertUser(user, done))
     })
 
-    it('should return 200 as admin', function (done) {
-      admin.post('/auth/local')
-        .send({ identifier: admin.email, password: admin.password })
+    it('should return 200 as user with upper case email', function (done) {
+      user.post('/auth/local')
+        .send({ identifier: user.email.toUpperCase(), password: user.password })
         .expect(200)
-        .end(assertUser(admin, done))
+        .end(assertUser(user, done))
     })
   })
 

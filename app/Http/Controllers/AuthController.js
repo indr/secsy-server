@@ -3,11 +3,12 @@
 const Env = use('Env')
 const Event = use('Event')
 const Key = use('App/Model/Key')
+const Validator = use('App/Services/Validator')
 
 class AuthController {
 
   * login (request, response) {
-    const identifier = request.input('identifier')
+    const identifier = Validator.sanitizor.normalizeEmail(request.input('identifier'), [])
     const password = request.input('password')
 
     let user
