@@ -4,10 +4,9 @@
 /* eslint-env mocha */
 'use strict'
 
-const _ = require('lodash')
 const assert = require('chai').assert
 const agency = require('./../agency')
-const util = require('util')
+const sha = require('sha.js')
 const utils = require('./../../test-helpers/utils')
 const uuid = require('node-uuid')
 require('co-mocha')
@@ -192,155 +191,130 @@ describe('Acceptance | Controller | KeysController', function () {
     })
   })
 
-  var admin, user1, user2
+  describe('#index', function () {
+    var user1, user2, user3
 
-  before(function (done) {
-    this.timeout(4000)
-    agency.admin({ sync_enabled: false }).then(function (agent) {
-      admin = agent
-      return agency.user({ sync_enabled: false })
-    }).then(function (agent) {
-      user1 = agent
-      return agency.user()
-    }).then(function (agent) {
-      user2 = agent
-      admin.post(url()).send(makeKey(admin, false)).expect(201, function () {
-        user1.post(url()).send(makeKey(user1, false)).expect(201, function () {
-          user2.post(url()).send(makeKey(user2, true)).expect(201, done)
-        })
+    before(function * () {
+      this.timeout(4000)
+      user1 = yield agency.user({ sync_enabled: false })
+      user2 = yield agency.user({ sync_enabled: true })
+      user3 = yield agency.user({ sync_enabled: true })
+      yield user1.post(url()).send(makeKey(user1, false)).expect(201)
+      yield user2.post(url()).send(makeKey(user2, true)).expect(201)
+      yield user3.post(url()).send(makeKey(user3, true)).expect(201)
+    })
+
+    describe('GET /api/keys', function () {
+      it('should return 401', function * () {
+        anon.get(url())
+          .expect(401)
       })
-    }).catch(done)
-  })
 
-  describe('#index | GET /api/keys', function () {
-    it('should return 401 as anon', function (done) {
-      anon.get(url()).expect(401, done)
-    })
+      it('should return 400 given not queried with valid hash', function * () {
+        const res = yield user2.get(url())
+          .expect(400)
 
-    it('should return 200 as user and only public and own keys', function (done) {
-      user1.get(url())
-        .expect(200)
-        .end(function (err, res) {
-          assert.isNull(err)
-          assert.isAbove(res.body.length, 1)
-          assert.isOk(_.find(res.body, { email_sha256: user1.emailSha256, is_public: false }),
-            util.format('Own not public key for user %s not found', user1.emailSha256, res.body))
-          const user2key = _.find(res.body, { email_sha256: user2.emailSha256 })
-          assert.isOk(user2key, util.format('Public key for user %s not found', user2.emailSha256, res.body))
-          assert.isUndefined(user2key.private_key)
-          assert.isTrue(_.every(res.body, function (eachKey) {
-            return eachKey.is_public || eachKey.email_sha256 === user1.emailSha256
-          }), util.format('Contains non public not belonging to user %s', user1.emailSha256, res.body))
-          done()
+        assert.deepEqual(res.body, {
+          status: 400,
+          message: 'Validation failed',
+          fields: [
+            { field: 'h', message: 'required validation failed on h', validation: 'required' },
+            { field: 'h', message: 'email_hash validation failed on h', validation: 'email_hash' }
+          ]
         })
-    })
-
-    it('should return 200 as admin and only public and own keys', function (done) {
-      admin.get(url())
-        .expect(200)
-        .end(function (err, res) {
-          assert.isNull(err)
-          assert.isAbove(res.body.length, 1)
-          assert.isOk(_.find(res.body, { email_sha256: admin.emailSha256, is_public: false }),
-            util.format('Own not public key for user %s not found', admin.emailSha256, res.body))
-          const user2key = _.find(res.body, { email_sha256: user2.emailSha256 })
-          assert.isOk(user2key, util.format('Public key for user %s not found', user2.emailSha256, res.body))
-          assert.isUndefined(user2key.private_key)
-          assert.isTrue(_.every(res.body, function (eachKey) {
-            return eachKey.is_public || eachKey.email_sha256 === admin.emailSha256
-          }), util.format('Contains non public not belonging to admin %s', admin.emailSha256, res.body))
-          done()
-        })
-    })
-  })
-
-  describe('#index with query | GET /api/keys?h=...', function () {
-    var emailHash
-
-    before(function (done) {
-      agency.user().then(function (user) {
-        user.post(url()).send(makeKey(user, true)).expect(201).end(function (err, res) {
-          assert.isNull(err)
-          emailHash = res.body.email_sha256
-          assert.isDefined(emailHash)
-          done()
-        })
-      }).catch(done)
-    })
-
-    it('should return 401 as anon', function (done) {
-      anon.get(url()).query('h=' + emailHash).expect(401, done)
-    })
-
-    it('should return 200 as user and specified key', function (done) {
-      user1.get(url()).query('h=' + emailHash).expect(200).end(function (err, res) {
-        assert.isNull(err)
-        assert.lengthOf(res.body, 1)
-        assert.equal(res.body[ 0 ].email_sha256, emailHash)
-        done()
       })
     })
 
-    it('should return 200 as admin and specified key', function (done) {
-      admin.get(url()).query('h=' + emailHash).expect(200).end(function (err, res) {
-        assert.isNull(err)
-        assert.lengthOf(res.body, 1)
-        assert.equal(res.body[ 0 ].email_sha256, emailHash)
-        done()
+    describe('GET /api/keys?h=', function () {
+      it('should return 401', function * () {
+        yield anon.get(url()).query('h=' + user2.emailSha256)
+          .expect(401)
+      })
+
+      it('should return 403 if user does not sync', function * () {
+        yield user1.get(url()).query('h=' + user2.emailSha256)
+          .expect(403)
+      })
+
+      it('should return 200 for unknown key', function * () {
+        const hash = sha('sha256').update('unknown').digest('hex')
+        const res = yield user2.get(url()).query('h=' + hash)
+          .expect(200)
+
+        assert.lengthOf(res.body, 0)
+      })
+
+      it('should return 200 for own key', function * () {
+        const res = yield user2.get(url()).query('h=' + user2.emailSha256)
+          .expect(200)
+
+        assert.equal(res.body[ 0 ].email_sha256, user2.emailSha256)
+        assert.isUndefined(res.body[ 0 ].private_key)
+      })
+
+      it('should return 200 for others if public', function * () {
+        const res = yield user2.get(url()).query('h=' + user3.emailSha256)
+          .expect(200)
+
+        assert.equal(res.body[ 0 ].email_sha256, user3.emailSha256)
+        assert.isUndefined(res.body[ 0 ].private_key)
+      })
+
+      it('should return 200 and empty result for others if non public', function * () {
+        const res = yield user2.get(url()).query('h=' + user1.emailSha256)
+          .expect(200)
+
+        assert.lengthOf(res.body, 0)
       })
     })
   })
 
   describe('#show | GET /api/keys/:id', function () {
     const userKeyMap = {}
+    var user1, user2, user3
 
-    function saveId (userId, done) {
-      return function (err, res) {
-        assert.isNull(err)
-        userKeyMap[ userId ] = res.body.id
-        done()
-      }
-    }
-
-    var admin, user1, user2
-
-    before(function (done) {
+    before(function * () {
       this.timeout(4000)
-      agency.admin({ sync_enabled: false }).then(function (agent) {
-        admin = agent
-        return agency.user({ sync_enabled: false })
-      }).then(function (agent) {
-        user1 = agent
-        return agency.user()
-      }).then(function (agent) {
-        user2 = agent
-        admin.post(url()).send(makeKey(admin, false)).expect(201).end(saveId(admin.emailSha256, function () {
-          user1.post(url()).send(makeKey(user1, false)).expect(201).end(saveId(user1.emailSha256, function () {
-            user2.post(url()).send(makeKey(user2, true)).expect(201).end(saveId(user2.emailSha256, done))
-          }))
-        }))
-      }).catch(done)
+      let res
+
+      user1 = yield agency.user({ sync_enabled: false })
+      user2 = yield agency.user({ sync_enabled: true })
+      user3 = yield agency.user({ sync_enabled: true })
+
+      res = yield user1.post(url()).send(makeKey(user1, false)).expect(201)
+      userKeyMap[ user1.emailSha256 ] = res.body.id
+      res = yield user2.post(url()).send(makeKey(user2, true)).expect(201)
+      userKeyMap[ user2.emailSha256 ] = res.body.id
+      res = yield user3.post(url()).send(makeKey(user3, true)).expect(201)
+      userKeyMap[ user3.emailSha256 ] = res.body.id
     })
 
-    it('should return 401 as anon for public key', function (done) {
-      anon.get(url(userKeyMap[ user2.emailSha256 ])).expect(401, done)
+    it('should return 401', function * () {
+      yield anon.get(url(userKeyMap[ user2.emailSha256 ]))
+        .expect(401)
     })
 
-    it('should return 404 as user for private key', function (done) {
-      user1.get(url(userKeyMap[ admin.emailSha256 ])).expect(404, done)
+    it('should return 403 if user does not sync', function * () {
+      const res = yield user1.get(url(userKeyMap[ user2.emailSha256 ]))
+        .expect(403)
+
+      assert.deepEqual(res.body, {
+        status: 403,
+        message: 'sync-disabled'
+      })
     })
 
-    it('should return 200 as user for public key', function (done) {
-      user1.get(url(userKeyMap[ user2.emailSha256 ])).expect(200)
-        .end(function (err, res) {
-          assert.isNull(err)
-          assert.isUndefined(res.body.private_key)
-          done()
-        })
+    it('should return 404 for unknown key', function * () {
+      yield user2.get(url(uuid.v4()))
+        .expect(404)
     })
 
-    it('should return 200 as user for own key', function (done) {
-      user1.get(url(userKeyMap[ user1.emailSha256 ])).expect(200, done)
+    it('should return 200 for own key', function * () {
+      const res = yield user1.get(url(userKeyMap[ user1.emailSha256 ]))
+        .expect(200)
+
+      assert.equal(res.body.id, userKeyMap[ user1.emailSha256 ])
+      assert.property(res.body, 'private_key')
     })
 
     it('should return 200 with id "my" as user', function * () {
@@ -351,29 +325,17 @@ describe('Acceptance | Controller | KeysController', function () {
       assert.property(res.body, 'private_key')
     })
 
-    it('should return 404 as admin for private key', function (done) {
-      admin.get(url(userKeyMap[ user1.emailSha256 ])).expect(404, done)
-    })
-
-    it('should return 200 as admin for public key', function (done) {
-      admin.get(url(userKeyMap[ user2.emailSha256 ])).expect(200)
-        .end(function (err, res) {
-          assert.isNull(err)
-          assert.isUndefined(res.body.private_key)
-          done()
-        })
-    })
-
-    it('should return 200 as admin for own key', function (done) {
-      admin.get(url(userKeyMap[ admin.emailSha256 ])).expect(200, done)
-    })
-
-    it('should return 200 as with id "my" as admin', function * () {
-      const res = yield admin.get(url('my'))
+    it('should return 200 for others if public', function * () {
+      const res = yield user2.get(url(userKeyMap[ user3.emailSha256 ]))
         .expect(200)
 
-      assert.equal(res.body.id, userKeyMap[ admin.emailSha256 ])
-      assert.property(res.body, 'private_key')
+      assert.equal(res.body.id, userKeyMap[ user3.emailSha256 ])
+      assert.isUndefined(res.body.private_key)
+    })
+
+    it('should return 404 for others if non public', function * () {
+      user2.get(url(userKeyMap[ user1.emailSha256 ]))
+        .expect(404)
     })
   })
 })

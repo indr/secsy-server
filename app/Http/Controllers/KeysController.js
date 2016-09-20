@@ -11,7 +11,13 @@ class KeysController {
   * index (request, response) {
     const user = request.currentUser
 
+    if (!user.sync_enabled) {
+      response.forbidden({ status: 403, message: 'sync-disabled' })
+      return
+    }
+
     const hash = request.input('h')
+    yield Validator.validateAll({ h: hash }, { h: 'required|email_hash' })
     const keys = yield Key.query().isPublicOrOwnedBy(user.id, hash).fetch()
 
     response.ok(keys.toJSON())
@@ -39,14 +45,14 @@ class KeysController {
   }
 
   * show (request, response) {
-    const currentUserId = request.currentUser.id
+    const currentUser = request.currentUser
     const id = request.param('id')
 
     let key
     if (id === 'my') {
-      key = yield Key.query().ownedBy(currentUserId).first()
+      key = yield Key.query().ownedBy(currentUser.id).first()
     } else {
-      key = yield Key.query().isPublicOrOwnedBy(currentUserId).where('id', id).first()
+      key = yield Key.query().isPublicOrOwnedBy(currentUser.id).where('id', id).first()
     }
 
     if (!key) {
@@ -54,7 +60,12 @@ class KeysController {
       return
     }
 
-    response.ok(key.toJSON(currentUserId))
+    if (key.owned_by !== currentUser.id && !currentUser.sync_enabled) {
+      response.forbidden({ status: 403, message: 'sync-disabled' })
+      return
+    }
+
+    response.ok(key.toJSON(currentUser.id))
   }
 
   * update (request, response) {

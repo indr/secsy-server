@@ -39,7 +39,6 @@ class Key extends Base {
   }
 
   static scopeIsPublicOrOwnedBy (builder, ownerId, emailSha256) {
-    console.log(emailSha256)
     if (emailSha256) {
       builder.where(function () {
         this.orWhere({ 'owned_by': ownerId, 'is_public': true })
