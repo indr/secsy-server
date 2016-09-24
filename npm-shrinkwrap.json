@@ -88,6 +88,11 @@
       "from": "adonis-middleware@1.0.7",
       "resolved": "https://registry.npmjs.org/adonis-middleware/-/adonis-middleware-1.0.7.tgz"
     },
+    "adonis-redis": {
+      "version": "1.0.0",
+      "from": "adonis-redis@latest",
+      "resolved": "https://registry.npmjs.org/adonis-redis/-/adonis-redis-1.0.0.tgz"
+    },
     "adonis-validation-provider": {
       "version": "3.0.2",
       "from": "adonis-validation-provider@>=3.0.2 <4.0.0",
@@ -698,6 +703,11 @@
       "version": "0.3.2",
       "from": "flagged-respawn@>=0.3.0 <0.4.0",
       "resolved": "https://registry.npmjs.org/flagged-respawn/-/flagged-respawn-0.3.2.tgz"
+    },
+    "flexbuffer": {
+      "version": "0.0.6",
+      "from": "flexbuffer@0.0.6",
+      "resolved": "https://registry.npmjs.org/flexbuffer/-/flexbuffer-0.0.6.tgz"
     },
     "for-in": {
       "version": "0.1.5",
@@ -1556,6 +1566,18 @@
       "version": "1.0.0",
       "from": "invert-kv@>=1.0.0 <2.0.0",
       "resolved": "https://registry.npmjs.org/invert-kv/-/invert-kv-1.0.0.tgz"
+    },
+    "ioredis": {
+      "version": "1.15.1",
+      "from": "ioredis@>=1.11.1 <2.0.0",
+      "resolved": "https://registry.npmjs.org/ioredis/-/ioredis-1.15.1.tgz",
+      "dependencies": {
+        "lodash": {
+          "version": "3.10.1",
+          "from": "lodash@>=3.6.0 <4.0.0",
+          "resolved": "https://registry.npmjs.org/lodash/-/lodash-3.10.1.tgz"
+        }
+      }
     },
     "ip": {
       "version": "1.1.3",

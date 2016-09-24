@@ -21,6 +21,7 @@
     "adonis-lucid": "^3.0.3",
     "adonis-mail-provider": "git://github.com/adonisjs/adonis-mail.git#7276878fcd5542c2760075841eef08793d5c1d19",
     "adonis-middleware": "^1.0.7",
+    "adonis-redis": "^1.0.0",
     "adonis-validation-provider": "^3.0.2",
     "got": "^6.3.0",
     "node-uuid": "^1.4.7",
