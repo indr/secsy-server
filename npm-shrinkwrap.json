@@ -592,6 +592,11 @@
       "from": "encodeurl@>=1.0.1 <1.1.0",
       "resolved": "https://registry.npmjs.org/encodeurl/-/encodeurl-1.0.1.tgz"
     },
+    "encoding": {
+      "version": "0.1.12",
+      "from": "encoding@>=0.1.11 <0.2.0",
+      "resolved": "https://registry.npmjs.org/encoding/-/encoding-0.1.12.tgz"
+    },
     "end-of-stream": {
       "version": "1.0.0",
       "from": "end-of-stream@1.0.0",
@@ -1957,6 +1962,18 @@
       "from": "mime-types@>=2.1.11 <2.2.0",
       "resolved": "https://registry.npmjs.org/mime-types/-/mime-types-2.1.11.tgz"
     },
+    "mimelib": {
+      "version": "0.2.19",
+      "from": "mimelib@>=0.2.19 <0.3.0",
+      "resolved": "https://registry.npmjs.org/mimelib/-/mimelib-0.2.19.tgz",
+      "dependencies": {
+        "addressparser": {
+          "version": "0.3.2",
+          "from": "addressparser@>=0.3.2 <0.4.0",
+          "resolved": "https://registry.npmjs.org/addressparser/-/addressparser-0.3.2.tgz"
+        }
+      }
+    },
     "minimatch": {
       "version": "3.0.2",
       "from": "minimatch@>=3.0.2 <4.0.0",
@@ -2357,6 +2374,11 @@
       "from": "pretty-hrtime@>=1.0.2 <2.0.0",
       "resolved": "https://registry.npmjs.org/pretty-hrtime/-/pretty-hrtime-1.0.2.tgz"
     },
+    "printf": {
+      "version": "0.2.5",
+      "from": "printf@latest",
+      "resolved": "https://registry.npmjs.org/printf/-/printf-0.2.5.tgz"
+    },
     "process-nextick-args": {
       "version": "1.0.7",
       "from": "process-nextick-args@>=1.0.6 <1.1.0",
@@ -2691,6 +2713,11 @@
       "from": "through@>=2.3.6 <3.0.0",
       "resolved": "https://registry.npmjs.org/through/-/through-2.3.8.tgz"
     },
+    "thunkify": {
+      "version": "0.0.1",
+      "from": "thunkify@0.0.1",
+      "resolved": "https://registry.npmjs.org/thunkify/-/thunkify-0.0.1.tgz"
+    },
     "thunkify-wrap": {
       "version": "1.0.4",
       "from": "thunkify-wrap@>=1.0.4 <1.1.0",
@@ -2787,6 +2814,11 @@
       "version": "1.0.2",
       "from": "util-deprecate@>=1.0.1 <1.1.0",
       "resolved": "https://registry.npmjs.org/util-deprecate/-/util-deprecate-1.0.2.tgz"
+    },
+    "uue": {
+      "version": "3.0.0",
+      "from": "uue@>=3.0.0 <4.0.0",
+      "resolved": "https://registry.npmjs.org/uue/-/uue-3.0.0.tgz"
     },
     "uuid": {
       "version": "2.0.2",
