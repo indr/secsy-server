@@ -3,11 +3,16 @@
 const Env = use('Env')
 const Event = use('Event')
 const Key = use('App/Model/Key')
+const RateLimit = use('App/Services/RateLimit')
 const Validator = use('App/Services/Validator')
 
 class AuthController {
 
   * login (request, response) {
+    const ipAddress = request.request.socket.remoteAddress
+    yield RateLimit.perform(ipAddress, 'login-min', 6, 60)
+    yield RateLimit.perform(ipAddress, 'login-hr', 30, 3600)
+
     const identifier = Validator.sanitizor.normalizeEmail(request.input('identifier'), [])
     const password = request.input('password')
 

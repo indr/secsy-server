@@ -5,10 +5,16 @@
 const ExceptionHandler = exports = module.exports = {}
 
 const handlers = {
+  RateLimitExceededException: function (error, request, response) {
+    const status = error.status || 429
+    const message = error.message || 'Rate limit exceeded'
+    return { status, message }
+  },
+
   ValidationException: function (error, request, response) {
     const fields = error.fields
     const status = error.status || 400
-    const message = error.message
+    const message = error.message || 'Validation failed'
     return { status, message, fields }
   },
 

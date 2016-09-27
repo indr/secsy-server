@@ -4,11 +4,16 @@ const Env = use('Env')
 const User = use('App/Model/User')
 const UserService = make('App/Services/UserService')
 const Key = use('App/Model/Key')
+const RateLimit = use('App/Services/RateLimit')
 const Validator = use('App/Services/Validator')
 
 class UsersController {
 
   * store (request, response) {
+    const ipAddress = request.request.socket.remoteAddress
+    yield RateLimit.perform(ipAddress, 'signup-min', 6, 60)
+    yield RateLimit.perform(ipAddress, 'signup-hr', 30, 3600)
+
     const raw = request.only('email', 'password', 'locale', 'sync_enabled')
     const data = yield Validator.sanitize(raw, User.sanitations)
 
@@ -17,14 +22,11 @@ class UsersController {
     response.created(user.toJSON())
   }
 
-  * confirm (request, response) {
-    const token = request.input('token')
-
-    yield UserService.confirm(token)
-    return response.ok({ status: 200 })
-  }
-
   * resend (request, response) {
+    const ipAddress = request.request.socket.remoteAddress
+    yield RateLimit.perform(ipAddress, 'resend-min', 6, 60)
+    yield RateLimit.perform(ipAddress, 'resend-hr', 30, 3600)
+
     const raw = request.only('email')
     const email = (yield Validator.sanitize(raw, User.sanitations)).email
 
@@ -32,7 +34,22 @@ class UsersController {
     return response.ok({ status: 200 })
   }
 
+  * confirm (request, response) {
+    const ipAddress = request.request.socket.remoteAddress
+    yield RateLimit.perform(ipAddress, 'confirm-min', 6, 60)
+    yield RateLimit.perform(ipAddress, 'confirm-hr', 30, 3600)
+
+    const token = request.input('token')
+
+    yield UserService.confirm(token)
+    return response.ok({ status: 200 })
+  }
+
   * forgotPassword (request, response) {
+    const ipAddress = request.request.socket.remoteAddress
+    yield RateLimit.perform(ipAddress, 'forgot-min', 6, 60)
+    yield RateLimit.perform(ipAddress, 'forgot-hr', 30, 3600)
+
     const raw = request.only('email')
     const email = (yield Validator.sanitize(raw, User.sanitations)).email
 
@@ -41,6 +58,10 @@ class UsersController {
   }
 
   * resetPassword (request, response) {
+    const ipAddress = request.request.socket.remoteAddress
+    yield RateLimit.perform(ipAddress, 'reset-min', 6, 60)
+    yield RateLimit.perform(ipAddress, 'reset-hr', 30, 3600)
+
     const data = request.only('token', 'password')
 
     yield UserService.reset(data.token, data.password)
