@@ -2,6 +2,7 @@
 
 const Env = use('Env')
 const Mail = use('Mail')
+const RateLimit = use('App/Services/RateLimit')
 
 class UserNotificationMailer {
 
@@ -36,6 +37,9 @@ class UserNotificationMailer {
   }
 
   * send (key, model, user) {
+    yield RateLimit.perform(user.email, `email-${key}-min`, 3, 60)
+    yield RateLimit.perform(user.email, `email-${key}-hr`, 10, 3600)
+
     const template = UserNotificationMailer.template(key, user.locale)
     return yield Mail.send([ null, template ], model, function (message) {
       message.to(user.email)
