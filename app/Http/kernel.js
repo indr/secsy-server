@@ -14,6 +14,7 @@ const Middleware = use('Middleware')
 const globalMiddleware = [
   'App/Http/Middleware/Logger',
   'App/Http/Middleware/SinglePageApplication',
+  'App/Http/Middleware/AutoIpBan',
   'Adonis/Middleware/Cors',
   'Adonis/Middleware/BodyParser',
   'Adonis/Middleware/Shield',

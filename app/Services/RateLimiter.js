@@ -35,15 +35,27 @@ class RateLimiter {
     }
 
     if (yield this.isUnderLimit()) {
-      // Simple ring buffer
-      yield this._redis.lpush(this._key, Math.floor(new Date().getTime() / 1000))
-      yield this._redis.ltrim(this._key, 0, this._max - 1)
-
-      // Let's ensure we expire this key at some point
-      yield this._redis.expire(this._key, this._secs * 2)
+      yield this.push()
     } else {
       throw new RateLimitExceededException(this._type + '-rate-limit-exceeded', yield this.getSecondsToWait())
     }
+  }
+
+  * add () {
+    if (this.isUnlimited()) {
+      return
+    }
+
+    yield this.push()
+  }
+
+  * push () {
+    // Simple ring buffer
+    yield this._redis.lpush(this._key, Math.floor(new Date().getTime() / 1000))
+    yield this._redis.ltrim(this._key, 0, this._max - 1)
+
+    // Let's ensure we expire this key at some point
+    yield this._redis.expire(this._key, this._secs * 2)
   }
 
   * getRemaining () {
@@ -66,14 +78,12 @@ class RateLimiter {
   * isUnderLimit () {
     // Number of events in buffer less than max allowed
     const numberOfEvents = yield this._redis.llen(this._key)
-    console.log('number of events', numberOfEvents)
     if (numberOfEvents < this._max) {
       return true
     }
 
     // Age bigger than sliding window size?
     const ageOfOldest = yield this.getAgeOfOldest()
-    console.log('age of oldest', ageOfOldest)
     return ageOfOldest > this._secs
   }
 
