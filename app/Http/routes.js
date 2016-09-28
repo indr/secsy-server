@@ -41,6 +41,9 @@ Route.post('/api/users/resend', 'UsersController.resend')
 Route.post('/api/users/forgot-password', 'UsersController.forgotPassword')
 Route.post('/api/users/reset-password', 'UsersController.resetPassword')
 
+Route.get('/api/error-reports', 'ErrorReportsController.index')
+Route.post('/api/error-reports', 'ErrorReportsController.store')
+
 Route.get('/', 'RootController.index')
 Route.get('/:lang', 'RootController.lang')
 
