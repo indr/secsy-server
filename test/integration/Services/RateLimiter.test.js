@@ -3,15 +3,14 @@
 /* eslint-env mocha */
 
 const assert = require('chai').assert
-const setup = require('./../setup')
+const context = require('../../contexts').integration
+
 require('co-mocha')
 
-describe('Integration | Service | RateLimiter', function () {
+context('Integration | Service | RateLimiter', function () {
   let Redis
-  before(function * () {
-    yield setup.loadProviders()
-    yield setup.start()
 
+  before(function * () {
     Redis = use('Redis')
   })
 

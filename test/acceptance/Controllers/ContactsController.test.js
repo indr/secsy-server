@@ -1,16 +1,15 @@
-/**
- * Copyright 2016 Reto Inderbitzin <mail@indr.ch>
- */
 /* eslint-env mocha */
 /* global dateTimeRegex */
+
 'use strict'
 
 const _ = require('lodash')
 const assert = require('chai').assert
-const agency = require('./../agency')
+const context = require('../../contexts').acceptance
+
 require('co-mocha')
 
-describe('Acceptance | Controller | ContactsController', function () {
+context('Acceptance | Controller | ContactsController', function () {
   function url (id) {
     return !id ? '/api/contacts' : '/api/contacts/' + id
   }

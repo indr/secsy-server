@@ -1,22 +1,17 @@
 'use strict'
 /* eslint-env mocha */
 
-const chai = require('chai')
+const assert = require('chai').assert
+const context = require('../../contexts').integration
 const moment = require('moment')
+
 require('co-mocha')
 
-const setup = require('../setup')
-
-const assert = chai.assert
-
-describe('Integration | Model | EmailToken', function () {
+context('Integration | Model | EmailToken', function () {
   let EmailToken, User,
     user
 
   before(function * () {
-    yield setup.loadProviders()
-    yield setup.start()
-
     EmailToken = use('App/Model/EmailToken')
     User = use('App/Model/User')
 

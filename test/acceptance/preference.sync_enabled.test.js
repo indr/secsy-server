@@ -3,15 +3,16 @@
 /* eslint-env mocha */
 
 const assert = require('chai').assert
-const agency = require('./agency')
+const context = require('../contexts').acceptance
+
 require('co-mocha')
 
-describe('Acceptance | Preference | sync_enabled', function () {
+context('Acceptance | Preference | sync_enabled', function () {
   describe('Preference set at signup false', function () {
     let user
 
     before(function * () {
-      user = yield agency.user({ sync_enabled: false })
+      user = yield this.agency.user({ sync_enabled: false })
     })
 
     it('should set preference to false', function * () {
@@ -29,7 +30,7 @@ describe('Acceptance | Preference | sync_enabled', function () {
     let user
 
     before(function * () {
-      user = yield agency.user({ sync_enabled: true })
+      user = yield this.agency.user({ sync_enabled: true })
     })
 
     it('should set preference to false', function * () {
@@ -47,7 +48,7 @@ describe('Acceptance | Preference | sync_enabled', function () {
     let user
 
     before(function * () {
-      user = yield agency.user({ sync_enabled: true })
+      user = yield this.agency.user({ sync_enabled: true })
       yield user.setPreferences({ sync_enabled: false })
     })
 
@@ -66,7 +67,7 @@ describe('Acceptance | Preference | sync_enabled', function () {
     let user
 
     before(function * () {
-      user = yield agency.user({ sync_enabled: false })
+      user = yield this.agency.user({ sync_enabled: false })
       yield user.setPreferences({ sync_enabled: true })
     })
 

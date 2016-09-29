@@ -2,14 +2,16 @@
 'use strict'
 
 const assert = require('chai').assert
+const context = require('../../contexts').acceptance
 const supertest = require('supertest')
-const ctx = require('./../bootstrap')
 
-describe('Acceptance | Controller | AppController', function () {
+require('co-mocha')
+
+context('Acceptance | Controller | AppController', function () {
   let agent = null
 
   before(function (done) {
-    agent = supertest(ctx.http)
+    agent = supertest(this.server)
     done()
   })
 

@@ -3,21 +3,19 @@
 /* eslint-env mocha */
 
 const assert = require('chai').assert
-const setup = require('./../setup')
+const context = require('../../contexts').integration
 const uuid = require('node-uuid')
 const validation = require('./../validation')
-require('co-mocha')
 
 const fails = validation.fails
 const succeeds = validation.succeeds
 
-describe('Integration | Model | Contact', function () {
+require('co-mocha')
+
+context('Integration | Model | Contact', function () {
   let userId, Contact
 
   before(function * () {
-    yield setup.loadProviders()
-    yield setup.start()
-
     Contact = use('App/Model/Contact')
     const User = use('App/Model/User')
     userId = (yield User.create({ email: uuid.v4() + '@example.com', password: 'Secret123$' })).id
@@ -25,7 +23,7 @@ describe('Integration | Model | Contact', function () {
 
   describe('rules', function () {
     it('should validate encrypted_', function * () {
-      const len = Array(4097).join('x')
+      const len = new Array(4097).join('x')
       yield fails(Contact, Contact.rules, 'encrypted_', [ undefined, '', len + 'y' ])
       yield succeeds(Contact, Contact.rules, 'encrypted_', [ 'a', len ])
     })

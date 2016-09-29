@@ -2,12 +2,13 @@
 /* eslint-env mocha */
 
 const assert = require('chai').assert
+const context = require('../../contexts').integration
 const emailParser = require('./../../test-helpers/email')
-const setup = require('./../setup')
 const uuid = require('node-uuid')
+
 require('co-mocha')
 
-describe('Integration | Service | User', function () {
+context('Integration | Service | User', function () {
   let Config, Event, Update, User, EmailToken, Key, Contact,
     sut
 
@@ -16,9 +17,6 @@ describe('Integration | Service | User', function () {
   }
 
   before(function * () {
-    yield setup.loadProviders()
-    yield setup.start()
-
     Config = use('Config')
     Event = use('Event')
     Update = use('App/Model/Update')

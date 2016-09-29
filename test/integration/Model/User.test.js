@@ -3,8 +3,7 @@
 
 const _ = require('lodash')
 const assert = require('chai').assert
-require('co-mocha')
-const setup = require('./../setup')
+const context = require('../../contexts').integration
 const utils = require('./../../test-helpers/utils')
 const uuid = require('node-uuid')
 const validation = require('./../validation')
@@ -12,13 +11,12 @@ const validation = require('./../validation')
 const fails = validation.fails
 const succeeds = validation.succeeds
 
-describe('Integration | Model | User', function () {
+require('co-mocha')
+
+context('Integration | Model | User', function () {
   let Env, User, Validator
 
   before(function * () {
-    yield setup.loadProviders()
-    yield setup.start()
-
     Env = use('Env')
     User = use('App/Model/User')
     Validator = use('App/Services/Validator')

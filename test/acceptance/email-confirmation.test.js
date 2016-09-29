@@ -3,14 +3,15 @@
 /* eslint-env mocha */
 
 const assert = require('chai').assert
-const agency = require('./agency')
+const context = require('../contexts').acceptance
+
 require('co-mocha')
 
-describe('Acceptance | Email confirmation', function () {
+context('Acceptance | Email confirmation', function () {
   let user
 
   beforeEach(function * () {
-    user = yield agency.anon()
+    user = yield this.agency.anon()
     yield user.signup()
   })
 

@@ -6,12 +6,13 @@
 'use strict'
 
 const assert = require('chai').assert
-const agency = require('./../agency')
+const context = require('../../contexts').acceptance
 const utils = require('./../../test-helpers/utils')
 const uuid = require('node-uuid')
+
 require('co-mocha')
 
-describe('Acceptance | Controller | UpdatesController', function () {
+context('Acceptance | Controller | UpdatesController', function () {
   let Env, Update
 
   before(function * () {

@@ -3,10 +3,11 @@
 /* eslint-env mocha */
 
 const assert = require('chai').assert
-const agency = require('./agency')
+const context = require('../contexts').acceptance
+
 require('co-mocha')
 
-describe('Acceptance | Reset password', function () {
+context('Acceptance | Reset password', function () {
   let user
 
   beforeEach(function * () {

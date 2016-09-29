@@ -1,38 +1,31 @@
-/* eslint-env mocha */
 'use strict'
 
 const _ = require('lodash')
 const assert = require('chai').assert
-const emailParser = require('./../test-helpers/email')
-const uuid = require('node-uuid')
-const request = require('supertest-as-promised')
-const ctx = require('./bootstrap')
+const emailParser = require('./email')
 const co = require('co')
-
-const defaultAgency = new Agency()
-module.exports = defaultAgency
-module.exports.Agency = Agency
+const request = require('supertest-as-promised')
+const uuid = require('node-uuid')
 
 function nextAgentNr () {
   return uuid.v4().substring(0, 8)
 }
 
-function Agency (app) {
+exports = module.exports = function Agency (server) {
   return {
-    anon: createFactory(app, {}),
-    guest: createFactory(app, { prefix: 'guest', signup: true, confirm: true }),
-    user: createFactory(app, { prefix: 'user', login: true, key: true, sync_enabled: true }),
-    admin: createFactory(app, { prefix: 'admin', login: true, key: true, admin: true, sync_enabled: true })
+    anon: createFactory(server, {}),
+    guest: createFactory(server, { prefix: 'guest', signup: true, confirm: true }),
+    user: createFactory(server, { prefix: 'user', login: true, key: true, sync_enabled: true }),
+    admin: createFactory(server, { prefix: 'admin', login: true, key: true, admin: true, sync_enabled: true })
   }
 }
 
-function createFactory (app, defaultOptions) {
+function createFactory (server, defaultOptions) {
   return function (options) {
-    app = app || ctx.http
     options = _.assign({}, defaultOptions, options)
 
     return new Promise(function (resolve) {
-      resolve(createAgent(app, options))
+      resolve(createAgent(server, options))
     }).then(function (agent) {
       if (options.signup || options.login) {
         return agent.signup()
@@ -67,10 +60,10 @@ function createFactory (app, defaultOptions) {
   }
 }
 
-function createAgent (app, options) {
+function createAgent (server, options) {
   options.prefix = options.prefix || 'agent'
   const agentNr = nextAgentNr()
-  const agent = request.agent(app)
+  const agent = request.agent(server)
   agent.options = options
   agent.email = `${options.prefix}-${agentNr}@example.com`
   agent.username = agent.email

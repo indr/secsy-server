@@ -3,11 +3,12 @@
 /* eslint-env mocha */
 
 const assert = require('chai').assert
-const agency = require('./agency')
+const context = require('../contexts').acceptance
 const emailParser = require('./../test-helpers/email')
+
 require('co-mocha')
 
-describe('Acceptance | Delete account', function () {
+context('Acceptance | Delete account', function () {
   let Config, user
 
   before(function * () {

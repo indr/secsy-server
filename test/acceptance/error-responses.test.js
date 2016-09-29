@@ -2,18 +2,17 @@
 
 /* eslint-env mocha */
 
-const chai = require('chai')
+const assert = require('chai').assert
+const context = require('../contexts').acceptance
 const supertest = require('supertest')
-const ctx = require('./bootstrap')
+
 require('co-mocha')
 
-const assert = chai.assert
-
-describe('Acceptance | Error responses', function () {
+context('Acceptance | Error responses', function () {
   let agent
 
   before(function * () {
-    agent = supertest(ctx.http)
+    agent = supertest(this.server)
   })
 
   it('should return html given accept text/html', function * () {

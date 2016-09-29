@@ -3,17 +3,15 @@
 /* eslint-env mocha */
 
 const assert = require('chai').assert
+const context = require('../../contexts').integration
 const uuid = require('node-uuid')
-const setup = require('./../setup')
+
 require('co-mocha')
 
-describe('Integration | Service | RateLimit', function () {
+context('Integration | Service | RateLimit', function () {
   let RateLimiter, sut
 
   before(function * () {
-    yield setup.loadProviders()
-    yield setup.start()
-
     RateLimiter = use('App/Services/RateLimiter')
     sut = use('App/Services/RateLimit')
   })

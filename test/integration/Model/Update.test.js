@@ -3,21 +3,19 @@
 /* eslint-env mocha */
 
 const assert = require('chai').assert
-const setup = require('./../setup')
+const context = require('../../contexts').integration
 const uuid = require('node-uuid')
 const validation = require('./../validation')
-require('co-mocha')
 
 const fails = validation.fails
 const succeeds = validation.succeeds
 
-describe('Integration | Model | Update', function () {
+require('co-mocha')
+
+context('Integration | Model | Update', function () {
   let Update
 
   before(function * () {
-    yield setup.loadProviders()
-    yield setup.start()
-
     Update = use('App/Model/Update')
   })
 

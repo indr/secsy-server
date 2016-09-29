@@ -2,10 +2,12 @@
 /* eslint-env mocha */
 
 const assert = require('chai').assert
+const context = require('../../contexts').integration
 const emailParser = require('./../../test-helpers/email')
-require('./../setup')
 
-describe('Integration | Service | SysMsgMailer', function () {
+require('co-mocha')
+
+context('Integration | Service | SysMsgMailer', function () {
   let Config, Env, User, user,
     sut
 

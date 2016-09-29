@@ -4,18 +4,16 @@
 
 const _ = require('lodash')
 const assert = require('chai').assert
-const setup = require('./../setup')
+const context = require('../../contexts').integration
 const sha = require('sha.js')
 const uuid = require('node-uuid')
+
 require('co-mocha')
 
-describe('Unit | Service | Validator', function () {
+context('Integration | Service | Validator', function () {
   let sut
 
   before(function * () {
-    yield setup.loadProviders()
-    yield setup.start()
-
     sut = make('App/Services/Validator')
   })
 

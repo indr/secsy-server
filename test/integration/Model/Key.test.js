@@ -5,21 +5,19 @@
 'use strict'
 
 const assert = require('chai').assert
-const setup = require('./../setup')
+const context = require('../../contexts').integration
 const uuid = require('node-uuid')
-require('co-mocha')
 const validation = require('./../validation')
 
 const fails = validation.fails
 const succeeds = validation.succeeds
 
-describe('Integration | Model | Key', function () {
+require('co-mocha')
+
+context('Integration | Model | Key', function () {
   let userId, Key
 
   before(function * () {
-    yield setup.loadProviders()
-    yield setup.start()
-
     Key = use('App/Model/Key')
     const User = use('App/Model/User')
     userId = (yield User.create({ email: uuid.v1() + '@exampel.com', password: 'Secret123$' })).id

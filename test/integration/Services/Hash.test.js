@@ -3,17 +3,15 @@
 /* eslint-env mocha */
 
 const assert = require('chai').assert
-const setup = require('./../setup')
+const context = require('../../contexts').integration
 const sha = require('sha.js')
+
 require('co-mocha')
 
-describe('Integration | Service | Hash', function () {
+context('Integration | Service | Hash', function () {
   let Env, sut, sha256
 
   before(function * () {
-    yield setup.loadProviders()
-    yield setup.start()
-
     Env = use('Env')
     sut = use('App/Services/Hash')
     sha256 = function (value) {

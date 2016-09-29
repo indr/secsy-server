@@ -4,10 +4,11 @@
 /* global dateTimeRegex */
 
 const assert = require('chai').assert
-const agency = require('./../agency')
+const context = require('../../contexts').acceptance
+
 require('co-mocha')
 
-describe('Acceptance | Controller | AuthController', function () {
+context('Acceptance | Controller | AuthController', function () {
   let user, admin
 
   before((done) => {

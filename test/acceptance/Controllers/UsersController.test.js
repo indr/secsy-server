@@ -3,11 +3,12 @@
 'use strict'
 
 const assert = require('chai').assert
-const agency = require('./../agency')
+const context = require('../../contexts').acceptance
 const uuid = require('node-uuid')
+
 require('co-mocha')
 
-describe('Acceptance | Controller | UsersController', function () {
+context('Acceptance | Controller | UsersController', function () {
   describe('#store | POST /api/users', function () {
     it('should return 201 and user with lower case email', function (done) {
       agency.anon().then((agent) => {
@@ -273,7 +274,6 @@ describe('Acceptance | Controller | UsersController', function () {
     })
 
     it('should return 400 with invalid password', function * () {
-      console.log('length', token.length)
       const res = yield agent.post(url)
         .send({ token: token })
         .expect(400)
