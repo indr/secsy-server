@@ -1,5 +1,7 @@
 'use strict'
 
+const moment = require('moment')
+
 const Env = use('Env')
 const Mail = use('Mail')
 
@@ -8,13 +10,22 @@ class SysMsgMailer {
   * sendUserLoggedIn (user) {
     SysMsgMailer.assertIsModel(user, 'User')
 
-    return yield this.send('Notification: User logged in', 'user-logged-in', user.toJSON())
+    const model = {
+      user: user.toJSON(),
+      date: moment()
+    }
+
+    return yield this.send('Notification: User logged in', 'user-logged-in', model)
   }
 
   * sendUserSignedUp (user) {
     SysMsgMailer.assertIsModel(user, 'User')
 
-    return yield this.send('Notification: User signed up', 'user-signed-up', user.toJSON())
+    const model = {
+      user: user.toJSON()
+    }
+
+    return yield this.send('Notification: User signed up', 'user-signed-up', model)
   }
 
   * sendAccountDeleted (user, message) {
