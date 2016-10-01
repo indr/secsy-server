@@ -14,4 +14,7 @@ npm test
 git push heroku
 heroku run ENV_SILENT=true node --harmony_proxies ace migration:run --force
 ```
-`
+
+## Copyright
+
+Copyright (c) 2016 Reto Inderbitzin
