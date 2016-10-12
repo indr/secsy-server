@@ -31,25 +31,23 @@ context('Acceptance | Controller | RootController', function () {
         .end(assertFrontPage('en', done))
     })
 
-    // TODO: Remove this call to describe(). Other tests will fail...
-    // describe('respects accept-language')
-    // const locales = {
-    //   'en': 'en',
-    //   'en-US': 'en',
-    //   'en-GB': 'en',
-    //   'de': 'de',
-    //   'de-DE': 'de',
-    //   'de-CH': 'de',
-    //   'de-CH,de,en-US,en;q=0.5': 'de'
-    // }
-    // Object.keys(locales).forEach((locale) => {
-    //   it(locale + ' -> ' + locales[ locale ], function (done) {
-    //     agent.get('/')
-    //       .set('accept-language', locale)
-    //       .expect(200)
-    //       .end(assertFrontPage(locales[ locale ], done))
-    //   })
-    // })
+    const locales = {
+      'en': 'en',
+      'en-US': 'en',
+      'en-GB': 'en',
+      'de': 'de',
+      'de-DE': 'de',
+      'de-CH': 'de',
+      'de-CH,de,en-US,en;q=0.5': 'de'
+    }
+    Object.keys(locales).forEach((locale) => {
+      it('respects accept-language ' + locale + ' -> ' + locales[ locale ], function (done) {
+        agent.get('/')
+          .set('accept-language', locale)
+          .expect(200)
+          .end(assertFrontPage(locales[ locale ], done))
+      })
+    })
   })
 
   describe('GET /:lang', function () {

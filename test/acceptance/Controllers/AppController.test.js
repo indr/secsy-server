@@ -19,7 +19,7 @@ context('Acceptance | Controller | AppController', function () {
     return function (err, res) {
       assert.isNull(err)
       assert.isAbove(res.text.indexOf('<base href="/app/" />'), 0)
-      assert.isAbove(res.text.indexOf('<meta name="addressbook/config/environment"'), 0)
+      assert.isAbove(res.text.indexOf('<meta name="secsy-webclient/config/environment"'), 0)
       done()
     }
   }
