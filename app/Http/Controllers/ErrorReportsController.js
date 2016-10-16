@@ -1,6 +1,6 @@
 'use strict'
 
-const RateLimit = use('App/Services/RateLimit')
+const RateLimiter = use('RateLimiter')
 const Redis = use('Redis')
 
 class ErrorReportsController {
@@ -19,8 +19,8 @@ class ErrorReportsController {
 
   * store (request, response) {
     const ipAddress = request.request.socket.remoteAddress
-    yield RateLimit.perform(ipAddress, 'error-report-min', 6, 60)
-    yield RateLimit.perform(ipAddress, 'error-report-hr', 30, 3600)
+    yield RateLimiter.perform(ipAddress, 'error-report-min', 6, 60)
+    yield RateLimiter.perform(ipAddress, 'error-report-hr', 30, 3600)
 
     const report = request.only('occuredAt', 'instanceOfError', 'errorName', 'errorMessage', 'errorStack', 'agent', 'language', 'source')
     report.createdAt = new Date()

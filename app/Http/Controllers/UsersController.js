@@ -4,15 +4,15 @@ const Env = use('Env')
 const User = use('App/Model/User')
 const UserService = make('App/Services/UserService')
 const Key = use('App/Model/Key')
-const RateLimit = use('App/Services/RateLimit')
+const RateLimiter = use('RateLimiter')
 const Validator = use('App/Services/Validator')
 
 class UsersController {
 
   * store (request, response) {
     const ipAddress = request.request.socket.remoteAddress
-    yield RateLimit.perform(ipAddress, 'signup-min', 6, 60)
-    yield RateLimit.perform(ipAddress, 'signup-hr', 30, 3600)
+    yield RateLimiter.perform(ipAddress, 'signup-min', 6, 60)
+    yield RateLimiter.perform(ipAddress, 'signup-hr', 30, 3600)
 
     const raw = request.only('email', 'password', 'locale', 'sync_enabled')
     const data = yield Validator.sanitize(raw, User.sanitations)
@@ -24,8 +24,8 @@ class UsersController {
 
   * resend (request, response) {
     const ipAddress = request.request.socket.remoteAddress
-    yield RateLimit.perform(ipAddress, 'resend-min', 6, 60)
-    yield RateLimit.perform(ipAddress, 'resend-hr', 30, 3600)
+    yield RateLimiter.perform(ipAddress, 'resend-min', 6, 60)
+    yield RateLimiter.perform(ipAddress, 'resend-hr', 30, 3600)
 
     const raw = request.only('email')
     const email = (yield Validator.sanitize(raw, User.sanitations)).email
@@ -36,8 +36,8 @@ class UsersController {
 
   * confirm (request, response) {
     const ipAddress = request.request.socket.remoteAddress
-    yield RateLimit.perform(ipAddress, 'confirm-min', 6, 60)
-    yield RateLimit.perform(ipAddress, 'confirm-hr', 30, 3600)
+    yield RateLimiter.perform(ipAddress, 'confirm-min', 6, 60)
+    yield RateLimiter.perform(ipAddress, 'confirm-hr', 30, 3600)
 
     const token = request.input('token')
 
@@ -47,8 +47,8 @@ class UsersController {
 
   * forgotPassword (request, response) {
     const ipAddress = request.request.socket.remoteAddress
-    yield RateLimit.perform(ipAddress, 'forgot-min', 6, 60)
-    yield RateLimit.perform(ipAddress, 'forgot-hr', 30, 3600)
+    yield RateLimiter.perform(ipAddress, 'forgot-min', 6, 60)
+    yield RateLimiter.perform(ipAddress, 'forgot-hr', 30, 3600)
 
     const raw = request.only('email')
     const email = (yield Validator.sanitize(raw, User.sanitations)).email
@@ -59,8 +59,8 @@ class UsersController {
 
   * resetPassword (request, response) {
     const ipAddress = request.request.socket.remoteAddress
-    yield RateLimit.perform(ipAddress, 'reset-min', 6, 60)
-    yield RateLimit.perform(ipAddress, 'reset-hr', 30, 3600)
+    yield RateLimiter.perform(ipAddress, 'reset-min', 6, 60)
+    yield RateLimiter.perform(ipAddress, 'reset-hr', 30, 3600)
 
     const data = request.only('token', 'password')
 

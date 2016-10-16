@@ -30,6 +30,7 @@ const providers = [
   'adonis-middleware/providers/AppMiddlewareProvider',
   'adonis-auth/providers/AuthManagerProvider',
   'adonis-validation-provider/providers/ValidatorProvider',
+  'adonis-rate-limiter/providers/RateLimiterProvider',
   'adonis-redis/providers/RedisFactoryProvider',
   'adonis-redis/providers/RedisProvider'
 ]
@@ -76,6 +77,7 @@ const aliases = {
   Lucid: 'Adonis/Src/Lucid',
   Mail: 'Adonis/Addons/Mail',
   Middleware: 'Adonis/Src/Middleware',
+  RateLimiter: 'Adonis/Addons/RateLimiter',
   Redis: 'Adonis/Addons/Redis',
   Route: 'Adonis/Src/Route',
   Schema: 'Adonis/Src/Schema',
